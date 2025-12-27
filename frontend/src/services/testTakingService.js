@@ -1,0 +1,27 @@
+import axios from 'axios';
+
+const API_BASE_URL = '/api/v1';
+
+const testTakingService = {
+  async getTestForStudent(testId) {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/tests/${testId}/take`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching test for student:', error);
+      throw error;
+    }
+  },
+
+  async submitTest(testId, responses) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/tests/${testId}/submit`, responses);
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting test:', error);
+      throw error;
+    }
+  }
+};
+
+export default testTakingService;

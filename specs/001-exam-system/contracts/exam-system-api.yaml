@@ -1,0 +1,209 @@
+# API Contract: Student Exam Management System
+
+## Overview
+This document defines the API contract for the student exam management system with student, teacher, and admin portals. The system uses JWT tokens for authentication with role-based access control.
+
+## Base Path
+`/api/v1`
+
+## Models
+
+### User
+```json
+{
+  "id": "string",
+  "username": "string",
+  "email": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "role": "STUDENT|TEACHER|ADMIN",
+  "createdAt": "datetime",
+  "updatedAt": "datetime",
+  "isActive": "boolean"
+}
+```
+
+### Question
+```json
+{
+  "id": "string",
+  "questionText": "string",
+  "questionType": "multiple_choice|true_false|short_answer|essay|single_choice",
+  "subjectId": "string",
+  "gradeId": "string",
+  "knowledgePoint": "string",
+  "standardExplanation": "string",
+  "createdBy": "string",
+  "createdAt": "datetime",
+  "updatedAt": "datetime",
+  "isActive": "boolean",
+  "answerOptions": [
+    {
+      "id": "string",
+      "optionText": "string",
+      "optionIndex": "integer",
+      "isCorrect": "boolean"
+    }
+  ]
+}
+```
+
+### Test
+```json
+{
+  "id": "string",
+  "title": "string",
+  "description": "string",
+  "questions": ["string"], // Array of question IDs
+  "assignedTo": ["string"], // Array of student IDs
+  "assignedBy": "string", // teacher ID
+  "timeLimitMinutes": "integer",
+  "dueDate": "datetime",
+  "createdAt": "datetime",
+  "updatedAt": "datetime",
+  "isActive": "boolean",
+  "isGraded": "boolean"
+}
+```
+
+### StudentResponse
+```json
+{
+  "id": "string",
+  "studentId": "string",
+  "testId": "string",
+  "questionId": "string",
+  "responseText": "string",
+  "selectedOptionIndex": "integer",
+  "responseTime": "datetime",
+  "isCorrect": "boolean",
+  "manualGrade": "boolean",
+  "teacherGrade": "integer",
+  "teacherComments": "string",
+  "submittedAt": "datetime"
+}
+```
+
+### ErrorBook
+```json
+{
+  "id": "string",
+  "studentId": "string",
+  "questionId": "string",
+  "errorCount": "integer",
+  "masteryCount": "integer",
+  "mastered": "boolean",
+  "firstIncorrectDate": "datetime",
+  "lastPracticeDate": "datetime",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+## Endpoints
+
+### Authentication
+- **Method**: `POST`
+- **Path**: `/auth/login`
+- **Description**: Authenticate user and return JWT token
+- **Request Body**: `{"username": "string", "password": "string"}`
+- **Response**: `{"success": boolean, "token": "string", "user": User}`
+- **Authentication**: Not required
+
+### Get Questions
+- **Method**: `GET`
+- **Path**: `/questions`
+- **Description**: Get questions with filtering by grade/subject/knowledge point
+- **Query Parameters**: `gradeId`, `subjectId`, `knowledgePoint`, `questionType`
+- **Response**: Array of Question objects
+- **Authentication**: Required (Teacher/Student/Admin)
+
+### Create Question
+- **Method**: `POST`
+- **Path**: `/questions`
+- **Description**: Create a new question
+- **Request Body**: Question object
+- **Response**: Created Question object
+- **Authentication**: Required (Teacher/Admin)
+- **Validation**:
+  - Must have valid grade, subject, and knowledge point
+  - Multiple choice questions must have answer options
+  - Only one correct answer for single choice questions
+
+### Create Test
+- **Method**: `POST`
+- **Path**: `/tests`
+- **Description**: Create a new test and assign to students
+- **Request Body**: Test object
+- **Response**: Created Test object
+- **Authentication**: Required (Teacher/Admin)
+- **Validation**:
+  - Teacher can only assign to their students
+  - Questions must exist and be active
+
+### Get Student Tests
+- **Method**: `GET`
+- **Path**: `/tests/student/{studentId}`
+- **Description**: Get tests assigned to a specific student
+- **Response**: Array of Test objects
+- **Authentication**: Required (Student, or Teacher/Admin for their students)
+
+### Submit Test
+- **Method**: `POST`
+- **Path**: `/tests/{testId}/submit`
+- **Description**: Submit answers for a test (allows multiple submissions, latest is final)
+- **Request Body**: Array of StudentResponse objects
+- **Response**: `{"success": boolean, "gradedResponses": [StudentResponse]}`
+- **Authentication**: Required (Student)
+- **Validation**:
+  - Student must be assigned to the test
+  - Test must be active and not past due date
+
+### Get Error Book
+- **Method**: `GET`
+- **Path**: `/error-book/{studentId}`
+- **Description**: Get student's error book
+- **Response**: Array of ErrorBook objects with question details
+- **Authentication**: Required (Student, or Teacher/Admin for their students)
+
+### Create Student (Admin)
+- **Method**: `POST`
+- **Path**: `/admin/students`
+- **Description**: Create a new student account
+- **Request Body**: Student object
+- **Response**: Created Student object
+- **Authentication**: Required (Admin)
+- **Validation**:
+  - Admin must have appropriate permissions
+  - Student must be assigned to a valid class
+
+### Transfer Student
+- **Method**: `POST`
+- **Path**: `/admin/students/{studentId}/transfer`
+- **Description**: Transfer student between classes while preserving data
+- **Request Body**: `{"newClassId": "string"}`
+- **Response**: `{"success": boolean, "message": "string"}`
+- **Authentication**: Required (Admin)
+- **Validation**:
+  - Student error books and history must be preserved
+  - New class must exist and have capacity
+
+## Error Responses
+All endpoints return error responses in the following format:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "string",
+    "message": "string"
+  }
+}
+```
+
+### Common Error Codes
+- `UNAUTHORIZED`: User doesn't have permission to access this resource
+- `NOT_FOUND`: Requested resource doesn't exist
+- `VALIDATION_ERROR`: Request data doesn't meet validation requirements
+- `FORBIDDEN`: User doesn't have access to this specific resource
+- `TIME_LIMIT_EXCEEDED`: Test time limit has been exceeded
+- `ALREADY_SUBMITTED`: Test has already been submitted (when configured to reject multiple submissions)

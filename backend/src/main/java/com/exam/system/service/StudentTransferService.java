@@ -1,0 +1,44 @@
+package com.exam.system.service;
+
+import com.exam.system.model.ClassEnrollment;
+import com.exam.system.repository.ClassEnrollmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class StudentTransferService {
+
+    @Autowired
+    private ClassEnrollmentRepository classEnrollmentRepository;
+
+    public boolean transferStudent(String studentId, String newClassId) {
+        // Find the current enrollment
+        ClassEnrollment currentEnrollment = classEnrollmentRepository
+            .findByStudentIdAndStatus(studentId, com.exam.system.model.ClassEnrollment.Status.ACTIVE);
+            
+        if (currentEnrollment != null) {
+            // Update the current enrollment to TRANSFERRED status
+            currentEnrollment.setStatus(com.exam.system.model.ClassEnrollment.Status.TRANSFERRED);
+            currentEnrollment.setTransferDate(LocalDateTime.now());
+            currentEnrollment.setPreviousClassId(currentEnrollment.getClassId());
+            classEnrollmentRepository.updateById(currentEnrollment);
+            
+            // Create a new enrollment for the new class
+            ClassEnrollment newEnrollment = new ClassEnrollment();
+            newEnrollment.setId(UUID.randomUUID().toString());
+            newEnrollment.setStudentId(studentId);
+            newEnrollment.setClassId(newClassId);
+            newEnrollment.setStatus(com.exam.system.model.ClassEnrollment.Status.ACTIVE);
+            
+            classEnrollmentRepository.insert(newEnrollment);
+            
+            return true;
+        }
+        
+        return false;
+    }
+}

@@ -1,0 +1,119 @@
+# Java/Spring Boot
+target/
+*.class
+*.jar
+*.war
+*.ear
+!*.jar
+!*.war
+!*.ear
+.gradle/
+build/
+.gradle
+.settings/
+.project
+.vscode/
+.idea/
+*.iws
+*.iml
+*.ipr
+nb-configuration.xml
+nbactions.xml
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+
+# Maven
+*.jar
+*.war
+*.ear
+!*.jar
+!*.war
+!*.ear
+bin/
+tmp/
+*.tar.gz
+*.zip
+
+# Spring Boot
+!src/main/resources/static/**
+!src/main/resources/public/**
+!src/main/resources/templates/**
+!src/main/resources/application*.properties
+!src/main/resources/application*.yml
+!src/main/resources/application*.yaml
+
+# Node.js/Vue
+node_modules/
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+dist/
+dist-ssr/
+*.local
+
+# Vue specific
+node_modules/
+dist/
+dist-ssr/
+public/
+coverage/
+.nuxt
+.nyc_output
+*.tsbuildinfo
+.eslintcache
+
+# Environment variables
+.env*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+junit.xml
+*.log
+
+# Database
+*.db
+*.db-journal
+
+# Elasticsearch
+elasticsearch/
+elastic/
+
+# Redis
+redis/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Log files
+logs
+*.log
+
+# Temporary folders
+tmp/
+temp/
+.tmptags
+*~
+\#
+\#*\#
+\#*\
+*\
+\~*
