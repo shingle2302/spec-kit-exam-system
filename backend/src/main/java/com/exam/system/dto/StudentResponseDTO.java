@@ -3,10 +3,10 @@ package com.exam.system.dto;
 import java.time.LocalDateTime;
 
 public class StudentResponseDTO {
-    private String id;
-    private String studentId;
-    private String testId;
-    private String questionId;
+    private Long id;
+    private Long studentId;
+    private Long testId;
+    private Long questionId;
     private String responseText;
     private Integer selectedOptionIndex;
     private LocalDateTime responseTime;
@@ -15,58 +15,41 @@ public class StudentResponseDTO {
     private Integer teacherGrade;
     private String teacherComments;
     private LocalDateTime submittedAt;
+    private LocalDateTime gradedAt;
 
     // Constructors
     public StudentResponseDTO() {}
 
-    public StudentResponseDTO(String id, String studentId, String testId, String questionId, 
-                              String responseText, Integer selectedOptionIndex, LocalDateTime responseTime, 
-                              Boolean isCorrect, Boolean manualGrade, Integer teacherGrade, 
-                              String teacherComments, LocalDateTime submittedAt) {
-        this.id = id;
-        this.studentId = studentId;
-        this.testId = testId;
-        this.questionId = questionId;
-        this.responseText = responseText;
-        this.selectedOptionIndex = selectedOptionIndex;
-        this.responseTime = responseTime;
-        this.isCorrect = isCorrect;
-        this.manualGrade = manualGrade;
-        this.teacherGrade = teacherGrade;
-        this.teacherComments = teacherComments;
-        this.submittedAt = submittedAt;
-    }
-
     // Getters and Setters
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 
-    public String getTestId() {
+    public Long getTestId() {
         return testId;
     }
 
-    public void setTestId(String testId) {
+    public void setTestId(Long testId) {
         this.testId = testId;
     }
 
-    public String getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(String questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 
@@ -132,5 +115,13 @@ public class StudentResponseDTO {
 
     public void setSubmittedAt(LocalDateTime submittedAt) {
         this.submittedAt = submittedAt;
+    }
+
+    public LocalDateTime getGradedAt() {
+        return gradedAt;
+    }
+
+    public void setGradedAt(LocalDateTime gradedAt) {
+        this.gradedAt = gradedAt;
     }
 }

@@ -1,22 +1,19 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
 @TableName("class_enrollments")
-public class ClassEnrollment {
+public class ClassEnrollment extends BaseModel {
     
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @TableField("student_id")
-    private String studentId;
+    private Long studentId;
     
     @TableField("class_id")
-    private String classId;
+    private Long classId;
     
     @TableField("enrollment_date")
     private LocalDateTime enrollmentDate;
@@ -25,7 +22,7 @@ public class ClassEnrollment {
     private LocalDateTime transferDate;
     
     @TableField("previous_class_id")
-    private String previousClassId;
+    private Long previousClassId;
     
     @TableField("status")
     private Status status;
@@ -39,28 +36,21 @@ public class ClassEnrollment {
         this.status = Status.ACTIVE;
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 
-    public String getClassId() {
+    public Long getClassId() {
         return classId;
     }
 
-    public void setClassId(String classId) {
+    public void setClassId(Long classId) {
         this.classId = classId;
     }
 
@@ -80,11 +70,11 @@ public class ClassEnrollment {
         this.transferDate = transferDate;
     }
 
-    public String getPreviousClassId() {
+    public Long getPreviousClassId() {
         return previousClassId;
     }
 
-    public void setPreviousClassId(String previousClassId) {
+    public void setPreviousClassId(Long previousClassId) {
         this.previousClassId = previousClassId;
     }
 

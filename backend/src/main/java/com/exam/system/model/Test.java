@@ -1,23 +1,18 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Document(indexName = "tests")
 @TableName("tests")
-public class Test {
+public class Test extends BaseModel {
     
-    @Id
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @Field(type = FieldType.Text, name = "title")
     @TableField("title")
@@ -27,56 +22,35 @@ public class Test {
     @TableField("description")
     private String description;
     
-    @Field(type = FieldType.Text, name = "questions")
-    @TableField("questions") // Assuming this is stored as JSON string
-    private List<String> questions;
+    @Field(type = FieldType.Keyword, name = "grade_id")
+    @TableField("grade_id")
+    private Long gradeId;
     
-    @Field(type = FieldType.Text, name = "assigned_to")
-    @TableField("assigned_to") // Assuming this is stored as JSON string
-    private List<String> assignedTo;
-    
-    @Field(type = FieldType.Keyword, name = "assigned_by")
-    @TableField("assigned_by")
-    private String assignedBy;
+    @Field(type = FieldType.Keyword, name = "subject_id")
+    @TableField("subject_id")
+    private Long subjectId;
     
     @Field(type = FieldType.Integer, name = "time_limit_minutes")
     @TableField("time_limit_minutes")
     private Integer timeLimitMinutes;
     
-    @Field(type = FieldType.Date, name = "due_date")
-    @TableField("due_date")
-    private LocalDateTime dueDate;
-    
-    @Field(type = FieldType.Date, name = "created_at")
-    @TableField("created_at")
-    private LocalDateTime createdAt;
-    
-    @Field(type = FieldType.Date, name = "updated_at")
-    @TableField("updated_at")
-    private LocalDateTime updatedAt;
-    
     @Field(type = FieldType.Boolean, name = "is_active")
     @TableField("is_active")
-    private Boolean isActive;
+    private Boolean isActive = true;
     
-    @Field(type = FieldType.Boolean, name = "is_graded")
-    @TableField("is_graded")
-    private Boolean isGraded;
+    @Field(type = FieldType.Boolean, name = "is_published")
+    @TableField("is_published")
+    private Boolean isPublished = false;
+    
+    @Field(type = FieldType.Date, name = "publish_date")
+    @TableField("publish_date")
+    private LocalDateTime publishDate;
 
     public Test() {
-        this.createdAt = LocalDateTime.now();
-        this.isActive = true;
-        this.isGraded = false;
+        // Default constructor
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;
@@ -94,28 +68,20 @@ public class Test {
         this.description = description;
     }
 
-    public List<String> getQuestions() {
-        return questions;
+    public Long getGradeId() {
+        return gradeId;
     }
 
-    public void setQuestions(List<String> questions) {
-        this.questions = questions;
+    public void setGradeId(Long gradeId) {
+        this.gradeId = gradeId;
     }
 
-    public List<String> getAssignedTo() {
-        return assignedTo;
+    public Long getSubjectId() {
+        return subjectId;
     }
 
-    public void setAssignedTo(List<String> assignedTo) {
-        this.assignedTo = assignedTo;
-    }
-
-    public String getAssignedBy() {
-        return assignedBy;
-    }
-
-    public void setAssignedBy(String assignedBy) {
-        this.assignedBy = assignedBy;
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
     }
 
     public Integer getTimeLimitMinutes() {
@@ -126,30 +92,6 @@ public class Test {
         this.timeLimitMinutes = timeLimitMinutes;
     }
 
-    public LocalDateTime getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public Boolean getIsActive() {
         return isActive;
     }
@@ -158,11 +100,19 @@ public class Test {
         this.isActive = isActive;
     }
 
-    public Boolean getIsGraded() {
-        return isGraded;
+    public Boolean getIsPublished() {
+        return isPublished;
     }
 
-    public void setIsGraded(Boolean isGraded) {
-        this.isGraded = isGraded;
+    public void setIsPublished(Boolean isPublished) {
+        this.isPublished = isPublished;
+    }
+
+    public LocalDateTime getPublishDate() {
+        return publishDate;
+    }
+
+    public void setPublishDate(LocalDateTime publishDate) {
+        this.publishDate = publishDate;
     }
 }

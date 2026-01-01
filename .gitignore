@@ -24,6 +24,7 @@ Thumbs.db
 *.log
 *.tmp
 *.swp
+*.ser
 
 # Maven
 *.jar
@@ -53,6 +54,8 @@ yarn-error.log*
 dist/
 dist-ssr/
 *.local
+.vite/
+.output/
 
 # Vue specific
 node_modules/
@@ -96,6 +99,8 @@ elastic/
 
 # Redis
 redis/
+*.rdb
+*.aof
 
 # Runtime data
 pids

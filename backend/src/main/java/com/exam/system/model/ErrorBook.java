@@ -1,22 +1,19 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
 @TableName("error_books")
-public class ErrorBook {
+public class ErrorBook extends BaseModel {
     
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @TableField("student_id")
-    private String studentId;
+    private Long studentId;
     
     @TableField("question_id")
-    private String questionId;
+    private Long questionId;
     
     @TableField("error_count")
     private Integer errorCount;
@@ -24,8 +21,8 @@ public class ErrorBook {
     @TableField("mastery_count")
     private Integer masteryCount;
     
-    @TableField("mastered")
-    private Boolean mastered;
+    @TableField("is_mastered")
+    private Boolean isMastered;
     
     @TableField("first_incorrect_date")
     private LocalDateTime firstIncorrectDate;
@@ -33,41 +30,30 @@ public class ErrorBook {
     @TableField("last_practice_date")
     private LocalDateTime lastPracticeDate;
     
-    @TableField("created_at")
-    private LocalDateTime createdAt;
-    
-    @TableField("updated_at")
-    private LocalDateTime updatedAt;
+    @TableField("mastery_achieved_at")
+    private LocalDateTime masteryAchievedAt;
 
     public ErrorBook() {
         this.errorCount = 0;
         this.masteryCount = 0;
-        this.mastered = false;
-        this.createdAt = LocalDateTime.now();
+        this.isMastered = false;
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 
-    public String getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(String questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 
@@ -87,12 +73,12 @@ public class ErrorBook {
         this.masteryCount = masteryCount;
     }
 
-    public Boolean getMastered() {
-        return mastered;
+    public Boolean getIsMastered() {
+        return isMastered;
     }
 
-    public void setMastered(Boolean mastered) {
-        this.mastered = mastered;
+    public void setIsMastered(Boolean isMastered) {
+        this.isMastered = isMastered;
     }
 
     public LocalDateTime getFirstIncorrectDate() {
@@ -111,19 +97,11 @@ public class ErrorBook {
         this.lastPracticeDate = lastPracticeDate;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getMasteryAchievedAt() {
+        return masteryAchievedAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setMasteryAchievedAt(LocalDateTime masteryAchievedAt) {
+        this.masteryAchievedAt = masteryAchievedAt;
     }
 }

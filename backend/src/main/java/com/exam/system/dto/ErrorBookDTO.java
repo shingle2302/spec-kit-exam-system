@@ -3,57 +3,41 @@ package com.exam.system.dto;
 import java.time.LocalDateTime;
 
 public class ErrorBookDTO {
-    private String id;
-    private String studentId;
-    private String questionId;
+    private Long id;
+    private Long studentId;
+    private Long questionId;
     private Integer errorCount;
     private Integer masteryCount;
-    private Boolean mastered;
+    private Boolean isMastered;
     private LocalDateTime firstIncorrectDate;
     private LocalDateTime lastPracticeDate;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime masteryAchievedAt;
 
     // Constructors
     public ErrorBookDTO() {}
 
-    public ErrorBookDTO(String id, String studentId, String questionId, Integer errorCount, 
-                        Integer masteryCount, Boolean mastered, LocalDateTime firstIncorrectDate, 
-                        LocalDateTime lastPracticeDate, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.studentId = studentId;
-        this.questionId = questionId;
-        this.errorCount = errorCount;
-        this.masteryCount = masteryCount;
-        this.mastered = mastered;
-        this.firstIncorrectDate = firstIncorrectDate;
-        this.lastPracticeDate = lastPracticeDate;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
     // Getters and Setters
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 
-    public String getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(String questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 
@@ -73,12 +57,12 @@ public class ErrorBookDTO {
         this.masteryCount = masteryCount;
     }
 
-    public Boolean getMastered() {
-        return mastered;
+    public Boolean getIsMastered() {
+        return isMastered;
     }
 
-    public void setMastered(Boolean mastered) {
-        this.mastered = mastered;
+    public void setIsMastered(Boolean isMastered) {
+        this.isMastered = isMastered;
     }
 
     public LocalDateTime getFirstIncorrectDate() {
@@ -97,19 +81,11 @@ public class ErrorBookDTO {
         this.lastPracticeDate = lastPracticeDate;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getMasteryAchievedAt() {
+        return masteryAchievedAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setMasteryAchievedAt(LocalDateTime masteryAchievedAt) {
+        this.masteryAchievedAt = masteryAchievedAt;
     }
 }

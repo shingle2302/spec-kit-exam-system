@@ -1,15 +1,12 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 @TableName("administrators")
-public class Administrator {
+public class Administrator extends BaseModel {
     
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @TableField("admin_level")
     private AdminLevel adminLevel;
@@ -21,14 +18,7 @@ public class Administrator {
         SYSTEM, SCHOOL, DEPARTMENT
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public AdminLevel getAdminLevel() {
         return adminLevel;

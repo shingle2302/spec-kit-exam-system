@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserElasticsearchRepository extends ElasticsearchRepository<User, String> {
+public interface UserElasticsearchRepository extends ElasticsearchRepository<User, Long> {
     List<User> findByUsernameContainingOrEmailContainingOrFirstNameContainingOrLastNameContaining(
         String username, String email, String firstName, String lastName);
     List<User> findByRole(String role);

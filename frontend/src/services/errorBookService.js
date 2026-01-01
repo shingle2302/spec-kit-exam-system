@@ -1,29 +1,32 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-const errorBookService = {
-  async getErrorBookForStudent(studentId) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/error-book/${studentId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching error book:', error);
-      throw error;
-    }
+export const errorBookService = {
+  // Get error book for a student
+  async getErrorBook(studentId, page = 1, size = 10) {
+    const response = await axios.get(`${API_BASE_URL}/v1/error-book/${studentId}`, {
+      params: { page, size }
+    });
+    return response.data;
   },
 
-  async practiceQuestion(studentId, questionId, response) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/error-book/${studentId}/practice`, {
-        questionId,
-        response
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error practicing question:', error);
-      throw error;
-    }
+  // Get error book questions for practice
+  async getErrorBookQuestions(studentId) {
+    const response = await axios.get(`${API_BASE_URL}/v1/error-book/${studentId}/practice`);
+    return response.data;
+  },
+
+  // Submit practice answer
+  async submitPracticeAnswer(answerData) {
+    const response = await axios.post(`${API_BASE_URL}/v1/error-book/practice`, answerData);
+    return response.data;
+  },
+
+  // Get mastery statistics for a student
+  async getMasteryStats(studentId) {
+    const response = await axios.get(`${API_BASE_URL}/v1/error-book/${studentId}/stats`);
+    return response.data;
   }
 };
 

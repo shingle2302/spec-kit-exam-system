@@ -9,6 +9,12 @@
 
 ### Session 2025-12-26
 
+- Q: What testing coverage requirements should be implemented for front-end, back-end and integration tests? → A: Front-end, back-end, and integration tests must each individually achieve 100% coverage as measured by standard coverage tools (e.g., Istanbul for front-end, JaCoCo for back-end)
+- Q: Should the system include a built-in administrator account? → A: System must include a default administrator account with predefined credentials (username: admin, password: change-me) that is available immediately after installation
+- Q: What built-in test data should the system include? → A: System must include sample data for all entity types (5 sample subjects, 3 grades, 10 questions per grade, 2 sample teachers, 5 sample students, and 2 sample tests) for immediate demonstration and testing
+- Q: Should the system support Chinese/English language switching? → A: System must support real-time switching between Chinese and English interfaces with user preference persistence, covering all UI elements, labels, messages, and content
+- Q: Should code include Chinese comments? → A: All source code must include Chinese comments explaining functionality, with Chinese as the primary comment language
+- Q: Should documentation be available in Chinese? → A: Documentation should be bilingual (Chinese and English)
 - Q: What authentication and security requirements should be implemented for user access? → A: Require secure authentication for all user types (student, teacher, admin) with role-based access control
 - Q: What performance targets should the system meet? → A: System should respond within 1 second for 99% of requests (high performance requirement)
 - Q: What question types should the system support? → A: Support multiple question types (multiple choice, true/false, short answer, essay)
@@ -19,6 +25,18 @@
 - Q: How should the system handle multiple test submissions by the same student? → A: System should allow multiple submissions with the latest one being the final submission
 - Q: How should the system handle updates to standard explanations after grading? → A: Re-grade all previously graded tests when standard explanations are updated
 - Q: What is the relationship between classes and grades in the system? → A: A class belongs to a single grade, and a grade can have multiple classes
+- Q: What kind of external API should the system support? → A: Support REST API with JSON responses for external integrations
+- Q: How should the system handle service failures or network errors? → A: Configurable retry logic with exponential backoff
+- Q: What access controls should apply to test visibility for students? → A: Students can only access tests assigned to them
+- Q: How should sensitive student data be stored? → A: Store in database with encryption
+- Q: Should the system send notifications to users about system events? → A: Email notifications for new assignments and grade updates
+- Q: What platform approach should the UI support? → A: Desktop-only web application
+- Q: What design framework should guide the UI development? → A: Bootstrap-based interface with default styling
+- Q: What navigation approach should be used for simple operation? → A: Simple form-based navigation
+- Q: How should UI themes be handled for different user roles? → A: Three distinct themes for admin, teacher, and student roles
+- Q: What accessibility standards should the UI follow? → A: WCAG 2.1 AA compliance
+- Q: What data type should be used for entity primary keys? → A: All entity primary keys must use Long (64-bit integer) data type for better performance, range, and consistency across the system
+- Q: How should creation and update tracking be implemented for entities? → A: Entity creation/updated user and time fields must use MyBatisPlus's automatic fill feature, retrieving user from login context or defaulting to 'admin' when no context exists
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -148,6 +166,11 @@ Teachers can add students to their class beyond the initial administrative assig
 - How does the system handle simultaneous grading of the same test by multiple teachers?
 - What happens when a student transfers classes while having an active test assignment?
 - How does the system handle duplicate questions in an error book if a student makes the same mistake multiple times?
+- How does the system handle service failures or network errors with external services?
+- What happens when a student tries to access tests not assigned to them?
+- How does the system handle notification failures?
+- How does the system handle accessibility requirements for users with disabilities?
+- What happens when a user has different theme preferences across sessions?
 
 ## Requirements *(mandatory)*
 
@@ -169,18 +192,38 @@ Teachers can add students to their class beyond the initial administrative assig
 - **FR-014**: System MUST provide search and filtering capabilities for questions by grade, subject, and knowledge point
 - **FR-015**: System MUST implement secure authentication for all user types (student, teacher, admin) with role-based access control
 - **FR-016**: System MUST perform data backups weekly with 3-year retention for student records
+- **FR-017**: System MUST provide REST API with JSON responses for external integrations
+- **FR-018**: System MUST implement configurable retry logic with exponential backoff for service failures
+- **FR-019**: System MUST restrict student access to only assigned tests
+- **FR-020**: System MUST store sensitive student data in database with encryption
+- **FR-021**: System MUST send email notifications for new assignments and grade updates
+- **FR-022**: System MUST provide desktop-only web application interface
+- **FR-023**: System MUST implement UI following Bootstrap design framework with default styling
+- **FR-024**: System MUST provide simple form-based navigation for ease of operation
+- **FR-025**: System MUST implement three distinct themes for admin, teacher, and student roles
+- **FR-026**: System MUST comply with WCAG 2.1 AA accessibility standards
+- **FR-027**: System MUST achieve 100% test coverage for front-end, back-end, and integration tests individually as measured by standard coverage tools
+- **FR-028**: System MUST include a default administrator account with predefined credentials (username: admin, password: change-me) available immediately after installation
+- **FR-029**: System MUST include sample data for all entity types (5 sample subjects, 3 grades, 10 questions per grade, 2 sample teachers, 5 sample students, and 2 sample tests) for immediate demonstration and testing
+- **FR-030**: System MUST support real-time switching between Chinese and English interfaces with user preference persistence, covering all UI elements, labels, messages, and content
+- **FR-031**: All source code MUST include Chinese comments explaining functionality, with Chinese as the primary comment language
+- **FR-032**: All generated documentation MUST be available in both Chinese and English
+- **FR-033**: All entity primary keys MUST use Long (64-bit integer) data type for better performance, range, and consistency across the system
+- **FR-034**: Entity creation/updated user and time fields MUST use MyBatisPlus's automatic fill feature, retrieving user from login context or defaulting to 'admin' when no context exists
 
 ### Key Entities *(include if feature involves data)*
 
-- **Question**: Represents an exam question with grade level, subject, knowledge point, content, standard explanation, and type (multiple choice, true/false, short answer, essay)
-- **Test**: Collection of questions assigned to specific students with assignment details, status, and configurable time limits set by teachers
-- **Student**: User account with personal information, class enrollment, test history, and error book
-- **Teacher**: User account with personal information and assigned students/classes
-- **Administrator**: User account with system-wide management permissions
-- **ErrorBook**: Collection of questions a student answered incorrectly, with practice history and mastery status
-- **Subject**: Academic subject classification (e.g., Mathematics, Science, English)
-- **Grade**: Educational grade level (e.g., Grade 1, Grade 2, etc.)
-- **Class**: Grouping of students under a teacher for instruction and assessment
+- **Question**: Represents an exam question with grade level, subject, knowledge point, content, standard explanation, and type (multiple choice, true/false, short answer, essay); uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **Test**: Collection of questions assigned to specific students with assignment details, status, and configurable time limits set by teachers; uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **Student**: User account with personal information, class enrollment, test history, and error book; uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **Teacher**: User account with personal information and assigned students/classes; uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **Administrator**: User account with system-wide management permissions; uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **ErrorBook**: Collection of questions a student answered incorrectly, with practice history and mastery status; uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **Subject**: Academic subject classification (e.g., Mathematics, Science, English); uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **Grade**: Educational grade level (e.g., Grade 1, Grade 2, etc.); uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **Class**: Grouping of students under a teacher for instruction and assessment; uses Long primary key with automatic creation/update tracking via MyBatisPlus fill
+- **API Endpoint**: REST API endpoints providing JSON responses for external integrations with appropriate authentication
+- **UI Theme**: Distinct visual styling for admin, teacher, and student interfaces with role-specific layouts and controls
 
 ## Success Criteria *(mandatory)*
 

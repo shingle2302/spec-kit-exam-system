@@ -1,19 +1,16 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
 @TableName("answer_options")
-public class AnswerOption {
+public class AnswerOption extends BaseModel {
     
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @TableField("question_id")
-    private String questionId;
+    private Long questionId;
     
     @TableField("option_text")
     private String optionText;
@@ -31,20 +28,13 @@ public class AnswerOption {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
-    public String getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(String questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 

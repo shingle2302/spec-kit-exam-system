@@ -104,9 +104,14 @@ public class UserService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
+        // Check if password hash is null and provide a default or throw an exception
+        String passwordHash = user.getPasswordHash();
+        if (passwordHash == null || passwordHash.isEmpty()) {
+            throw new UsernameNotFoundException("User found but has no password: " + username);
+        }
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
-                .password(user.getPasswordHash())
+                .password(passwordHash)
                 .authorities("ROLE_" + user.getRole().name())
                 .build();
     }

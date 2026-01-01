@@ -5,7 +5,7 @@ import com.exam.system.model.User;
 import java.time.LocalDateTime;
 
 public class UserDTO {
-    private String id;
+    private Long id;
     private String username;
     private String email;
     private String firstName;
@@ -18,7 +18,7 @@ public class UserDTO {
     // Constructors
     public UserDTO() {}
 
-    public UserDTO(String id, String username, String email, String firstName, String lastName, 
+    public UserDTO(Long id, String username, String email, String firstName, String lastName, 
                    User.Role role, LocalDateTime createdAt, LocalDateTime updatedAt, Boolean isActive) {
         this.id = id;
         this.username = username;
@@ -32,11 +32,11 @@ public class UserDTO {
     }
 
     // Getters and Setters
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

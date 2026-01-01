@@ -3,7 +3,10 @@ package com.exam.system.controller;
 import com.exam.system.dto.StudentResponseDTO;
 import com.exam.system.model.Question;
 import com.exam.system.model.Test;
+import com.exam.system.model.TestAssignment;
 import com.exam.system.repository.QuestionRepository;
+import com.exam.system.repository.TestAssignmentRepository;
+import com.exam.system.repository.TestQuestionRepository;
 import com.exam.system.service.QuestionService;
 import com.exam.system.service.TestTakingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,17 +31,30 @@ public class TestTakingController {
     
     @Autowired
     private QuestionRepository questionRepository;
+    
+    @Autowired
+    private TestAssignmentRepository testAssignmentRepository;
+    
+    @Autowired
+    private TestQuestionRepository testQuestionRepository;
 
     @GetMapping("/{testId}/take")
-    public ResponseEntity<?> getTestForStudent(@PathVariable String testId, @RequestParam String studentId) {
-        // Verify that the test exists and is assigned to the student
+    public ResponseEntity<?> getTestForStudent(@PathVariable Long testId, @RequestParam Long studentId) {
+        // Verify that the test exists
         Test test = testTakingService.getTestDetails(testId);
-        if (test == null || !test.getAssignedTo().contains(studentId)) {
+        if (test == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // Get the questions for this test
-        List<Question> questions = test.getQuestions().stream()
+        // Check if the test is assigned to the student via TestAssignment
+        TestAssignment testAssignment = testAssignmentRepository.findByTestIdAndStudentId(testId, studentId);
+        if (testAssignment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Get the questions for this test via TestQuestion relationship
+        List<Long> questionIds = testQuestionRepository.getQuestionIdsByTestId(testId);
+        List<Question> questions = questionIds.stream()
             .map(questionId -> {
                 // Need to get the question entity by ID
                 // We'll use the repository directly since the service returns DTOs
@@ -57,8 +73,8 @@ public class TestTakingController {
     }
 
     @PostMapping("/{testId}/submit")
-    public ResponseEntity<?> submitTest(@PathVariable String testId, 
-                                       @RequestParam String studentId,
+    public ResponseEntity<?> submitTest(@PathVariable Long testId, 
+                                       @RequestParam Long studentId,
                                        @RequestBody List<StudentResponseDTO> responses) {
         try {
             List<StudentResponseDTO> savedResponses = testTakingService.submitTest(testId, studentId, responses);

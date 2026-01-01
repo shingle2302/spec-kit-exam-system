@@ -18,8 +18,8 @@ public class QuestionController {
 
     @GetMapping
     public ResponseEntity<?> getQuestions(
-            @RequestParam(required = false) String gradeId,
-            @RequestParam(required = false) String subjectId,
+            @RequestParam(required = false) Long gradeId,
+            @RequestParam(required = false) Long subjectId,
             @RequestParam(required = false) String knowledgePoint,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -42,7 +42,7 @@ public class QuestionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<QuestionDTO> updateQuestion(@PathVariable String id, @RequestBody QuestionDTO questionDTO) {
+    public ResponseEntity<QuestionDTO> updateQuestion(@PathVariable Long id, @RequestBody QuestionDTO questionDTO) {
         QuestionDTO updatedQuestion = questionService.updateQuestion(id, questionDTO);
         if (updatedQuestion != null) {
             return ResponseEntity.ok(updatedQuestion);
@@ -52,7 +52,7 @@ public class QuestionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteQuestion(@PathVariable String id) {
+    public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
         boolean deleted = questionService.deleteQuestion(id);
         if (deleted) {
             return ResponseEntity.ok().build();

@@ -1,56 +1,46 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-const questionService = {
-  async getQuestions(params = {}) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/questions`, { params });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching questions:', error);
-      throw error;
-    }
+export const questionService = {
+  // Get questions with optional filters
+  async getQuestions(filters = {}, page = 1, size = 10) {
+    const response = await axios.get(`${API_BASE_URL}/v1/questions`, {
+      params: { ...filters, page, size }
+    });
+    return response.data;
   },
 
+  // Get question by ID
+  async getQuestionById(questionId) {
+    const response = await axios.get(`${API_BASE_URL}/v1/questions/${questionId}`);
+    return response.data;
+  },
+
+  // Create a new question
   async createQuestion(questionData) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/questions`, questionData);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating question:', error);
-      throw error;
-    }
+    const response = await axios.post(`${API_BASE_URL}/v1/questions`, questionData);
+    return response.data;
   },
 
-  async updateQuestion(id, questionData) {
-    try {
-      const response = await axios.put(`${API_BASE_URL}/questions/${id}`, questionData);
-      return response.data;
-    } catch (error) {
-      console.error('Error updating question:', error);
-      throw error;
-    }
+  // Update an existing question
+  async updateQuestion(questionId, questionData) {
+    const response = await axios.put(`${API_BASE_URL}/v1/questions/${questionId}`, questionData);
+    return response.data;
   },
 
-  async deleteQuestion(id) {
-    try {
-      const response = await axios.delete(`${API_BASE_URL}/questions/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting question:', error);
-      throw error;
-    }
+  // Delete a question
+  async deleteQuestion(questionId) {
+    const response = await axios.delete(`${API_BASE_URL}/v1/questions/${questionId}`);
+    return response.data;
   },
 
-  async getQuestionById(id) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/questions/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching question:', error);
-      throw error;
-    }
+  // Search questions
+  async searchQuestions(query, page = 1, size = 10) {
+    const response = await axios.get(`${API_BASE_URL}/v1/questions/search`, {
+      params: { query, page, size }
+    });
+    return response.data;
   }
 };
 

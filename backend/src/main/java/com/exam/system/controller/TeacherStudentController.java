@@ -1,5 +1,6 @@
 package com.exam.system.controller;
 
+import com.exam.system.model.Student;
 import com.exam.system.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +16,15 @@ public class TeacherStudentController {
     private TeacherService teacherService;
 
     @GetMapping("/students")
-    public ResponseEntity<List<String>> getMyStudents(@RequestParam String teacherId) {
-        List<String> students = teacherService.getMyStudents(teacherId);
+    public ResponseEntity<List<Student>> getMyStudents(@RequestParam Long teacherId) {
+        List<Student> students = teacherService.getMyStudents(teacherId);
         return ResponseEntity.ok(students);
     }
 
     @PostMapping("/students/add")
-    public ResponseEntity<?> addStudentToClass(@RequestParam String teacherId, 
-                                              @RequestParam String studentId, 
-                                              @RequestParam String classId) {
+    public ResponseEntity<?> addStudentToClass(@RequestParam Long teacherId, 
+                                              @RequestParam Long studentId, 
+                                              @RequestParam Long classId) {
         boolean success = teacherService.addStudentToClass(teacherId, studentId, classId);
         if (success) {
             return ResponseEntity.ok().build();

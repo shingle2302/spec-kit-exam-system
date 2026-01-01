@@ -1,17 +1,14 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @TableName("teachers")
-public class Teacher {
+public class Teacher extends BaseModel {
     
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @TableField("employee_id")
     private String employeeId;
@@ -20,26 +17,19 @@ public class Teacher {
     private String department;
     
     @TableField("hire_date")
-    private LocalDateTime hireDate;
+    private java.time.LocalDate hireDate;
     
     @TableField("qualifications") // Assuming this is stored as JSON string
     private List<String> qualifications;
     
-    @TableField(exist = false) // Not stored in the database, used for runtime reference
-    private User user;
+    @TableField("user_id")
+    private Long userId; // Reference to the user account
 
     public Teacher() {
-        this.hireDate = LocalDateTime.now();
+        // Default constructor
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getEmployeeId() {
         return employeeId;
@@ -57,11 +47,11 @@ public class Teacher {
         this.department = department;
     }
 
-    public LocalDateTime getHireDate() {
+    public java.time.LocalDate getHireDate() {
         return hireDate;
     }
 
-    public void setHireDate(LocalDateTime hireDate) {
+    public void setHireDate(java.time.LocalDate hireDate) {
         this.hireDate = hireDate;
     }
 
@@ -73,11 +63,11 @@ public class Teacher {
         this.qualifications = qualifications;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface QuestionElasticsearchRepository extends ElasticsearchRepository<Question, String> {
+public interface QuestionElasticsearchRepository extends ElasticsearchRepository<Question, Long> {
     List<Question> findByQuestionTextContainingOrStandardExplanationContaining(String questionText, String standardExplanation);
-    List<Question> findByGradeId(String gradeId);
-    List<Question> findBySubjectId(String subjectId);
+    List<Question> findByGradeId(Long gradeId);
+    List<Question> findBySubjectId(Long subjectId);
     List<Question> findByKnowledgePoint(String knowledgePoint);
 }

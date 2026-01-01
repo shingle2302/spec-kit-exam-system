@@ -3,32 +3,25 @@ package com.exam.system.dto;
 import java.time.LocalDateTime;
 
 public class StudentDTO {
-    private String id;
+    private Long id;
     private String studentId;
-    private String gradeLevel;
-    private String classId;
-    private LocalDateTime enrollmentDate;
-    private String parentId;
+    private Long gradeId;
+    private Long classId;
+    private Long parentId;
+    private Long userId;
+    private String firstName;
+    private String lastName;
+    private String email;
 
     // Constructors
     public StudentDTO() {}
 
-    public StudentDTO(String id, String studentId, String gradeLevel, String classId, 
-                      LocalDateTime enrollmentDate, String parentId) {
-        this.id = id;
-        this.studentId = studentId;
-        this.gradeLevel = gradeLevel;
-        this.classId = classId;
-        this.enrollmentDate = enrollmentDate;
-        this.parentId = parentId;
-    }
-
     // Getters and Setters
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -40,35 +33,59 @@ public class StudentDTO {
         this.studentId = studentId;
     }
 
-    public String getGradeLevel() {
-        return gradeLevel;
+    public Long getGradeId() {
+        return gradeId;
     }
 
-    public void setGradeLevel(String gradeLevel) {
-        this.gradeLevel = gradeLevel;
+    public void setGradeId(Long gradeId) {
+        this.gradeId = gradeId;
     }
 
-    public String getClassId() {
+    public Long getClassId() {
         return classId;
     }
 
-    public void setClassId(String classId) {
+    public void setClassId(Long classId) {
         this.classId = classId;
     }
 
-    public LocalDateTime getEnrollmentDate() {
-        return enrollmentDate;
-    }
-
-    public void setEnrollmentDate(LocalDateTime enrollmentDate) {
-        this.enrollmentDate = enrollmentDate;
-    }
-
-    public String getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(String parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

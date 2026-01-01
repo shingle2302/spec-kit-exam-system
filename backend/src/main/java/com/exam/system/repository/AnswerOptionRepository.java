@@ -11,5 +11,5 @@ import java.util.List;
 @Mapper
 public interface AnswerOptionRepository extends BaseMapper<AnswerOption> {
     @Select("SELECT * FROM answer_options WHERE question_id = #{questionId}")
-    List<AnswerOption> findByQuestionId(@Param("questionId") String questionId);
+    List<AnswerOption> findByQuestionId(@Param("questionId") Long questionId);
 }

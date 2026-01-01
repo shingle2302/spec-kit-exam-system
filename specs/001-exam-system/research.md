@@ -1,41 +1,68 @@
-# Research: Student Exam Management System
+# Research Summary: Student Exam Management System
 
-## Decision: JWT Authentication with Role-Based Access Control
-**Rationale**: Using JWT tokens provides stateless authentication that works well with the distributed nature of web applications. The token can contain role information, eliminating the need to query the database for permissions on each request. This aligns with the constitutional requirement for secure authentication with role-based access control.
+## Technical Decisions
 
+### Backend Framework Choice
+**Decision**: Use Spring Boot with Java 17
+**Rationale**: Aligns with constitution requirements, provides robust enterprise features needed for exam management system, excellent security capabilities for handling sensitive student data, and strong integration capabilities for the required technologies (PostgreSQL, Redis, Elasticsearch).
+**Alternatives considered**: 
+- Node.js/Express: Less suitable for complex business logic and security requirements
+- Python/Django: Good but constitution specifically requires Spring Boot
+
+### ORM and Database Strategy
+**Decision**: MyBatisPlus with dual database configuration (PostgreSQL for production, H2 for development)
+**Rationale**: Constitution requirement for MyBatisPlus, provides flexible SQL control needed for complex queries in exam systems, automatic audit field filling capabilities for creation/update tracking, Long primary key support.
 **Alternatives considered**:
-- Session-based authentication (would require server-side storage and management)
-- OAuth2 with external providers (would add complexity and external dependencies)
-- Basic authentication with API keys (would be less secure and not support role-based access)
+- JPA/Hibernate: More complex than needed, less control over SQL generation
 
-## Decision: Mastery Criteria Implementation
-**Rationale**: Requiring students to answer the same question correctly 3 times in a row ensures true understanding rather than guessing. This approach provides a measurable and objective way to determine when a student has mastered a concept.
-
+### Frontend Framework Choice
+**Decision**: Vue3 with TypeScript and Ant Design Vue
+**Rationale**: Constitution requirement, component-based architecture ideal for complex UI needed for exam management, good internationalization support for Chinese/English switching, TypeScript provides type safety for complex application logic.
 **Alternatives considered**:
-- Single correct answer (would not ensure mastery)
-- 5 correct answers (would make mastery too difficult to achieve)
-- Percentage-based mastery across similar questions (would be more complex to implement)
+- React: Popular but constitution specifies Vue3
+- Angular: More complex than needed
 
-## Decision: Test Submission Handling
-**Rationale**: Allowing multiple submissions with the latest one being the final submission provides flexibility for students while maintaining fairness. This prevents issues where students might submit incomplete tests and then be locked out.
-
+### Database Strategy
+**Decision**: Dual database configuration (PostgreSQL for production, H2 for development) with Redis caching and Elasticsearch for search
+**Rationale**: Constitution requirement for dual database support, PostgreSQL provides enterprise features needed for student data management, Redis caching essential for performance with 1000 concurrent users requirement, Elasticsearch needed for complex question search functionality.
 **Alternatives considered**:
-- Rejecting additional submissions (would be too strict and potentially unfair)
-- Keeping only the first submission (would not allow for corrections)
-- Flagging multiple submissions for teacher review (would create additional work for teachers)
+- MongoDB: Less suitable for structured student/grade data relationships
 
-## Decision: Standard Explanation Updates
-**Rationale**: Re-grading all previously graded tests when standard explanations are updated ensures consistency and accuracy in grading. This maintains the integrity of the assessment system even when question criteria change.
-
+### Authentication and Authorization
+**Decision**: JWT tokens with role-based access control (RBAC)
+**Rationale**: Meets security requirements for different user types (student, teacher, admin), stateless authentication suitable for web application, supports the three distinct user roles required.
 **Alternatives considered**:
-- Keeping original grading (would result in inconsistent grading if explanations changed significantly)
-- Only applying to future tests (would maintain inconsistencies in historical data)
-- Flagging for manual review (would create excessive manual work)
+- Session-based authentication: Less scalable
+- OAuth: More complex than needed
 
-## Decision: Class-Grade Relationship
-**Rationale**: A class belonging to a single grade with multiple classes per grade provides a clear hierarchical structure that matches educational institutions' organizational patterns. This allows for proper grouping of students by their academic level.
-
+### Testing Strategy
+**Decision**: Comprehensive testing with 100% coverage requirement for unit, integration, and E2E tests
+**Rationale**: Requirement explicitly stated in feature specification, exceeds constitution minimum of 80%, essential for system handling sensitive student data and critical exam processes.
 **Alternatives considered**:
-- Classes spanning multiple grades (would complicate the educational structure)
-- One class per grade (would be too restrictive for schools with multiple sections)
-- Independent entities (would not reflect the actual relationship between grades and classes)
+- Lower coverage: Would not meet specified requirements
+
+### Internationalization (i18n)
+**Decision**: Real-time Chinese/English switching with user preference persistence
+**Rationale**: Explicit requirement in feature specification, Vue3 and Spring Boot both have good i18n support, needed for Chinese/English language switching requirement.
+**Alternatives considered**:
+- Fixed language: Would not meet requirements
+
+### Code Documentation
+**Decision**: Chinese as primary comment language with bilingual documentation
+**Rationale**: Explicit requirement in feature specification, ensures code maintainability for Chinese-speaking developers.
+**Alternatives considered**:
+- English-only: Would not meet requirements
+
+### Primary Key Strategy
+**Decision**: Use Long (64-bit integer) for all entity primary keys
+**Rationale**: Requirement explicitly stated in feature specification, provides better performance, range, and consistency across the system compared to other options.
+**Alternatives considered**:
+- String/UUID: Would consume more storage and potentially impact performance
+- Integer (32-bit): Limited range that may not be sufficient for large datasets
+
+### Audit Field Management
+**Decision**: Use MyBatisPlus automatic fill feature for creation/update tracking
+**Rationale**: Requirement explicitly stated in feature specification, ensures consistent audit trails across all entities, automatically retrieves user from login context or defaults to 'admin' when no context exists.
+**Alternatives considered**:
+- Manual setting in each service method: Error-prone and inconsistent
+- Database triggers: Less flexible and harder to maintain

@@ -1,8 +1,6 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -12,11 +10,9 @@ import java.time.LocalDateTime;
 
 @Document(indexName = "questions")
 @TableName("questions")
-public class Question {
+public class Question extends BaseModel {
     
-    @Id
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @Field(type = FieldType.Text, name = "question_text")
     @TableField("question_text")
@@ -28,11 +24,11 @@ public class Question {
     
     @Field(type = FieldType.Keyword, name = "subject_id")
     @TableField("subject_id")
-    private String subjectId;
+    private Long subjectId;
     
     @Field(type = FieldType.Keyword, name = "grade_id")
     @TableField("grade_id")
-    private String gradeId;
+    private Long gradeId;
     
     @Field(type = FieldType.Text, name = "knowledge_point")
     @TableField("knowledge_point")
@@ -67,14 +63,7 @@ public class Question {
         this.isActive = true;
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getQuestionText() {
         return questionText;
@@ -92,19 +81,19 @@ public class Question {
         this.questionType = questionType;
     }
 
-    public String getSubjectId() {
+    public Long getSubjectId() {
         return subjectId;
     }
 
-    public void setSubjectId(String subjectId) {
+    public void setSubjectId(Long subjectId) {
         this.subjectId = subjectId;
     }
 
-    public String getGradeId() {
+    public Long getGradeId() {
         return gradeId;
     }
 
-    public void setGradeId(String gradeId) {
+    public void setGradeId(Long gradeId) {
         this.gradeId = gradeId;
     }
 

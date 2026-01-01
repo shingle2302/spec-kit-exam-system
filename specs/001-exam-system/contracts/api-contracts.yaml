@@ -1,0 +1,455 @@
+# API Contracts: Student Exam Management System
+
+## Authentication APIs
+
+### POST /api/auth/login
+**Description**: Authenticate user and return JWT token
+**Request**:
+```json
+{
+  "username": "string",
+  "password": "string"
+}
+```
+**Response** (200):
+```json
+{
+  "token": "string",
+  "user": {
+    "id": "long",
+    "username": "string",
+    "email": "string",
+    "role": "STUDENT|TEACHER|ADMIN",
+    "languagePreference": "zh-CN|en-US"
+  }
+}
+```
+
+### POST /api/auth/logout
+**Description**: Logout user and invalidate token
+**Headers**: Authorization: Bearer {token}
+**Response** (200): `{ "message": "Successfully logged out" }`
+
+### POST /api/auth/refresh
+**Description**: Refresh JWT token
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "token": "string"
+}
+```
+
+## User Management APIs
+
+### GET /api/users/profile
+**Description**: Get current user profile
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "id": "long",
+  "username": "string",
+  "email": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "role": "STUDENT|TEACHER|ADMIN",
+  "languagePreference": "zh-CN|en-US",
+  "isActive": "boolean",
+  "createTime": "datetime",
+  "updateTime": "datetime"
+}
+```
+
+### PUT /api/users/profile
+**Description**: Update user profile
+**Headers**: Authorization: Bearer {token}
+**Request**:
+```json
+{
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string",
+  "languagePreference": "zh-CN|en-US"
+}
+```
+**Response** (200): Updated user profile
+
+### GET /api/users/me
+**Description**: Get current user details with role-specific data
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "id": "long",
+  "username": "string",
+  "role": "STUDENT|TEACHER|ADMIN",
+  "additionalData": {
+    // For STUDENT: { studentId, gradeId, classId }
+    // For TEACHER: { employeeId, department }
+    // For ADMIN: { adminLevel }
+  }
+}
+```
+
+## Student APIs
+
+### GET /api/students/{id}
+**Description**: Get student details
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "id": "long",
+  "studentId": "string",
+  "userId": "long",
+  "gradeId": "long",
+  "classId": "long",
+  "parentId": "long",
+  "isActive": "boolean",
+  "createTime": "datetime",
+  "updateTime": "datetime"
+}
+```
+
+### GET /api/students/my-assignments
+**Description**: Get current student's assigned tests
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "assignments": [
+    {
+      "id": "long",
+      "testId": "long",
+      "title": "string",
+      "description": "string",
+      "assignedAt": "datetime",
+      "dueDate": "datetime",
+      "status": "ASSIGNED|IN_PROGRESS|SUBMITTED|GRADED"
+    }
+  ]
+}
+```
+
+## Teacher APIs
+
+### POST /api/questions
+**Description**: Create a new question
+**Headers**: Authorization: Bearer {token}
+**Request**:
+```json
+{
+  "content": "string",
+  "questionType": "MULTIPLE_CHOICE|TRUE_FALSE|SHORT_ANSWER|ESSAY|SINGLE_CHOICE",
+  "gradeId": "long",
+  "subjectId": "long",
+  "knowledgePoint": "string",
+  "standardExplanation": "string",
+  "difficultyLevel": "EASY|MEDIUM|HARD",
+  "options": {
+    "A": "string",
+    "B": "string",
+    "C": "string",
+    "D": "string"
+  },
+  "correctAnswer": "string"
+}
+```
+**Response** (201):
+```json
+{
+  "id": "long",
+  "content": "string",
+  "questionType": "string",
+  "gradeId": "long",
+  "subjectId": "long",
+  "knowledgePoint": "string",
+  "standardExplanation": "string",
+  "difficultyLevel": "string",
+  "options": {},
+  "correctAnswer": "string",
+  "creator": "string",
+  "createTime": "datetime",
+  "updater": "string",
+  "updateTime": "datetime"
+}
+```
+
+### GET /api/questions
+**Description**: Search questions by criteria
+**Headers**: Authorization: Bearer {token}
+**Query Parameters**: gradeId, subjectId, knowledgePoint, questionType, difficultyLevel
+**Response** (200):
+```json
+{
+  "questions": [
+    {
+      "id": "long",
+      "content": "string",
+      "questionType": "string",
+      "gradeId": "long",
+      "subjectId": "long",
+      "knowledgePoint": "string",
+      "standardExplanation": "string",
+      "difficultyLevel": "string",
+      "options": {},
+      "correctAnswer": "string"
+    }
+  ]
+}
+```
+
+### POST /api/tests
+**Description**: Create a new test
+**Headers**: Authorization: Bearer {token}
+**Request**:
+```json
+{
+  "title": "string",
+  "description": "string",
+  "gradeId": "long",
+  "subjectId": "long",
+  "timeLimitMinutes": "integer",
+  "testQuestions": [
+    {
+      "questionId": "long",
+      "points": "integer"
+    }
+  ],
+  "assignedTo": ["long"]  // student IDs
+}
+```
+**Response** (201): Created test object
+
+### PUT /api/tests/{id}/publish
+**Description**: Publish a test to make it available to students
+**Headers**: Authorization: Bearer {token}
+**Response** (200): Updated test object
+
+## Test APIs
+
+### GET /api/tests/{id}
+**Description**: Get test details
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "id": "long",
+  "title": "string",
+  "description": "string",
+  "gradeId": "long",
+  "subjectId": "long",
+  "timeLimitMinutes": "integer",
+  "testQuestions": [
+    {
+      "id": "long",
+      "question": {
+        "id": "long",
+        "content": "string",
+        "questionType": "string",
+        "options": {},
+        "points": "integer"
+      }
+    }
+  ]
+}
+```
+
+### POST /api/tests/{id}/submit
+**Description**: Submit answers for a test
+**Headers**: Authorization: Bearer {token}
+**Request**:
+```json
+{
+  "answers": {
+    "questionId1": "student answer",
+    "questionId2": "student answer"
+  }
+}
+```
+**Response** (201): Submission result
+
+## Error Book APIs
+
+### GET /api/error-books/my
+**Description**: Get current student's error book
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "errorBookEntries": [
+    {
+      "id": "long",
+      "questionId": "long",
+      "questionContent": "string",
+      "questionType": "string",
+      "errorCount": "integer",
+      "masteryCount": "integer",
+      "isMastered": "boolean",
+      "masteryAchievedAt": "datetime"
+    }
+  ]
+}
+```
+
+### POST /api/error-books/{id}/practice
+**Description**: Practice a question in error book
+**Headers**: Authorization: Bearer {token}
+**Request**:
+```json
+{
+  "answer": "string"
+}
+```
+**Response** (200):
+```json
+{
+  "isCorrect": "boolean",
+  "isMastered": "boolean",
+  "masteryCount": "integer"
+}
+```
+
+## Administrative APIs
+
+### POST /api/admin/users
+**Description**: Create a new user (student, teacher, or admin)
+**Headers**: Authorization: Bearer {token}
+**Request**:
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "role": "STUDENT|TEACHER|ADMIN",
+  "languagePreference": "zh-CN|en-US",
+  "additionalData": {
+    // For STUDENT: { studentId, gradeId, classId }
+    // For TEACHER: { employeeId, department }
+    // For ADMIN: { adminLevel }
+  }
+}
+```
+**Response** (201): Created user object
+
+### GET /api/admin/classes
+**Description**: Get all classes
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "classes": [
+    {
+      "id": "long",
+      "name": "string",
+      "gradeId": "long",
+      "teacherId": "long",
+      "maxStudents": "integer",
+      "currentStudents": "integer",
+      "isActive": "boolean"
+    }
+  ]
+}
+```
+
+### POST /api/admin/classes
+**Description**: Create a new class
+**Headers**: Authorization: Bearer {token}
+**Request**:
+```json
+{
+  "name": "string",
+  "gradeId": "long",
+  "teacherId": "long",
+  "maxStudents": "integer"
+}
+```
+**Response** (201): Created class object
+
+## Notification APIs
+
+### GET /api/notifications
+**Description**: Get current user's notifications
+**Headers**: Authorization: Bearer {token}
+**Query Parameters**: isRead (optional)
+**Response** (200):
+```json
+{
+  "notifications": [
+    {
+      "id": "long",
+      "type": "ASSIGNMENT|GRADE_UPDATE|SYSTEM_MESSAGE",
+      "title": "string",
+      "content": "string",
+      "isRead": "boolean",
+      "sentAt": "datetime",
+      "readAt": "datetime"
+    }
+  ]
+}
+```
+
+### PUT /api/notifications/{id}/read
+**Description**: Mark notification as read
+**Headers**: Authorization: Bearer {token}
+**Response** (200): Updated notification
+
+## System Configuration APIs
+
+### GET /api/config
+**Description**: Get system configuration values
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "config": {
+    "key": "value"
+  }
+}
+```
+
+### GET /api/config/language
+**Description**: Get language settings for current user
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "currentLanguage": "zh-CN|en-US",
+  "availableLanguages": ["zh-CN", "en-US"]
+}
+```
+
+### PUT /api/config/language
+**Description**: Update language preference for current user
+**Headers**: Authorization: Bearer {token}
+**Request**:
+```json
+{
+  "language": "zh-CN|en-US"
+}
+```
+**Response** (200): Success message
+
+## Entity Audit APIs
+
+### GET /api/entities/{entityType}/{id}/audit
+**Description**: Get audit trail for a specific entity
+**Headers**: Authorization: Bearer {token}
+**Response** (200):
+```json
+{
+  "auditTrail": [
+    {
+      "action": "CREATE|UPDATE|DELETE",
+      "actor": "string",
+      "timestamp": "datetime",
+      "changes": {
+        "field": {"old": "oldValue", "new": "newValue"}
+      }
+    }
+  ]
+}
+```

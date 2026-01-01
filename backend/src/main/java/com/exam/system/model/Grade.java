@@ -1,16 +1,13 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
 @TableName("grades")
-public class Grade {
+public class Grade extends BaseModel {
     
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @TableField("name")
     private String name;
@@ -30,21 +27,18 @@ public class Grade {
     @TableField("created_at")
     private LocalDateTime createdAt;
     
+    @TableField("is_active")
+    private Boolean isActive;
+    
     @TableField("updated_at")
     private LocalDateTime updatedAt;
 
     public Grade() {
+        this.isActive = true;
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -92,6 +86,14 @@ public class Grade {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
     public LocalDateTime getUpdatedAt() {

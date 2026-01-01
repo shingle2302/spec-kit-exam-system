@@ -1,0 +1,290 @@
+-- 用户表
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(255) NOT NULL UNIQUE,
+  email VARCHAR(255),
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(255),
+  last_name VARCHAR(255),
+  role VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT TRUE,
+  deleted BOOLEAN DEFAULT FALSE,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 学生表
+CREATE TABLE IF NOT EXISTS students (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  student_id VARCHAR(255) NOT NULL UNIQUE,
+  grade_id BIGINT,
+  class_id BIGINT,
+  parent_id BIGINT,
+  user_id BIGINT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 教师表
+CREATE TABLE IF NOT EXISTS teachers (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  teacher_id VARCHAR(255) NOT NULL UNIQUE,
+  department VARCHAR(255),
+  user_id BIGINT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 管理员表
+CREATE TABLE IF NOT EXISTS administrators (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  admin_level VARCHAR(20) DEFAULT 'SCHOOL',
+  user_id BIGINT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 科目表
+CREATE TABLE IF NOT EXISTS subjects (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE
+);
+
+-- 年级表
+CREATE TABLE IF NOT EXISTS grades (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE
+);
+
+-- 班级表
+CREATE TABLE IF NOT EXISTS classes (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  grade_id BIGINT,
+  teacher_id BIGINT,
+  subject_id BIGINT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (grade_id) REFERENCES grades(id),
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id),
+  FOREIGN KEY (subject_id) REFERENCES subjects(id)
+);
+
+-- 班级注册表
+CREATE TABLE IF NOT EXISTS class_enrollments (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  class_id BIGINT NOT NULL,
+  student_id BIGINT NOT NULL,
+  enrollment_date DATE DEFAULT CURRENT_DATE,
+  status VARCHAR(20) DEFAULT 'ACTIVE',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (class_id) REFERENCES classes(id),
+  FOREIGN KEY (student_id) REFERENCES students(id),
+  UNIQUE (class_id, student_id)
+);
+
+-- 题目表
+CREATE TABLE IF NOT EXISTS questions (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  question_text TEXT NOT NULL,
+  question_type VARCHAR(50) NOT NULL,
+  subject_id BIGINT,
+  grade_id BIGINT,
+  knowledge_point VARCHAR(255),
+  standard_explanation TEXT,
+  difficulty_level INT DEFAULT 1,
+  created_by BIGINT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT TRUE,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (subject_id) REFERENCES subjects(id),
+  FOREIGN KEY (grade_id) REFERENCES grades(id),
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- 答案选项表
+CREATE TABLE IF NOT EXISTS answer_options (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  question_id BIGINT NOT NULL,
+  option_text TEXT NOT NULL,
+  is_correct BOOLEAN DEFAULT FALSE,
+  option_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (question_id) REFERENCES questions(id)
+);
+
+-- 测试表
+CREATE TABLE IF NOT EXISTS tests (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  grade_id BIGINT,
+  subject_id BIGINT,
+  time_limit_minutes INT DEFAULT 60,
+  is_active BOOLEAN DEFAULT TRUE,
+  is_published BOOLEAN DEFAULT FALSE,
+  publish_date TIMESTAMP,
+  created_by BIGINT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (grade_id) REFERENCES grades(id),
+  FOREIGN KEY (subject_id) REFERENCES subjects(id),
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- 测试题目关联表
+CREATE TABLE IF NOT EXISTS test_questions (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  test_id BIGINT NOT NULL,
+  question_id BIGINT NOT NULL,
+  question_order INT DEFAULT 0,
+  points INT DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (test_id) REFERENCES tests(id),
+  FOREIGN KEY (question_id) REFERENCES questions(id),
+  UNIQUE (test_id, question_id)
+);
+
+-- 测试分配表
+CREATE TABLE IF NOT EXISTS test_assignments (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  test_id BIGINT NOT NULL,
+  student_id BIGINT NOT NULL,
+  assigned_by BIGINT,
+  assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  due_date TIMESTAMP,
+  status VARCHAR(20) DEFAULT 'ASSIGNED',
+  completed_at TIMESTAMP NULL,
+  submitted_at TIMESTAMP NULL,
+  graded_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (test_id) REFERENCES tests(id),
+  FOREIGN KEY (student_id) REFERENCES students(id),
+  FOREIGN KEY (assigned_by) REFERENCES users(id)
+);
+
+-- 学生答题表
+CREATE TABLE IF NOT EXISTS student_responses (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  student_id BIGINT NOT NULL,
+  test_id BIGINT NOT NULL,
+  question_id BIGINT NOT NULL,
+  response_text TEXT,
+  selected_option_index INT,
+  response_time INT,
+  is_correct BOOLEAN,
+  manual_grade INT,
+  teacher_grade INT,
+  teacher_comments TEXT,
+  submitted_at TIMESTAMP,
+  graded_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (student_id) REFERENCES students(id),
+  FOREIGN KEY (test_id) REFERENCES tests(id),
+  FOREIGN KEY (question_id) REFERENCES questions(id)
+);
+
+-- 错题本表
+CREATE TABLE IF NOT EXISTS error_books (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  student_id BIGINT NOT NULL,
+  question_id BIGINT NOT NULL,
+  is_mastered BOOLEAN DEFAULT FALSE,
+  correct_in_a_row INT DEFAULT 0,
+  total_attempts INT DEFAULT 0,
+  last_attempted_at TIMESTAMP,
+  first_incorrect_at TIMESTAMP,
+  mastered_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  creator VARCHAR(255),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updater VARCHAR(255),
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (student_id) REFERENCES students(id),
+  FOREIGN KEY (question_id) REFERENCES questions(id),
+  UNIQUE (student_id, question_id)
+);

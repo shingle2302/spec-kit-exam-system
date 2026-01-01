@@ -1,49 +1,36 @@
 package com.exam.system.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class TestDTO {
-    private String id;
+    
+    private Long id;
+    
     private String title;
+    
     private String description;
-    private List<String> questions;
-    private List<String> assignedTo;
-    private String assignedBy;
+    
+    private Long gradeId;
+    
+    private Long subjectId;
+    
     private Integer timeLimitMinutes;
-    private LocalDateTime dueDate;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    
     private Boolean isActive;
-    private Boolean isGraded;
+    
+    private Boolean isPublished;
+    
+    private LocalDateTime publishDate;
 
     // Constructors
     public TestDTO() {}
 
-    public TestDTO(String id, String title, String description, List<String> questions, 
-                   List<String> assignedTo, String assignedBy, Integer timeLimitMinutes, 
-                   LocalDateTime dueDate, LocalDateTime createdAt, LocalDateTime updatedAt, 
-                   Boolean isActive, Boolean isGraded) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.questions = questions;
-        this.assignedTo = assignedTo;
-        this.assignedBy = assignedBy;
-        this.timeLimitMinutes = timeLimitMinutes;
-        this.dueDate = dueDate;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.isActive = isActive;
-        this.isGraded = isGraded;
-    }
-
     // Getters and Setters
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -63,28 +50,20 @@ public class TestDTO {
         this.description = description;
     }
 
-    public List<String> getQuestions() {
-        return questions;
+    public Long getGradeId() {
+        return gradeId;
     }
 
-    public void setQuestions(List<String> questions) {
-        this.questions = questions;
+    public void setGradeId(Long gradeId) {
+        this.gradeId = gradeId;
     }
 
-    public List<String> getAssignedTo() {
-        return assignedTo;
+    public Long getSubjectId() {
+        return subjectId;
     }
 
-    public void setAssignedTo(List<String> assignedTo) {
-        this.assignedTo = assignedTo;
-    }
-
-    public String getAssignedBy() {
-        return assignedBy;
-    }
-
-    public void setAssignedBy(String assignedBy) {
-        this.assignedBy = assignedBy;
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
     }
 
     public Integer getTimeLimitMinutes() {
@@ -95,30 +74,6 @@ public class TestDTO {
         this.timeLimitMinutes = timeLimitMinutes;
     }
 
-    public LocalDateTime getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public Boolean getIsActive() {
         return isActive;
     }
@@ -127,11 +82,19 @@ public class TestDTO {
         this.isActive = isActive;
     }
 
-    public Boolean getIsGraded() {
-        return isGraded;
+    public Boolean getIsPublished() {
+        return isPublished;
     }
 
-    public void setIsGraded(Boolean isGraded) {
-        this.isGraded = isGraded;
+    public void setIsPublished(Boolean isPublished) {
+        this.isPublished = isPublished;
+    }
+
+    public LocalDateTime getPublishDate() {
+        return publishDate;
+    }
+
+    public void setPublishDate(LocalDateTime publishDate) {
+        this.publishDate = publishDate;
     }
 }

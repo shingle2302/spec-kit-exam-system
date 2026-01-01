@@ -11,10 +11,10 @@ import java.util.List;
 @Mapper
 public interface ClassRepository extends BaseMapper<Class> {
     @Select("SELECT * FROM classes WHERE grade_id = #{gradeId}")
-    List<Class> findByGradeId(@Param("gradeId") String gradeId);
+    List<Class> findByGradeId(@Param("gradeId") Long gradeId);
     
     @Select("SELECT * FROM classes WHERE teacher_id = #{teacherId}")
-    List<Class> findByTeacherId(@Param("teacherId") String teacherId);
+    List<Class> findByTeacherId(@Param("teacherId") Long teacherId);
     
     @Select("SELECT * FROM classes WHERE name = #{name}")
     Class findByName(@Param("name") String name);

@@ -7,45 +7,52 @@
 
 ## Summary
 
-Implementation of a comprehensive student exam management system with student, teacher, and admin portals. The system will allow teachers to create questions by grade/subject/knowledge point, create and assign tests to students, and grade tests manually or automatically. Students can take assigned tests and access personalized error books for improvement. The system includes administrative functions for managing subjects, grades, teachers, and students, with support for student transfers while preserving error book data. Implementation follows the architectural standards with Vue3/Ant Design Vue for frontend and Spring Boot/MyBatisPlus for backend, using JWT authentication with role-based access control. The system implements mastery criteria requiring students to answer questions correctly 3 times in a row to achieve mastery in error books.
+[Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
 
-**Language/Version**: Java (for Spring Boot backend), TypeScript (for Vue3 frontend)  
-**Primary Dependencies**: Spring Boot, Vue3, Ant Design Vue, MyBatisPlus, PostgreSQL, H2, Elasticsearch, Redis  
-**Storage**: PostgreSQL (production), H2 (development), with Elasticsearch for search and Redis for caching  
-**Testing**: JUnit for backend, Vitest/Jest for frontend, Cypress for E2E tests  
-**Target Platform**: Web application (browser-based)  
+**Language/Version**: Java 17 (backend Spring Boot), TypeScript 5.x/Vue3 (frontend)  
+**Primary Dependencies**: Spring Boot 3.x, Vue 3, Ant Design Vue, MyBatisPlus, PostgreSQL, Redis, Elasticsearch  
+**Storage**: PostgreSQL (production), H2 (development), with Redis for caching and Elasticsearch for search  
+**Testing**: JUnit 5 for backend, Vitest/Jest for frontend, Cypress for E2E tests with 100% coverage requirement for all test types  
+**Target Platform**: Web application (desktop-focused) with responsive design supporting Chinese/English switching  
 **Project Type**: Web application (frontend + backend)  
-**Performance Goals**: API endpoints under 500ms, UI interactions under 100ms, page load times under 3 seconds  
-**Constraints**: Must support role-based access control (student, teacher, admin), configurable test time limits, multiple question types (multiple choice, true/false, short answer, essay), JWT authentication  
-**Scale/Scope**: Support for 1000 concurrent users during peak exam periods, student error books with data integrity during transfers, mastery criteria requiring 3 correct answers in a row
+**Performance Goals**: System must respond within 1 second for 99% of requests, support 1000 concurrent users during peak exam periods  
+**Constraints**: Must comply with WCAG 2.1 AA accessibility standards, support Chinese/English language switching, include Chinese comments in all source code, use Long for all entity primary keys with MyBatisPlus automatic fill for audit fields  
+**Scale/Scope**: Support student, teacher, and admin user roles with role-based access control, handle exam management workflows for multiple grades and subjects
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-### Compliance Status
-- **Code Quality Standards**: PASS - Will adhere to established style guides and pass static analysis checks
-- **Testing Standards**: PASS - Will implement unit, integration, and end-to-end tests with 80% coverage
-- **User Experience Consistency**: PASS - Will follow Vue3 and Ant Design Vue patterns for consistency
-- **Performance Requirements**: PASS - Will meet API and UI response time requirements (under 500ms/100ms)
-- **Architecture and Technology Standards**: PASS - Will use Vue3, Ant Design Vue, Spring Boot, MyBatisPlus as required
+### Technology Stack Compliance
+- ✅ **Frontend**: Vue3 with TypeScript and Ant Design Vue components (as required by constitution)
+- ✅ **Backend**: Spring Boot with Java and MyBatisPlus for ORM (as required by constitution)
+- ✅ **Databases**: PostgreSQL for production with H2 for development (as required by constitution)
+- ✅ **Search**: Elasticsearch for advanced querying and indexing (as required by constitution)
+- ✅ **Caching**: Redis for performance optimization (as required by constitution)
+- ✅ **Testing**: JUnit for backend, Vitest/Jest for frontend, Cypress for E2E tests (as required by constitution)
 
-### Required Implementation
-- Frontend: Vue3 with TypeScript and Ant Design Vue components
-- Backend: Spring Boot with Java and MyBatisPlus for ORM
-- Databases: Support both H2 (development) and PostgreSQL (production)
-- Search: Elasticsearch for advanced querying
-- Caching: Redis for performance optimization
-- Testing: JUnit for backend, Vitest/Jest for frontend, Cypress for E2E tests
+### Code Quality Standards
+- ✅ **Testing Standards**: 100% test coverage requirement for unit, integration, and E2E tests (exceeds constitution's 80% minimum)
+- ✅ **User Experience**: UI will follow consistent design patterns with Ant Design Vue components
+- ✅ **Accessibility**: System will meet WCAG 2.1 AA standards as required
+- ✅ **Performance**: System targets <1 second response time for 99% of requests (meets constitution requirements)
+
+### Architecture Compliance
+- ✅ **Architecture Pattern**: Following layered architecture with separation of concerns
+- ✅ **Internationalization**: Supporting Chinese/English language switching as required
+- ✅ **Documentation**: Bilingual documentation (Chinese/English) as required
+- ✅ **Code Comments**: Chinese comments in all source code as required
+- ✅ **Primary Keys**: Using Long (64-bit integer) for all entity primary keys as specified
+- ✅ **Audit Fields**: Using MyBatisPlus automatic fill for creation/update tracking as specified
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/[###-feature]/
+specs/001-exam-system/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
@@ -56,61 +63,50 @@ specs/[###-feature]/
 
 ### Source Code (repository root)
 
-Based on the constitution requirements (Vue3 frontend, Spring Boot backend), the following structure will be used:
-
 ```text
 backend/
-├── src/main/java/
-│   ├── com/exam/system/
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── model/
-│   │   ├── repository/
-│   │   ├── dto/
-│   │   ├── security/
-│   │   └── config/
-│   ├── resources/
-│   └── application.properties
-├── src/test/java/
-│   └── com/exam/system/
-│       ├── service/
-│       └── controller/
-└── pom.xml
+├── src/
+│   ├── main/
+│   │   ├── java/com/exam/system/
+│   │   │   ├── controller/      # REST API controllers
+│   │   │   ├── service/         # Business logic services
+│   │   │   ├── mapper/          # MyBatisPlus mappers
+│   │   │   ├── entity/          # Entity classes with Long primary keys
+│   │   │   ├── dto/             # Data transfer objects
+│   │   │   ├── config/          # Configuration classes
+│   │   │   └── util/            # Utility classes
+│   │   └── resources/
+│   │       ├── mapper/          # MyBatis XML mapper files
+│   │       └── application.yml  # Configuration files
+│   └── test/
+│       └── java/                # JUnit tests
+└── pom.xml                     # Maven build configuration
 
 frontend/
 ├── src/
-│   ├── components/
-│   │   ├── Question/
-│   │   ├── Test/
-│   │   ├── Admin/
-│   │   ├── Student/
-│   │   └── Teacher/
-│   ├── views/
-│   │   ├── Teacher/
-│   │   ├── Student/
-│   │   └── Admin/
-│   ├── services/
-│   ├── models/
-│   ├── router/
-│   ├── store/
-│   ├── utils/
-│   └── assets/
+│   ├── components/              # Reusable UI components
+│   ├── views/                   # Page components
+│   ├── services/                # API service calls
+│   ├── utils/                   # Utility functions
+│   ├── stores/                  # State management (Pinia)
+│   ├── locales/                 # Internationalization files
+│   ├── styles/                  # CSS/SCSS styles
+│   └── App.vue                  # Main application component
 ├── public/
-├── package.json
-└── vite.config.js
+├── tests/
+│   ├── unit/                    # Unit tests (Vitest)
+│   └── e2e/                     # E2E tests (Cypress)
+└── package.json                 # NPM package configuration
 
-docs/
-└── api/
-
-search/
-├── config/
-└── data/
-
-cache/
-└── config/
+docker/
+├── docker-compose.yml           # Docker configuration for all services
+├── backend/
+│   └── Dockerfile               # Backend container
+└── frontend/
+    └── Dockerfile               # Frontend container
 ```
 
-**Structure Decision**: Web application with separate backend (Spring Boot) and frontend (Vue3) following the architecture standards from the constitution. This structure supports the required technology stack with Java/Spring Boot for backend and Vue3/TypeScript for frontend, with separate directories for search (Elasticsearch) and cache (Redis) configurations.
+**Structure Decision**: Web application with separate backend (Spring Boot) and frontend (Vue3) following the architecture required by the constitution. Backend handles business logic and data persistence with MyBatisPlus ORM using Long primary keys and automatic audit field filling. Frontend provides responsive UI with internationalization support.
 
 ## Complexity Tracking
 
@@ -120,12 +116,3 @@ cache/
 |-----------|------------|-------------------------------------|
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
-
-## Phase 1 Completion Summary
-
-- **Research completed**: All technical decisions documented in research.md
-- **Data model created**: Complete schema for exam system in data-model.md
-- **API contracts defined**: OpenAPI specification in contracts/exam-system-api.yaml
-- **Quickstart guide created**: Development setup instructions in quickstart.md
-- **Agent context updated**: Qoder CLI context updated with new technology stack
-- **Constitution compliance verified**: All constitutional requirements satisfied

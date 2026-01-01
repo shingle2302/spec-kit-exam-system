@@ -1,36 +1,39 @@
 <template>
   <a-layout style="min-height: 100vh;">
     <a-layout-header class="header">
-      <div class="logo">Exam Management System</div>
-      <a-menu
-        v-model:selectedKeys="selectedKeys"
-        theme="dark"
-        mode="horizontal"
-        :style="{ lineHeight: '64px' }"
-        @click="handleMenuClick"
-      >
-        <template v-if="!user">
-          <a-menu-item key="login">Login</a-menu-item>
-          <a-menu-item key="register">Register</a-menu-item>
-        </template>
-        <template v-else>
-          <template v-if="user.role === 'STUDENT'">
-            <a-menu-item key="student-dashboard">Dashboard</a-menu-item>
-            <a-menu-item key="student-error-book">Error Book</a-menu-item>
+      <div class="logo">{{ $t('nav.dashboard') }}</div>
+      <div class="header-right">
+        <LanguageSwitcher />
+        <a-menu
+          v-model:selectedKeys="selectedKeys"
+          theme="dark"
+          mode="horizontal"
+          :style="{ lineHeight: '64px' }"
+          @click="handleMenuClick"
+        >
+          <template v-if="!user">
+            <a-menu-item key="login">{{ $t('nav.login') }}</a-menu-item>
+            <a-menu-item key="register">{{ $t('nav.register') }}</a-menu-item>
           </template>
-          <template v-else-if="user.role === 'TEACHER'">
-            <a-menu-item key="teacher-dashboard">Dashboard</a-menu-item>
-            <a-menu-item key="teacher-questions">Questions</a-menu-item>
+          <template v-else>
+            <template v-if="user.role === 'STUDENT'">
+              <a-menu-item key="student-dashboard">{{ $t('nav.dashboard') }}</a-menu-item>
+              <a-menu-item key="student-error-book">{{ $t('nav.errorBook') }}</a-menu-item>
+            </template>
+            <template v-else-if="user.role === 'TEACHER'">
+              <a-menu-item key="teacher-dashboard">{{ $t('nav.dashboard') }}</a-menu-item>
+              <a-menu-item key="teacher-questions">{{ $t('questions.title') }}</a-menu-item>
+            </template>
+            <template v-else-if="user.role === 'ADMIN'">
+              <a-menu-item key="admin-dashboard">{{ $t('nav.dashboard') }}</a-menu-item>
+              <a-menu-item key="admin-users">{{ $t('students.title') }}</a-menu-item>
+            </template>
+            <a-menu-item key="logout" style="float: right;">
+              <span>Hi, {{ user.firstName || user.username }}</span> ({{ $t('nav.logout') }})
+            </a-menu-item>
           </template>
-          <template v-else-if="user.role === 'ADMIN'">
-            <a-menu-item key="admin-dashboard">Dashboard</a-menu-item>
-            <a-menu-item key="admin-users">Users</a-menu-item>
-          </template>
-          <a-menu-item key="logout" style="float: right;">
-            <span>Hi, {{ user.firstName || user.username }}</span> (Logout)
-          </a-menu-item>
-        </template>
-      </a-menu>
+        </a-menu>
+      </div>
     </a-layout-header>
     <a-layout-content style="padding: 0 50px; margin-top: 24px;">
       <div :style="{ padding: '24px', background: '#fff', minHeight: '380px' }">
@@ -38,7 +41,7 @@
       </div>
     </a-layout-content>
     <a-layout-footer style="text-align: center;">
-      Exam Management System ©{{ new Date().getFullYear() }}
+      {{ $t('nav.dashboard') }} ©{{ new Date().getFullYear() }}
     </a-layout-footer>
   </a-layout>
 </template>
@@ -46,9 +49,13 @@
 <script>
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 
 export default {
   name: 'MainLayout',
+  components: {
+    LanguageSwitcher
+  },
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -88,7 +95,10 @@ export default {
       if (key === 'logout') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        delete axios.defaults.headers.common['Authorization'];
+        // Remove axios auth header if it exists
+        if (window.axios) {
+          delete window.axios.defaults.headers.common['Authorization'];
+        }
         router.push('/login');
       } else if (key === 'login') {
         router.push('/login');
@@ -119,29 +129,29 @@ export default {
 </script>
 
 <style scoped>
-#components-layout-demo-top .logo {
-  float: left;
-  width: 120px;
-  line-height: 31px;
-  padding-left: 20px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-}
-
 .header {
   position: relative;
   z-index: 1;
   width: 100%;
   background: #001529;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
-  float: left;
   color: white;
   font-size: 20px;
-  line-height: 64px;
-  padding-left: 20px;
   font-weight: bold;
+  padding-left: 20px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-right .ant-menu {
+  background: transparent;
 }
 </style>

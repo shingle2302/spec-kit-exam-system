@@ -16,7 +16,7 @@ public class StudentTransferController {
     private StudentTransferService studentTransferService;
 
     @PostMapping("/{studentId}/transfer")
-    public ResponseEntity<?> transferStudent(@PathVariable String studentId, @RequestBody TransferRequest request) {
+    public ResponseEntity<?> transferStudent(@PathVariable Long studentId, @RequestBody TransferRequest request) {
         boolean success = studentTransferService.transferStudent(studentId, request.getNewClassId());
         
         Map<String, Object> response = new HashMap<>();
@@ -32,13 +32,13 @@ public class StudentTransferController {
 
     // Inner class for transfer request
     public static class TransferRequest {
-        private String newClassId;
+        private Long newClassId;
 
-        public String getNewClassId() {
+        public Long getNewClassId() {
             return newClassId;
         }
 
-        public void setNewClassId(String newClassId) {
+        public void setNewClassId(Long newClassId) {
             this.newClassId = newClassId;
         }
     }

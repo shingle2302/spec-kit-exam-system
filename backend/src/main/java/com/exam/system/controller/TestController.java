@@ -17,7 +17,7 @@ public class TestController {
 
     @GetMapping("/student/{studentId}")
     public ResponseEntity<?> getTestsForStudent(
-            @PathVariable String studentId,
+            @PathVariable Long studentId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         
@@ -37,7 +37,7 @@ public class TestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TestDTO> updateTest(@PathVariable String id, @RequestBody TestDTO testDTO) {
+    public ResponseEntity<TestDTO> updateTest(@PathVariable Long id, @RequestBody TestDTO testDTO) {
         TestDTO updatedTest = testService.updateTest(id, testDTO);
         if (updatedTest != null) {
             return ResponseEntity.ok(updatedTest);
@@ -47,7 +47,7 @@ public class TestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTest(@PathVariable String id) {
+    public ResponseEntity<Void> deleteTest(@PathVariable Long id) {
         boolean deleted = testService.deleteTest(id);
         if (deleted) {
             return ResponseEntity.ok().build();

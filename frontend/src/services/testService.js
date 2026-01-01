@@ -1,36 +1,61 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-const testService = {
-  async getTestsForStudent(studentId) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/tests/student/${studentId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching tests for student:', error);
-      throw error;
-    }
+export const testService = {
+  // Get all tests
+  async getTests(page = 1, size = 10) {
+    const response = await axios.get(`${API_BASE_URL}/v1/tests`, {
+      params: { page, size }
+    });
+    return response.data;
   },
 
+  // Get test by ID
+  async getTestById(id) {
+    const response = await axios.get(`${API_BASE_URL}/v1/tests/${id}`);
+    return response.data;
+  },
+
+  // Create a new test
   async createTest(testData) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/tests`, testData);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating test:', error);
-      throw error;
-    }
+    const response = await axios.post(`${API_BASE_URL}/v1/tests`, testData);
+    return response.data;
   },
 
-  async submitTest(testId, responses) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/tests/${testId}/submit`, responses);
-      return response.data;
-    } catch (error) {
-      console.error('Error submitting test:', error);
-      throw error;
-    }
+  // Update an existing test
+  async updateTest(id, testData) {
+    const response = await axios.put(`${API_BASE_URL}/v1/tests/${id}`, testData);
+    return response.data;
+  },
+
+  // Delete a test
+  async deleteTest(id) {
+    const response = await axios.delete(`${API_BASE_URL}/v1/tests/${id}`);
+    return response.data;
+  },
+
+  // Get tests assigned to a student
+  async getTestsForStudent(studentId, page = 1, size = 10) {
+    const response = await axios.get(`${API_BASE_URL}/v1/tests/student/${studentId}`, {
+      params: { page, size }
+    });
+    return response.data;
+  },
+
+  // Assign a test to a student
+  async assignTestToStudent(testId, studentId) {
+    const response = await axios.post(`${API_BASE_URL}/v1/test-assignments`, {
+      testId,
+      studentId
+    });
+    return response.data;
+  },
+
+  // Submit a test
+  async submitTest(testId, submissionData) {
+    const response = await axios.post(`${API_BASE_URL}/v1/tests/${testId}/submit`, submissionData);
+    return response.data;
   }
 };
 

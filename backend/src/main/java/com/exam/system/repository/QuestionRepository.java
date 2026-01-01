@@ -11,18 +11,18 @@ import java.util.List;
 @Mapper
 public interface QuestionRepository extends BaseMapper<Question> {
     @Select("SELECT * FROM questions WHERE grade_id = #{gradeId}")
-    List<Question> findByGradeId(@Param("gradeId") String gradeId);
+    List<Question> findByGradeId(@Param("gradeId") Long gradeId);
     
     @Select("SELECT * FROM questions WHERE subject_id = #{subjectId}")
-    List<Question> findBySubjectId(@Param("subjectId") String subjectId);
+    List<Question> findBySubjectId(@Param("subjectId") Long subjectId);
     
     @Select("SELECT * FROM questions WHERE knowledge_point = #{knowledgePoint}")
     List<Question> findByKnowledgePoint(@Param("knowledgePoint") String knowledgePoint);
     
     @Select("SELECT * FROM questions WHERE grade_id = #{gradeId} AND subject_id = #{subjectId} AND knowledge_point = #{knowledgePoint}")
     List<Question> findByGradeIdAndSubjectIdAndKnowledgePoint(
-        @Param("gradeId") String gradeId, 
-        @Param("subjectId") String subjectId, 
+        @Param("gradeId") Long gradeId, 
+        @Param("subjectId") Long subjectId, 
         @Param("knowledgePoint") String knowledgePoint
     );
     
@@ -30,5 +30,5 @@ public interface QuestionRepository extends BaseMapper<Question> {
     List<Question> findByCreatedBy(@Param("createdBy") String createdBy);
     
     @Select("SELECT * FROM questions WHERE id = #{id}")
-    Question findById(@Param("id") String id);
+    Question findById(@Param("id") Long id);
 }

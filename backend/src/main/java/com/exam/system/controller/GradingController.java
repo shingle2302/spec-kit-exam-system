@@ -17,8 +17,8 @@ public class GradingController {
 
     @GetMapping("/tests/{testId}/students/{studentId}")
     public ResponseEntity<List<StudentResponseDTO>> getSubmissionsForGrading(
-            @PathVariable String testId, 
-            @PathVariable String studentId) {
+            @PathVariable Long testId, 
+            @PathVariable Long studentId) {
         // In a real implementation, this would return submissions for grading
         // For now, returning an empty list
         return ResponseEntity.ok(List.of());
@@ -26,8 +26,8 @@ public class GradingController {
 
     @PostMapping("/tests/{testId}/students/{studentId}/grade")
     public ResponseEntity<List<StudentResponseDTO>> gradeTest(
-            @PathVariable String testId, 
-            @PathVariable String studentId) {
+            @PathVariable Long testId, 
+            @PathVariable Long studentId) {
         List<StudentResponseDTO> gradedResponses = gradingService.gradeTestAutomatically(testId, studentId);
         return ResponseEntity.ok(gradedResponses);
     }

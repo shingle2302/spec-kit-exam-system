@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface TestElasticsearchRepository extends ElasticsearchRepository<Test, String> {
+public interface TestElasticsearchRepository extends ElasticsearchRepository<Test, Long> {
     List<Test> findByTitleContainingOrDescriptionContaining(String title, String description);
-    List<Test> findByAssignedBy(String assignedBy);
-    List<Test> findByAssignedToContaining(String studentId);
 }

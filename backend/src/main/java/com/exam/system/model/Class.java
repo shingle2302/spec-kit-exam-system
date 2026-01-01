@@ -1,25 +1,22 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
 @TableName("classes")
-public class Class {
+public class Class extends BaseModel {
     
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @TableField("name")
     private String name;
     
     @TableField("grade_id")
-    private String gradeId;
+    private Long gradeId;
     
     @TableField("teacher_id")
-    private String teacherId;
+    private Long teacherId;
     
     @TableField("academic_year")
     private String academicYear;
@@ -37,14 +34,7 @@ public class Class {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -54,19 +44,19 @@ public class Class {
         this.name = name;
     }
 
-    public String getGradeId() {
+    public Long getGradeId() {
         return gradeId;
     }
 
-    public void setGradeId(String gradeId) {
+    public void setGradeId(Long gradeId) {
         this.gradeId = gradeId;
     }
 
-    public String getTeacherId() {
+    public Long getTeacherId() {
         return teacherId;
     }
 
-    public void setTeacherId(String teacherId) {
+    public void setTeacherId(Long teacherId) {
         this.teacherId = teacherId;
     }
 

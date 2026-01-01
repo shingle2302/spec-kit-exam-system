@@ -1,47 +1,34 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
 @TableName("students")
-public class Student {
+public class Student extends BaseModel {
     
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @TableField("student_id")
     private String studentId;
     
-    @TableField("grade_level")
-    private String gradeLevel;
+    @TableField("grade_id")
+    private Long gradeId;
     
     @TableField("class_id")
-    private String classId;
-    
-    @TableField("enrollment_date")
-    private LocalDateTime enrollmentDate;
+    private Long classId;
     
     @TableField("parent_id")
-    private String parentId;
+    private Long parentId;
     
-    @TableField(exist = false) // Not stored in the database, used for runtime reference
-    private User user;
+    @TableField("user_id")
+    private Long userId; // Reference to the user account
 
     public Student() {
-        this.enrollmentDate = LocalDateTime.now();
+        // Default constructor
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getStudentId() {
         return studentId;
@@ -51,43 +38,35 @@ public class Student {
         this.studentId = studentId;
     }
 
-    public String getGradeLevel() {
-        return gradeLevel;
+    public Long getGradeId() {
+        return gradeId;
     }
 
-    public void setGradeLevel(String gradeLevel) {
-        this.gradeLevel = gradeLevel;
+    public void setGradeId(Long gradeId) {
+        this.gradeId = gradeId;
     }
 
-    public String getClassId() {
+    public Long getClassId() {
         return classId;
     }
 
-    public void setClassId(String classId) {
+    public void setClassId(Long classId) {
         this.classId = classId;
     }
 
-    public LocalDateTime getEnrollmentDate() {
-        return enrollmentDate;
-    }
-
-    public void setEnrollmentDate(LocalDateTime enrollmentDate) {
-        this.enrollmentDate = enrollmentDate;
-    }
-
-    public String getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(String parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

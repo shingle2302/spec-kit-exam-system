@@ -6,11 +6,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class QuestionDTO {
-    private String id;
+    private Long id;
     private String questionText;
     private Question.QuestionType questionType;
-    private String subjectId;
-    private String gradeId;
+    private Long subjectId;
+    private Long gradeId;
     private String knowledgePoint;
     private String standardExplanation;
     private String createdBy;
@@ -22,8 +22,8 @@ public class QuestionDTO {
     // Constructors
     public QuestionDTO() {}
 
-    public QuestionDTO(String id, String questionText, Question.QuestionType questionType, String subjectId, 
-                       String gradeId, String knowledgePoint, String standardExplanation, String createdBy, 
+    public QuestionDTO(Long id, String questionText, Question.QuestionType questionType, Long subjectId, 
+                       Long gradeId, String knowledgePoint, String standardExplanation, String createdBy, 
                        LocalDateTime createdAt, LocalDateTime updatedAt, Boolean isActive, 
                        List<AnswerOptionDTO> answerOptions) {
         this.id = id;
@@ -41,11 +41,11 @@ public class QuestionDTO {
     }
 
     // Getters and Setters
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -65,19 +65,19 @@ public class QuestionDTO {
         this.questionType = questionType;
     }
 
-    public String getSubjectId() {
+    public Long getSubjectId() {
         return subjectId;
     }
 
-    public void setSubjectId(String subjectId) {
+    public void setSubjectId(Long subjectId) {
         this.subjectId = subjectId;
     }
 
-    public String getGradeId() {
+    public Long getGradeId() {
         return gradeId;
     }
 
-    public void setGradeId(String gradeId) {
+    public void setGradeId(Long gradeId) {
         this.gradeId = gradeId;
     }
 

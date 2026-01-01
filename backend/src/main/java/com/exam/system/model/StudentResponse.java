@@ -1,8 +1,6 @@
 package com.exam.system.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -12,23 +10,21 @@ import java.time.LocalDateTime;
 
 @Document(indexName = "student_responses")
 @TableName("student_responses")
-public class StudentResponse {
+public class StudentResponse extends BaseModel {
     
-    @Id
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    // id field is inherited from BaseModel
     
     @Field(type = FieldType.Keyword, name = "student_id")
     @TableField("student_id")
-    private String studentId;
+    private Long studentId;
     
     @Field(type = FieldType.Keyword, name = "test_id")
     @TableField("test_id")
-    private String testId;
+    private Long testId;
     
     @Field(type = FieldType.Keyword, name = "question_id")
     @TableField("question_id")
-    private String questionId;
+    private Long questionId;
     
     @Field(type = FieldType.Text, name = "response_text")
     @TableField("response_text")
@@ -61,41 +57,38 @@ public class StudentResponse {
     @Field(type = FieldType.Date, name = "submitted_at")
     @TableField("submitted_at")
     private LocalDateTime submittedAt;
+    
+    @Field(type = FieldType.Date, name = "graded_at")
+    @TableField("graded_at")
+    private LocalDateTime gradedAt;
 
     public StudentResponse() {
         this.responseTime = LocalDateTime.now();
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 
-    public String getTestId() {
+    public Long getTestId() {
         return testId;
     }
 
-    public void setTestId(String testId) {
+    public void setTestId(Long testId) {
         this.testId = testId;
     }
 
-    public String getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(String questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 
@@ -161,5 +154,13 @@ public class StudentResponse {
 
     public void setSubmittedAt(LocalDateTime submittedAt) {
         this.submittedAt = submittedAt;
+    }
+    
+    public LocalDateTime getGradedAt() {
+        return gradedAt;
+    }
+
+    public void setGradedAt(LocalDateTime gradedAt) {
+        this.gradedAt = gradedAt;
     }
 }

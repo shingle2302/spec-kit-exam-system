@@ -17,7 +17,7 @@ public class ErrorBookController {
 
     @GetMapping("/{studentId}")
     public ResponseEntity<?> getErrorBookForStudent(
-            @PathVariable String studentId,
+            @PathVariable Long studentId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         
@@ -31,7 +31,7 @@ public class ErrorBookController {
     }
 
     @PostMapping("/{studentId}/practice")
-    public ResponseEntity<ErrorBookDTO> practiceQuestion(@PathVariable String studentId, @RequestBody PracticeRequest request) {
+    public ResponseEntity<ErrorBookDTO> practiceQuestion(@PathVariable Long studentId, @RequestBody PracticeRequest request) {
         // In a real implementation, we would evaluate the response and update the error book accordingly
         // For now, we'll just update the last practice date
         ErrorBookDTO updatedErrorBook = errorBookService.updateErrorBookOnCorrectAnswer(studentId, request.getQuestionId());
@@ -46,14 +46,14 @@ public class ErrorBookController {
 
     // Inner class for practice request
     public static class PracticeRequest {
-        private String questionId;
+        private Long questionId;
         private String response;
 
-        public String getQuestionId() {
+        public Long getQuestionId() {
             return questionId;
         }
 
-        public void setQuestionId(String questionId) {
+        public void setQuestionId(Long questionId) {
             this.questionId = questionId;
         }
 

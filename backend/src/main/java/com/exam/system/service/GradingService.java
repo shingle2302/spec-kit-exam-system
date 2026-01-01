@@ -10,8 +10,9 @@ import com.exam.system.repository.StudentResponseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,16 +30,16 @@ public class GradingService {
     @Autowired
     private ErrorBookService errorBookService;
 
-    public List<StudentResponseDTO> gradeTestAutomatically(String testId, String studentId) {
+    public List<StudentResponseDTO> gradeTestAutomatically(Long testId, Long studentId) {
         // Get all student responses for this test
         List<StudentResponse> responses = studentResponseRepository.findByStudentIdAndTestId(studentId, testId);
         
         for (StudentResponse response : responses) {
             // Get the question to check the correct answer
-            Question question = questionRepository.findById(response.getQuestionId());
+            Question question = questionRepository.selectById(response.getQuestionId());
             
             if (question != null) {
-                boolean isCorrect = false;
+                Boolean isCorrect = null; // null indicates ungraded
                 
                 // Grade based on question type
                 if (question.getQuestionType() == Question.QuestionType.single_choice || 
@@ -54,21 +55,25 @@ public class GradingService {
                                 break;
                             }
                         }
+                        if (isCorrect == null) {
+                            isCorrect = false; // If no correct option was found, it's incorrect
+                        }
                     }
                 } else {
                     // For text-based questions, automatic grading would require more complex logic
                     // For now, we'll leave them ungraded
                     response.setManualGrade(true);
-                    response.setIsCorrect(null); // null indicates ungraded
+                    isCorrect = null; // null indicates ungraded
                 }
                 
                 // Set the correctness and save
                 response.setIsCorrect(isCorrect);
+                response.setGradedAt(LocalDateTime.now());
                 
                 // Update error book based on the result
-                if (isCorrect) {
+                if (Boolean.TRUE.equals(isCorrect)) {
                     errorBookService.updateErrorBookOnCorrectAnswer(studentId, question.getId());
-                } else {
+                } else if (Boolean.FALSE.equals(isCorrect)) {
                     errorBookService.addQuestionToErrorBook(studentId, question.getId());
                 }
                 
@@ -78,6 +83,36 @@ public class GradingService {
         
         // Return the graded responses
         return responses.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<StudentResponseDTO> gradeTestManually(Long testId, Long studentId, List<StudentResponseDTO> manualGrades) {
+        for (StudentResponseDTO gradeDTO : manualGrades) {
+            // Find the existing response
+            StudentResponse existingResponse = studentResponseRepository.findByStudentIdAndTestIdAndQuestionId(
+                studentId, testId, gradeDTO.getQuestionId());
+            
+            if (existingResponse != null) {
+                // Update with manual grading
+                existingResponse.setIsCorrect(gradeDTO.getIsCorrect());
+                existingResponse.setTeacherGrade(gradeDTO.getTeacherGrade());
+                existingResponse.setTeacherComments(gradeDTO.getTeacherComments());
+                existingResponse.setManualGrade(true);
+                existingResponse.setGradedAt(LocalDateTime.now());
+                
+                // Update error book based on the result
+                if (Boolean.TRUE.equals(existingResponse.getIsCorrect())) {
+                    errorBookService.updateErrorBookOnCorrectAnswer(studentId, gradeDTO.getQuestionId());
+                } else if (Boolean.FALSE.equals(existingResponse.getIsCorrect())) {
+                    errorBookService.addQuestionToErrorBook(studentId, gradeDTO.getQuestionId());
+                }
+                
+                studentResponseRepository.updateById(existingResponse);
+            }
+        }
+        
+        // Return the updated responses
+        List<StudentResponse> updatedResponses = studentResponseRepository.findByStudentIdAndTestId(studentId, testId);
+        return updatedResponses.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     private StudentResponseDTO convertToDTO(StudentResponse response) {
@@ -98,6 +133,7 @@ public class GradingService {
         dto.setTeacherGrade(response.getTeacherGrade());
         dto.setTeacherComments(response.getTeacherComments());
         dto.setSubmittedAt(response.getSubmittedAt());
+        dto.setGradedAt(response.getGradedAt());
         
         return dto;
     }
