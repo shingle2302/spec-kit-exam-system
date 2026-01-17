@@ -28,10 +28,10 @@ Frontend applications must use Vue3 with Ant Design Vue components for consisten
 
 ## Technology Stack Requirements
 
-The project must adhere to the following technology stack:
-- Frontend: Vue3 with TypeScript, Ant Design Vue for UI components
+The project must use the following technology stack:
+- Frontend: Vue3 with TypeScript, Ant Design Vue and Element Plus for UI components
 - Backend: Spring Boot with Java, MyBatisPlus for ORM
-- Databases: Support both H2 (development) and PostgreSQL (production) with configuration switching
+- Databases: Support both H2 (development) and PostgreSQL (production)
 - Search: Elasticsearch for advanced querying and indexing
 - Caching: Redis for performance optimization
 - Testing: JUnit for backend, Vitest/Jest for frontend, Cypress for E2E tests
