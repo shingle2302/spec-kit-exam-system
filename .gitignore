@@ -39,12 +39,12 @@ tmp/
 *.zip
 
 # Spring Boot
-!src/main/resources/static/**
-!src/main/resources/public/**
-!src/main/resources/templates/**
-!src/main/resources/application*.properties
-!src/main/resources/application*.yml
-!src/main/resources/application*.yaml
+!backend/src/main/resources/static/**
+!backend/src/main/resources/public/**
+!backend/src/main/resources/templates/**
+!backend/src/main/resources/application*.properties
+!backend/src/main/resources/application*.yml
+!backend/src/main/resources/application*.yaml
 
 # Node.js/Vue
 node_modules/
