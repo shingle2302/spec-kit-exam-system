@@ -1,8 +1,8 @@
 package com.spec.kit.exam.system.config;
 
 import com.spec.kit.exam.system.service.PermissionInitializationService;
-import com.spec.kit.exam.system.service.RoleService;
-import com.spec.kit.exam.system.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class PermissionInitializationConfig {
     
+    private static final Logger logger = LoggerFactory.getLogger(PermissionInitializationConfig.class);
+
 
     @Autowired
     private PermissionInitializationService permissionInitializationService;
@@ -34,7 +36,7 @@ public class PermissionInitializationConfig {
      * Initialize permissions from @PermissionRequired annotations
      */
     private void initializePermissionsFromAnnotations() {
-        System.out.println("Initializing permissions from annotations...");
+        logger.info("Initializing permissions from annotations...");
         
         try {
             // Register permissions from annotations
@@ -43,13 +45,12 @@ public class PermissionInitializationConfig {
             // Validate that required permissions exist
             boolean isValid = permissionInitializationService.validateRequiredPermissionsExist();
             if (isValid) {
-                System.out.println("Permission validation passed.");
+                logger.info("Permission validation passed.");
             } else {
-                System.out.println("Some required permissions are missing.");
+                logger.warn("Some required permissions are missing.");
             }
         } catch (Exception e) {
-            System.err.println("Error initializing permissions: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error initializing permissions: " + e.getMessage(), e);
         }
     }
 

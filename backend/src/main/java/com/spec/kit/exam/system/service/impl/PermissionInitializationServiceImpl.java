@@ -6,6 +6,8 @@ import com.spec.kit.exam.system.entity.Permission;
 import com.spec.kit.exam.system.entity.Menu;
 import com.spec.kit.exam.system.service.PermissionService;
 import com.spec.kit.exam.system.service.MenuService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.core.io.Resource;
@@ -27,6 +29,8 @@ import java.util.Optional;
 @Service
 public class PermissionInitializationServiceImpl implements PermissionInitializationService {
     
+    private static final Logger logger = LoggerFactory.getLogger(PermissionInitializationServiceImpl.class);
+    
     @Autowired
     private PermissionService permissionService;
     
@@ -42,7 +46,7 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
         List<String> registeredPermissions = new ArrayList<>();
         
         try {
-            System.out.println("Scanning for @PermissionRequired annotations...");
+            logger.info("Scanning for @PermissionRequired annotations...");
             
             // This is a simplified example - in reality, you'd use Spring's component scanning
             // or reflection to find all annotated methods
@@ -71,16 +75,15 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
                         permission.setStatus("ACTIVE");
                         
                         permissionService.createPermission(permission);
-                        System.out.println("Registered permission: " + permissionCode);
+                        logger.info("Registered permission: {}", permissionCode);
                     }
                 } else {
-                    System.out.println("Permission already exists: " + permissionCode);
+                    logger.info("Permission already exists: {}", permissionCode);
                 }
             }
             
         } catch (Exception e) {
-            System.err.println("Error registering permissions from annotations: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error registering permissions from annotations: " + e.getMessage(), e);
         }
         
         return registeredPermissions;
@@ -96,11 +99,11 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
             // Get permissions from annotations
             List<String> annotatedPermissions = registerPermissionsFromAnnotations();
             
-            System.out.println("Synchronizing permissions with annotations...");
+            logger.info("Synchronizing permissions with annotations...");
             
             return true;
         } catch (Exception e) {
-            System.err.println("Error synchronizing permissions: " + e.getMessage());
+            logger.error("Error synchronizing permissions: " + e.getMessage(), e);
             return false;
         }
     }
@@ -129,14 +132,14 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
             // Check if all annotated permissions exist in the database
             for (String perm : annotatedPermissions) {
                 if (!dbPermissions.contains(perm)) {
-                    System.out.println("Missing permission in database: " + perm);
+                    logger.warn("Missing permission in database: {}", perm);
                     return false;
                 }
             }
             
             return true;
         } catch (Exception e) {
-            System.err.println("Error validating permissions: " + e.getMessage());
+            logger.error("Error validating permissions: " + e.getMessage(), e);
             return false;
         }
     }
@@ -148,7 +151,7 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
     @Override
     public int updateExistingPermissions() {
         try {
-            System.out.println("Updating existing permissions...");
+            logger.info("Updating existing permissions...");
             
             // In a real implementation, this would update permissions in the database
             // based on current annotations
@@ -156,7 +159,7 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
             // For now, just return 0 as number of permissions updated
             return 0;
         } catch (Exception e) {
-            System.err.println("Error updating permissions: " + e.getMessage());
+            logger.error("Error updating permissions: " + e.getMessage(), e);
             return 0;
         }
     }
@@ -181,11 +184,11 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
             // In a real implementation, this would remove permissions from the database
             // that are no longer annotated
             
-            System.out.println("Removing unused permissions...");
+            logger.info("Removing unused permissions...");
             
             return removedCount;
         } catch (Exception e) {
-            System.err.println("Error removing permissions: " + e.getMessage());
+            logger.error("Error removing permissions: " + e.getMessage(), e);
             return 0;
         }
     }
@@ -232,17 +235,17 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
                                     // Add to unique set to avoid duplicates
                                     uniquePermissions.add(permissionCode);
                                     
-                                    System.out.println("Found permission: " + permissionCode + " in " + className + "." + method.getName());
+                                    logger.debug("Found permission: {} in {}.{}", permissionCode, className, method.getName());
                                 }
                             }
                         }
                     } catch (ClassNotFoundException e) {
-                        System.err.println("Could not load class: " + className);
+                        logger.error("Could not load class: {}", className, e);
                     }
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error scanning for annotations: " + e.getMessage());
+            logger.error("Error scanning for annotations: " + e.getMessage(), e);
         }
         
         return new ArrayList<>(uniquePermissions);
@@ -268,7 +271,7 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
             newMenu.setStatus("ACTIVE");
             
             menuService.createMenu(newMenu);
-            System.out.println("Created missing menu: " + menuId);
+            logger.info("Created missing menu: {}", menuId);
         }
     }
     

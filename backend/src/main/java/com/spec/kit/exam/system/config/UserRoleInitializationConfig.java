@@ -6,6 +6,8 @@ import com.spec.kit.exam.system.entity.Role;
 import com.spec.kit.exam.system.mapper.UserMapper;
 import com.spec.kit.exam.system.mapper.RoleMapper;
 import com.spec.kit.exam.system.util.PasswordUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,8 @@ import java.time.LocalDateTime;
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE) // Run first before other initializations
 public class UserRoleInitializationConfig implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserRoleInitializationConfig.class);
 
     @Autowired
     private UserMapper userMapper;
@@ -51,7 +55,7 @@ public class UserRoleInitializationConfig implements CommandLineRunner {
             adminRole.setUpdatedAt(LocalDateTime.now());
             
             roleMapper.insert(adminRole);
-            System.out.println("SUPER ADMIN role created.");
+            logger.info("SUPER ADMIN role created.");
         }
         
         // Check if user role already exists
@@ -69,7 +73,7 @@ public class UserRoleInitializationConfig implements CommandLineRunner {
             userRole.setUpdatedAt(LocalDateTime.now());
             
             roleMapper.insert(userRole);
-            System.out.println("Default USER role created.");
+            logger.info("Default USER role created.");
         }
     }
 
@@ -94,9 +98,9 @@ public class UserRoleInitializationConfig implements CommandLineRunner {
                 existingUser.setIsSuperAdmin(true);
                 existingUser.setUpdatedAt(LocalDateTime.now());
                 userMapper.updateById(existingUser);
-                System.out.println("==> Existing admin user upgraded to SUPER ADMIN. Username: admin");
+                logger.info("==> Existing admin user upgraded to SUPER ADMIN. Username: admin");
             } else {
-                System.out.println("==> Admin user already exists as super admin.");
+                logger.info("==> Admin user already exists as super admin.");
             }
             return; // Admin user already exists
         }
@@ -118,7 +122,7 @@ public class UserRoleInitializationConfig implements CommandLineRunner {
         }
         
         userMapper.insert(adminUser);
-        System.out.println("==> Default SUPER ADMIN user created successfully. Username: admin, Password: Admin@123");
+        logger.info("==> Default SUPER ADMIN user created successfully. Username: admin, Password: Admin@123");
     }
 
 }
