@@ -38,7 +38,7 @@ public class AuthController {
             
             return Result.success(user, "User registered successfully");
         } catch (Exception e) {
-            return Result.error(4001, e.getMessage());
+            return Result.error("4001", e.getMessage());
         }
     }
 
@@ -68,7 +68,7 @@ public class AuthController {
                 return Result.error(errorCode, message);
             }
         } catch (Exception e) {
-            return Result.error(500, "Authentication failed: " + e.getMessage());
+            return Result.error("500", "Authentication failed: " + e.getMessage());
         }
     }
 
@@ -83,7 +83,7 @@ public class AuthController {
             // For now, we'll just return a success response
             return Result.success(null, "Logged out successfully");
         } catch (Exception e) {
-            return Result.error(500, "Logout failed: " + e.getMessage());
+            return Result.error("500", "Logout failed: " + e.getMessage());
         }
     }
 }

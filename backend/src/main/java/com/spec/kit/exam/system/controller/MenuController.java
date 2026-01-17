@@ -48,7 +48,7 @@ public class MenuController {
         if (success) {
             return Result.success(menu, "Menu updated successfully");
         } else {
-            return Result.error(4001, "Failed to update menu");
+            return Result.error("4001", "Failed to update menu");
         }
     }
     
@@ -62,7 +62,7 @@ public class MenuController {
         if (success) {
             return Result.success(null, "Menu deleted successfully");
         } else {
-            return Result.error(4001, "Failed to delete menu");
+            return Result.error("4001", "Failed to delete menu");
         }
     }
     

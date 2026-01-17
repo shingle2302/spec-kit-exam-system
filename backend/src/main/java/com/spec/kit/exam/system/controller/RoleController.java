@@ -47,7 +47,7 @@ public class RoleController {
         if (role.isPresent()) {
             return Result.success(role.get(), "Role retrieved successfully");
         } else {
-            return Result.error(404, "Role not found");
+            return Result.error("404", "Role not found");
         }
     }
 
@@ -61,7 +61,7 @@ public class RoleController {
         if (role.isPresent()) {
             return Result.success(role.get(), "Role retrieved successfully");
         } else {
-            return Result.error(404, "Role not found");
+            return Result.error("404", "Role not found");
         }
     }
     

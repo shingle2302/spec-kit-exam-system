@@ -5,11 +5,11 @@ package com.spec.kit.exam.system.util;
  */
 public class Result<T> {
     private T data;
-    private int code;
+    private String code;
     private String msg;
 
     // Private constructor to enforce use of static methods
-    private Result(T data, int code, String msg) {
+    private Result(T data, String code, String msg) {
         this.data = data;
         this.code = code;
         this.msg = msg;
@@ -17,37 +17,37 @@ public class Result<T> {
 
     // Static factory methods for common responses
     public static <T> Result<T> success(T data) {
-        return new Result<>(data, 1000, "success");
+        return new Result<>(data, "0000", "success");
     }
 
     public static <T> Result<T> success(T data, String msg) {
-        return new Result<>(data, 1000, msg);
+        return new Result<>(data, "0000", msg);
     }
 
     public static <T> Result<T> success() {
-        return new Result<>(null, 1000, "success");
+        return new Result<>(null, "0000", "success");
     }
 
-    public static <T> Result<T> error(int code, String msg) {
+    public static <T> Result<T> error(String code, String msg) {
         return new Result<>(null, code, msg);
     }
 
     public static <T> Result<T> error(String msg) {
-        return new Result<>(null, 500, msg); // Default server error code
+        return new Result<>(null, "500", msg); // Default server error code
     }
 
-    public static <T> Result<T> error(int code, String msg, T data) {
+    public static <T> Result<T> error(String code, String msg, T data) {
         return new Result<>(data, code, msg);
     }
 
     // Validation error
     public static <T> Result<T> validationError(String msg) {
-        return new Result<>(null, 1001, msg); // Validation error code
+        return new Result<>(null, "1001", msg); // Validation error code
     }
 
     // Authorization error
     public static <T> Result<T> unauthorized(String msg) {
-        return new Result<>(null, 2001, msg); // Authorization error code
+        return new Result<>(null, "2001", msg); // Authorization error code
     }
 
     // Getters and setters
@@ -59,11 +59,11 @@ public class Result<T> {
         this.data = data;
     }
 
-    public int getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
     }
 

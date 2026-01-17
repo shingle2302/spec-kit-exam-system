@@ -53,7 +53,7 @@ public class UserController {
         if (user.isPresent()) {
             return Result.success(user.get(), "User retrieved successfully");
         } else {
-            return Result.error(404, "User not found");
+            return Result.error("404", "User not found");
         }
     }
 
@@ -97,7 +97,7 @@ public class UserController {
             
             return Result.success(null, "User account unlocked successfully");
         } catch (Exception e) {
-            return Result.error(500, "Failed to unlock user: " + e.getMessage());
+            return Result.error("500", "Failed to unlock user: " + e.getMessage());
         }
     }
 }

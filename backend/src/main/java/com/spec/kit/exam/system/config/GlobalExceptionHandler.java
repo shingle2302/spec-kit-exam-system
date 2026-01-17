@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<Object> handleGeneralException(Exception ex) {
         logger.error("Unexpected error occurred: ", ex);
-        return Result.error(3001, "Internal server error occurred");
+        return Result.error("3001", "Internal server error occurred");
     }
 
     /**
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public Result<Object> handleRuntimeException(RuntimeException ex) {
         logger.error("Runtime error occurred: ", ex);
-        return Result.error(3001, ex.getMessage());
+        return Result.error("3001", ex.getMessage());
     }
 
     /**

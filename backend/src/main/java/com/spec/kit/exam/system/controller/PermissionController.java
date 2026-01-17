@@ -38,7 +38,7 @@ public class PermissionController {
         if (success) {
             return Result.success(null, "Permissions assigned successfully");
         } else {
-            return Result.error(4001, "Failed to assign permissions");
+            return Result.error("4001", "Failed to assign permissions");
         }
     }
     
@@ -52,7 +52,7 @@ public class PermissionController {
         if (success) {
             return Result.success(null, "Permissions removed successfully");
         } else {
-            return Result.error(4001, "Failed to remove permissions");
+            return Result.error("4001", "Failed to remove permissions");
         }
     }
     
@@ -86,7 +86,7 @@ public class PermissionController {
         if (success) {
             return Result.success(permission, "Permission updated successfully");
         } else {
-            return Result.error(4001, "Failed to update permission");
+            return Result.error("4001", "Failed to update permission");
         }
     }
     
@@ -100,7 +100,7 @@ public class PermissionController {
         if (success) {
             return Result.success(null, "Permission deleted successfully");
         } else {
-            return Result.error(4001, "Failed to delete permission");
+            return Result.error("4001", "Failed to delete permission");
         }
     }
     

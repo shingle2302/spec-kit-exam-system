@@ -5,7 +5,7 @@
 // Define the backend Result format
 interface BackendResult<T> {
   data: T;
-  code: number;
+  code: string;
   msg: string;
 }
 
@@ -22,7 +22,7 @@ export async function processApiResponse<T>(response: Response): Promise<T> {
   const result: BackendResult<T> = await response.json();
   
   // Check if the backend returned an error code
-  if (result.code !== 0) {
+  if (result.code !== '0000') {
     throw new Error(result.msg || `Backend error with code: ${result.code}`);
   }
   

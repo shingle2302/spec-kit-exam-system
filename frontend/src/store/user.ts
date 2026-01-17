@@ -50,13 +50,9 @@ export const useUserStore = defineStore('user', () => {
     loading.value = true
     try {
       const response = await userService.createUser(userData)
-      if (response.success) {
-        message.success('用户创建成功')
-        await fetchUsers()
-        return { success: true, data: response.data }
-      }
-      message.error(response.message || '创建用户失败')
-      return { success: false, message: response.message }
+      message.success('用户创建成功')
+      await fetchUsers()
+      return { success: true, data: response }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '创建用户失败'
       message.error(errorMsg)
@@ -70,13 +66,9 @@ export const useUserStore = defineStore('user', () => {
     loading.value = true
     try {
       const response = await userService.updateUser(id, userData)
-      if (response.success) {
-        message.success('用户更新成功')
-        await fetchUsers()
-        return { success: true, data: response.data }
-      }
-      message.error(response.message || '更新用户失败')
-      return { success: false, message: response.message }
+      message.success('用户更新成功')
+      await fetchUsers()
+      return { success: true, data: response }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '更新用户失败'
       message.error(errorMsg)
@@ -105,14 +97,10 @@ export const useUserStore = defineStore('user', () => {
   async function unlockUser(id: string) {
     loading.value = true
     try {
-      const response = await userService.unlockUser(id)
-      if (response.success) {
-        message.success('用户账户已解锁')
-        await fetchUsers()
-        return { success: true }
-      }
-      message.error(response.message || '解锁用户失败')
-      return { success: false, message: response.message }
+      await userService.unlockUser(id)
+      message.success('用户账户已解锁')
+      await fetchUsers()
+      return { success: true }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '解锁用户失败'
       message.error(errorMsg)
