@@ -100,6 +100,33 @@ export interface AuthResponse {
   message?: string
 }
 
+// Menu Types
+export interface Menu {
+  id: string
+  name: string
+  path: string
+  component: string
+  icon: string
+  parentId: string | null
+  orderNum: number
+  status: 'ACTIVE' | 'INACTIVE'
+  createdAt: string
+  updatedAt: string
+}
+
+// Permission Types
+export interface Permission {
+  id: string
+  menuId: string
+  menuName: string
+  buttonName: string
+  operationType: 'QUERY' | 'CREATE' | 'UPDATE' | 'DELETE' | 'UNLOCK' | 'LOCK'
+  description: string
+  status: 'ACTIVE' | 'INACTIVE'
+  createdAt: string
+  updatedAt: string
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean

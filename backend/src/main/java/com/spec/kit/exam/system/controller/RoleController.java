@@ -9,32 +9,32 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/api/role")
 public class RoleController {
 
     @Autowired
     private RoleService roleService;
 
     /**
-     * GET /roles endpoint for retrieving all roles
+     * GET /role/list endpoint for retrieving all roles
      */
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<List<Role>> getAllRoles() {
         List<Role> roles = roleService.getAllRoles();
         return ResponseEntity.ok(roles);
     }
 
     /**
-     * POST /roles endpoint for creating new roles
+     * POST /role/create endpoint for creating new roles
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Role> createRole(@RequestBody Role role) {
         Role createdRole = roleService.createRole(role);
         return ResponseEntity.ok(createdRole);
     }
 
     /**
-     * GET /roles/{id} endpoint for retrieving specific role
+     * GET /role/{id} endpoint for retrieving specific role
      */
     @GetMapping("/{id}")
     public ResponseEntity<Role> getRoleById(@PathVariable String id) {
@@ -47,20 +47,31 @@ public class RoleController {
     }
 
     /**
-     * PUT /roles/{id} endpoint for updating roles
+     * GET /role/code/{code} endpoint for retrieving role by code
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<Role> updateRole(@PathVariable String id, @RequestBody Role role) {
-        // Set the ID to match the path variable
-        role.setId(id);
+    @GetMapping("/code/{code}")
+    public ResponseEntity<Role> getRoleByCode(@PathVariable String code) {
+        Optional<Role> role = roleService.getRoleByCode(code);
+        if (role.isPresent()) {
+            return ResponseEntity.ok(role.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    /**
+     * PUT /role/update endpoint for updating roles
+     */
+    @PutMapping("/update")
+    public ResponseEntity<Role> updateRole(@RequestBody Role role) {
         Role updatedRole = roleService.updateRole(role);
         return ResponseEntity.ok(updatedRole);
     }
 
     /**
-     * DELETE /roles/{id} endpoint for deleting roles
+     * DELETE /role/delete/{id} endpoint for deleting roles
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable String id) {
         roleService.deleteRole(id);
         return ResponseEntity.noContent().build();

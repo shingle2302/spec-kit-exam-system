@@ -7,6 +7,13 @@ import org.springframework.stereotype.Component;
 public class PasswordUtil {
     
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    
+    // Static instance for static method access
+    private static PasswordUtil instance;
+    
+    public PasswordUtil() {
+        instance = this;
+    }
 
     /**
      * Hashes the provided plaintext password
@@ -15,6 +22,15 @@ public class PasswordUtil {
      */
     public String hashPassword(String plainPassword) {
         return passwordEncoder.encode(plainPassword);
+    }
+    
+    /**
+     * Static method to hash password
+     * @param plainPassword the plaintext password to hash
+     * @return the hashed password
+     */
+    public static String hashPasswordStatic(String plainPassword) {
+        return instance.passwordEncoder.encode(plainPassword);
     }
 
     /**

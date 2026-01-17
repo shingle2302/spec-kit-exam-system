@@ -18,9 +18,9 @@ public class UserController {
     private UserService userService;
 
     /**
-     * GET /users endpoint with pagination and status filtering
+     * GET /users/list endpoint with pagination and status filtering
      */
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<List<User>> getUsers(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer limit,
@@ -31,9 +31,9 @@ public class UserController {
     }
 
     /**
-     * POST /users endpoint for creating new users
+     * POST /users/create endpoint for creating new users
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User createdUser = userService.createUser(user);
         return ResponseEntity.ok(createdUser);
@@ -53,29 +53,27 @@ public class UserController {
     }
 
     /**
-     * PUT /users/{id} endpoint for updating user information
+     * PUT /users/update endpoint for updating user information
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User user) {
-        // Set the ID to match the path variable
-        user.setId(id);
+    @PutMapping("/update")
+    public ResponseEntity<User> updateUser(@RequestBody User user) {
         User updatedUser = userService.updateUser(user);
         return ResponseEntity.ok(updatedUser);
     }
 
     /**
-     * DELETE /users/{id} endpoint for deleting users
+     * DELETE /users/delete/{id} endpoint for deleting users
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     /**
-     * POST /users/{id}/unlock endpoint for admin account unlocking
+     * POST /users/unlock/{id} endpoint for admin account unlocking
      */
-    @PostMapping("/{id}/unlock")
+    @PostMapping("/unlock/{id}")
     public ResponseEntity<?> unlockUser(@PathVariable String id) {
         try {
             // In a real implementation, you'd verify that the caller is an admin

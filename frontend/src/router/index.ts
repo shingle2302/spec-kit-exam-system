@@ -42,6 +42,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '角色管理', requiresAdmin: true }
       },
       {
+        path: 'menus',
+        name: 'MenuManagement',
+        component: () => import('@/views/MenuManagementView.vue'),
+        meta: { title: '菜单管理', requiresAdmin: true }
+      },
+      {
         path: 'profile',
         name: 'Profile',
         component: () => import('@/views/ProfileView.vue'),

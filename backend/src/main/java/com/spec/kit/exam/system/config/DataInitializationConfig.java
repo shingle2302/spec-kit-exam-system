@@ -8,10 +8,13 @@ import com.spec.kit.exam.system.mapper.RoleMapper;
 import com.spec.kit.exam.system.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import java.time.LocalDateTime;
 
-@Component
+@Configuration
+@Order(Ordered.HIGHEST_PRECEDENCE) // Run first before other initializations
 public class DataInitializationConfig implements CommandLineRunner {
 
     @Autowired
@@ -25,37 +28,52 @@ public class DataInitializationConfig implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Create super admin role if it doesn't exist
-        Role superAdminRole = createSuperAdminRoleIfNeeded();
+        // Create default roles if they don't exist
+        createDefaultRolesIfNeeded();
         
-        // Create admin user if it doesn't exist
-        createAdminUserIfNeeded(superAdminRole);
+        // Create default admin user if it doesn't exist
+        createDefaultAdminUserIfNeeded();
     }
 
-    private Role createSuperAdminRoleIfNeeded() {
-        // Check if super admin role already exists
+    private void createDefaultRolesIfNeeded() {
+        // Check if admin role already exists
         QueryWrapper<Role> roleQuery = new QueryWrapper<>();
-        roleQuery.eq("name", "Super Admin");
-        Role existingRole = roleMapper.selectOne(roleQuery);
+        roleQuery.eq("name", "ADMIN");
+        Role existingAdminRole = roleMapper.selectOne(roleQuery);
         
-        if (existingRole != null) {
-            return existingRole;
+        if (existingAdminRole == null) {
+            Role adminRole = new Role();
+            adminRole.setName("ADMIN");
+            adminRole.setDescription("Administrator with broad system access");
+            adminRole.setIsSuperAdminRole(false);
+            adminRole.setIsActive(true);
+            adminRole.setCreatedAt(LocalDateTime.now());
+            adminRole.setUpdatedAt(LocalDateTime.now());
+            
+            roleMapper.insert(adminRole);
+            System.out.println("Default ADMIN role created.");
         }
         
-        Role superAdminRole = new Role();
-        superAdminRole.setName("Super Admin");
-        superAdminRole.setDescription("Has full system access with all privileges");
-        superAdminRole.setIsSuperAdminRole(true);
-        superAdminRole.setIsActive(true);
-        superAdminRole.setPermissions(generateSuperAdminPermissions());
-        superAdminRole.setCreatedAt(LocalDateTime.now());
-        superAdminRole.setUpdatedAt(LocalDateTime.now());
+        // Check if user role already exists
+        QueryWrapper<Role> userRoleQuery = new QueryWrapper<>();
+        userRoleQuery.eq("name", "USER");
+        Role existingUserRole = roleMapper.selectOne(userRoleQuery);
         
-        roleMapper.insert(superAdminRole);
-        return superAdminRole;
+        if (existingUserRole == null) {
+            Role userRole = new Role();
+            userRole.setName("USER");
+            userRole.setDescription("Regular user with basic access");
+            userRole.setIsSuperAdminRole(false);
+            userRole.setIsActive(true);
+            userRole.setCreatedAt(LocalDateTime.now());
+            userRole.setUpdatedAt(LocalDateTime.now());
+            
+            roleMapper.insert(userRole);
+            System.out.println("Default USER role created.");
+        }
     }
 
-    private void createAdminUserIfNeeded(Role superAdminRole) {
+    private void createDefaultAdminUserIfNeeded() {
         // Check if admin user already exists
         QueryWrapper<User> userQuery = new QueryWrapper<>();
         userQuery.eq("username", "admin");
@@ -65,6 +83,11 @@ public class DataInitializationConfig implements CommandLineRunner {
             return; // Admin user already exists
         }
         
+        // Get the ADMIN role
+        QueryWrapper<Role> adminRoleQuery = new QueryWrapper<>();
+        adminRoleQuery.eq("name", "ADMIN");
+        Role adminRole = roleMapper.selectOne(adminRoleQuery);
+        
         User adminUser = new User();
         adminUser.setUsername("admin");
         // Using pre-hashed password for 'admin' to avoid validation issues
@@ -72,40 +95,16 @@ public class DataInitializationConfig implements CommandLineRunner {
         adminUser.setEmail("admin@system.local");
         adminUser.setPhone("+10000000000");
         adminUser.setStatus("ACTIVE");
-        adminUser.setIsSuperAdmin(true);
+        adminUser.setIsSuperAdmin(false); // Regular admin, not super admin
         adminUser.setCreatedAt(LocalDateTime.now());
         adminUser.setUpdatedAt(LocalDateTime.now());
         adminUser.setFailedLoginAttempts(0);
         
-        if (superAdminRole != null) {
-            adminUser.setRoleId(superAdminRole.getId());
+        if (adminRole != null) {
+            adminUser.setRoleId(adminRole.getId());
         }
         
         userMapper.insert(adminUser);
-        System.out.println("==> Admin user created successfully. Username: admin, Password: Admin@123");
-    }
-
-    private String generateSuperAdminPermissions() {
-        // Return a JSON string representing super admin permissions
-        return "{\n" +
-               "  \"users\": {\n" +
-               "    \"read\": true,\n" +
-               "    \"create\": true,\n" +
-               "    \"update\": true,\n" +
-               "    \"delete\": true,\n" +
-               "    \"unlock\": true\n" +
-               "  },\n" +
-               "  \"roles\": {\n" +
-               "    \"read\": true,\n" +
-               "    \"create\": true,\n" +
-               "    \"update\": true,\n" +
-               "    \"delete\": true\n" +
-               "  },\n" +
-               "  \"system\": {\n" +
-               "    \"admin\": true,\n" +
-               "    \"super_admin\": true,\n" +
-               "    \"audit\": true\n" +
-               "  }\n" +
-               "}";
+        System.out.println("==> Default admin user created successfully. Username: admin, Password: Admin@123");
     }
 }
