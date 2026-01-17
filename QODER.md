@@ -1,11 +1,11 @@
 # spec-kit-exam-system Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2025-12-26
+Auto-generated from all feature plans. Last updated: 2026-01-17
 
 ## Active Technologies
-- PostgreSQL (production), H2 (development), with Elasticsearch for search and Redis for caching (001-exam-system)
+- Dual database support (H2 for development, PostgreSQL for production), with Elasticsearch for search and Redis for caching (001-user-mgmt-rbac)
 
-- Java (for Spring Boot backend), TypeScript (for Vue3 frontend) + Spring Boot, Vue3, Ant Design Vue, MyBatisPlus, PostgreSQL, H2, Elasticsearch, Redis (002-single-choice-questions)
+- Java 17, TypeScript 5.3, Vue 3 + Spring Boot, MyBatisPlus, Vue3 with Ant Design Vue, Element Plus (001-user-mgmt-rbac)
 
 ## Project Structure
 
@@ -20,13 +20,12 @@ npm test && npm run lint
 
 ## Code Style
 
-Java (for Spring Boot backend), TypeScript (for Vue3 frontend): Follow standard conventions
+Java 17, TypeScript 5.3, Vue 3: Follow standard conventions
 
 ## Recent Changes
-- 001-exam-system: Added Java (for Spring Boot backend), TypeScript (for Vue3 frontend) + Spring Boot, Vue3, Ant Design Vue, MyBatisPlus, PostgreSQL, H2, Elasticsearch, Redis
-- 001-exam-system: Added Java (for Spring Boot backend), TypeScript (for Vue3 frontend) + Spring Boot, Vue3, Ant Design Vue, MyBatisPlus, PostgreSQL, H2, Elasticsearch, Redis
+- 001-user-mgmt-rbac: Added Java 17, TypeScript 5.3, Vue 3 + Spring Boot, MyBatisPlus, Vue3 with Ant Design Vue, Element Plus
 
-- 002-single-choice-questions: Added Java (for Spring Boot backend), TypeScript (for Vue3 frontend) + Spring Boot, Vue3, Ant Design Vue, MyBatisPlus, PostgreSQL, H2, Elasticsearch, Redis
+- 001-user-mgmt-rbac: Added Java 17, TypeScript 5.3, Vue 3 + Spring Boot, MyBatisPlus, Vue3 with Ant Design Vue, Element Plus
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
