@@ -45,8 +45,8 @@ public class AuthService {
         // Find user by identifier (username, email, or phone)
         User user = findUserByIdentifier(identifier);
         if (user == null) {
-            // Still increment failed attempts even if user doesn't exist to prevent enumeration
-            incrementFailedAttempts(identifier);
+            // Still increment failed attempts in Redis to prevent enumeration attacks
+            incrementFailedAttemptsInRedis(identifier);
             return new AuthResult(false, "Invalid credentials", null, null);
         }
 
@@ -58,7 +58,7 @@ public class AuthService {
         // Validate password
         if (passwordUtil.validatePassword(password, user.getPasswordHash())) {
             // Reset failed attempts on successful login
-            resetFailedAttempts(identifier);
+            resetFailedAttempts(user);
             
             // Update last login time
             user.setLastLoginAt(LocalDateTime.now());
@@ -69,18 +69,18 @@ public class AuthService {
             
             return new AuthResult(true, "Login successful", token, user);
         } else {
-            // Increment failed attempts
-            incrementFailedAttempts(identifier);
+            // Increment failed attempts (both Redis and DB)
+            incrementFailedAttempts(user);
             
             // Check if this makes it the 3rd failed attempt
-            int failedAttempts = getFailedAttempts(identifier);
+            int failedAttempts = user.getFailedLoginAttempts();
             if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
                 // Lock the account
                 lockAccount(user);
                 return new AuthResult(false, "Account locked due to multiple failed login attempts", null, null);
             }
             
-            return new AuthResult(false, "Invalid credentials", null, null);
+            return new AuthResult(false, "Invalid credentials. Attempts: " + failedAttempts + "/" + MAX_FAILED_ATTEMPTS, null, null);
         }
     }
 
@@ -126,10 +126,28 @@ public class AuthService {
     }
 
     /**
-     * Increments the failed login attempts for the given identifier
+     * Increments the failed login attempts for the user (both Redis and DB)
+     * @param user the user to track
+     */
+    private void incrementFailedAttempts(User user) {
+        // Update Redis
+        incrementFailedAttemptsInRedis(user.getUsername());
+        
+        // Update database
+        Integer dbAttempts = user.getFailedLoginAttempts();
+        if (dbAttempts == null) {
+            dbAttempts = 0;
+        }
+        user.setFailedLoginAttempts(dbAttempts + 1);
+        user.setUpdatedAt(LocalDateTime.now());
+        userMapper.updateById(user);
+    }
+
+    /**
+     * Increments failed attempts only in Redis (for non-existent users)
      * @param identifier the identifier to track
      */
-    private void incrementFailedAttempts(String identifier) {
+    private void incrementFailedAttemptsInRedis(String identifier) {
         String key = "login_failed_attempts:" + identifier;
         Integer attempts = (Integer) redisTemplate.opsForValue().get(key);
         if (attempts == null) {
@@ -140,7 +158,7 @@ public class AuthService {
     }
 
     /**
-     * Gets the current failed login attempts for the given identifier
+     * Gets the current failed login attempts for the given identifier from Redis
      * @param identifier the identifier to check
      * @return the number of failed attempts
      */
@@ -151,12 +169,23 @@ public class AuthService {
     }
 
     /**
-     * Resets the failed login attempts for the given identifier
-     * @param identifier the identifier to reset
+     * Resets the failed login attempts for the user (both Redis and DB)
+     * @param user the user to reset
      */
-    private void resetFailedAttempts(String identifier) {
-        String key = "login_failed_attempts:" + identifier;
-        redisTemplate.delete(key);
+    private void resetFailedAttempts(User user) {
+        // Clear Redis
+        redisTemplate.delete("login_failed_attempts:" + user.getUsername());
+        if (user.getEmail() != null) {
+            redisTemplate.delete("login_failed_attempts:" + user.getEmail());
+        }
+        if (user.getPhone() != null) {
+            redisTemplate.delete("login_failed_attempts:" + user.getPhone());
+        }
+        
+        // Reset database field
+        user.setFailedLoginAttempts(0);
+        user.setUpdatedAt(LocalDateTime.now());
+        userMapper.updateById(user);
     }
 
     /**
@@ -213,11 +242,21 @@ public class AuthService {
             userMapper.updateById(user);
 
             // Clear any Redis entries for this user
-            resetFailedAttempts(user.getUsername());
-            resetFailedAttempts(user.getEmail());
-            if (user.getPhone() != null) {
-                resetFailedAttempts(user.getPhone());
-            }
+            clearFailedAttemptsInRedis(user);
+        }
+    }
+
+    /**
+     * Clears failed attempts in Redis for a user
+     * @param user the user to clear
+     */
+    private void clearFailedAttemptsInRedis(User user) {
+        redisTemplate.delete("login_failed_attempts:" + user.getUsername());
+        if (user.getEmail() != null) {
+            redisTemplate.delete("login_failed_attempts:" + user.getEmail());
+        }
+        if (user.getPhone() != null) {
+            redisTemplate.delete("login_failed_attempts:" + user.getPhone());
         }
     }
 

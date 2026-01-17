@@ -26,8 +26,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Clear auth data and redirect to login
+    const requestUrl = error.config?.url || ''
+    const isAuthRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register')
+    
+    if (error.response?.status === 401 && !isAuthRequest) {
+      // Only redirect to login for non-auth requests
       localStorage.removeItem('accessToken')
       localStorage.removeItem('user')
       window.location.href = '/login'
