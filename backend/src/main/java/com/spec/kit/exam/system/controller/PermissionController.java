@@ -12,7 +12,7 @@ import java.util.List;
  * Controller for permission-related operations
  */
 @RestController
-@RequestMapping("/api/permission")
+@RequestMapping("/api/permissions")
 public class PermissionController {
     
     @Autowired

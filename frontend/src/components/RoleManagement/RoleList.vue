@@ -153,7 +153,7 @@ const columns = [
 const loadRoles = async () => {
   loading.value = true;
   try {
-    const response = await roleService.getAllRoles();
+    const response = await roleService.getRoles();
     roles.value = response.data || [];
   } catch (error) {
     console.error('Error loading roles:', error);
@@ -209,7 +209,7 @@ const handleOk = async () => {
     
     if (editingRole.value) {
       // Update existing role
-      await roleService.updateRole({ id: editingRole.value.id, ...roleForm });
+      await roleService.updateRole(editingRole.value.id, roleForm);
     } else {
       // Create new role
       await roleService.createRole(roleForm);
