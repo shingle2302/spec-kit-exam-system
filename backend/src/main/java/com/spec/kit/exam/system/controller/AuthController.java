@@ -5,6 +5,7 @@ import com.spec.kit.exam.system.dto.RegisterRequestDTO;
 import com.spec.kit.exam.system.service.AuthService;
 import com.spec.kit.exam.system.service.UserService;
 import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.UserErrorCodeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class AuthController {
             
             return Result.success(user, "User registered successfully");
         } catch (Exception e) {
-            return Result.error("4001", e.getMessage());
+            return Result.error(UserErrorCodeEnum.REGISTRATION_ERROR, e.getMessage());
         }
     }
 
@@ -58,17 +59,18 @@ public class AuthController {
                 return Result.success(data, "Login successful");
             } else {
                 String message = authResult.getMessage();
-                int errorCode = 2001; // Unauthorized error code
                 
-                // Specific error code for locked accounts
-                if (message.contains("locked")) {
-                    errorCode = 423; // Locked status code
+                // Return appropriate error codes based on the failure reason
+                if (message.toLowerCase().contains("locked")) {
+                    // Account locked - use specific error code for locked accounts
+                    return Result.error(UserErrorCodeEnum.ACCOUNT_LOCKED, message);
+                } else {
+                    // General authentication failure
+                    return Result.unauthorized(message);
                 }
-                
-                return Result.error(errorCode, message);
             }
         } catch (Exception e) {
-            return Result.error("500", "Authentication failed: " + e.getMessage());
+            return Result.error(UserErrorCodeEnum.AUTHENTICATION_FAILED, "Authentication failed: " + e.getMessage());
         }
     }
 
@@ -77,13 +79,14 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public Result<Void> logout(@RequestHeader("Authorization") String token) {
-        // Extract user ID from token (simplified)
-        // In a real implementation, you'd validate the token and extract user info
         try {
-            // For now, we'll just return a success response
+            // Extract user ID from token and invalidate the session
+            // In a real implementation, you'd validate the token and extract user info
+            authService.logout(token);
+            
             return Result.success(null, "Logged out successfully");
         } catch (Exception e) {
-            return Result.error("500", "Logout failed: " + e.getMessage());
+            return Result.error(UserErrorCodeEnum.LOGOUT_FAILED, "Logout failed: " + e.getMessage());
         }
     }
 }

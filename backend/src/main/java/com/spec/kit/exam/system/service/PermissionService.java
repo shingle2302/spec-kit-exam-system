@@ -87,4 +87,11 @@ public interface PermissionService {
      * @return List of permission codes
      */
     List<String> getPermissionCodesByUserId(String userId);
+    
+    /**
+     * Get permission by ID
+     * @param permissionId The permission ID
+     * @return The permission or null if not found
+     */
+    Permission getPermissionById(String permissionId);
 }

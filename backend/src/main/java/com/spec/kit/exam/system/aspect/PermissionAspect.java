@@ -5,6 +5,7 @@ import com.spec.kit.exam.system.entity.User;
 import com.spec.kit.exam.system.service.PermissionService;
 import com.spec.kit.exam.system.service.UserService;
 import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.CommonErrorCodeEnum;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -76,12 +77,12 @@ public class PermissionAspect {
         // Validate that required attributes are provided
         if (menu.isEmpty()) {
             logger.error("Menu attribute is required in @PermissionRequired annotation");
-            return Result.error("2001", "Invalid permission configuration: menu is required");
+            return Result.error(CommonErrorCodeEnum.INVALID_PERMISSION_CONFIG, "Invalid permission configuration: menu is required");
         }
         
         if (operation.isEmpty()) {
             logger.error("Operation attribute is required in @PermissionRequired annotation");
-            return Result.error("2001", "Invalid permission configuration: operation is required");
+            return Result.error(CommonErrorCodeEnum.INVALID_PERMISSION_CONFIG2, "Invalid permission configuration: operation is required");
         }
         
         // Generate permission code and check if user has the required permission

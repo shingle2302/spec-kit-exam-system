@@ -190,6 +190,19 @@ public class PermissionServiceImpl implements PermissionService {
     }
     
     /**
+     * Get permission by ID
+     * @param permissionId The permission ID
+     * @return The permission or null if not found
+     */
+    @Override
+    public Permission getPermissionById(String permissionId) {
+        if (permissionId == null || permissionId.isEmpty()) {
+            return null;
+        }
+        return permissionMapper.selectById(permissionId);
+    }
+    
+    /**
      * Get all permission codes for a user
      * @param userId The user ID
      * @return List of permission codes

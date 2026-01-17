@@ -49,13 +49,21 @@ export const permissionService = {
   /**
    * Get all permissions
    */
-  async getAllPermissions(): Promise<Permission[]> {
-    const response = await fetch(`/api/permissions/list`, {
+  async getAllPermissions(params?: { page?: number; limit?: number }): Promise<import('@/types').PageResponse<Permission>> {
+    let url = '/api/permissions/list'
+    if (params) {
+      const searchParams = new URLSearchParams()
+      if (params.page) searchParams.append('page', params.page.toString())
+      if (params.limit) searchParams.append('limit', params.limit.toString())
+      if (searchParams.toString()) url += '?' + searchParams.toString()
+    }
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: getAuthHeaders()
     })
     
-    return processApiResponse<Permission[]>(response)
+    return processApiResponse<import('@/types').PageResponse<Permission>>(response)
   },
 
   /**
@@ -79,6 +87,18 @@ export const permissionService = {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(permission)
+    })
+    
+    return processApiResponse<Permission>(response)
+  },
+
+  /**
+   * Get a permission by ID
+   */
+  async getPermissionById(permissionId: string): Promise<Permission> {
+    const response = await fetch(`/api/permissions/${encodeURIComponent(permissionId)}`, {
+      method: 'GET',
+      headers: getAuthHeaders()
     })
     
     return processApiResponse<Permission>(response)

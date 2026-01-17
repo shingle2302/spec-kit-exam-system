@@ -138,6 +138,16 @@ export interface ApiResponse<T = any> {
   }>
 }
 
+export interface PageResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  size: number
+  totalPage: number
+  hasNext: boolean
+  hasPrevious: boolean
+}
+
 export interface PaginatedResponse<T> {
   success: boolean
   data: {

@@ -59,13 +59,21 @@ export const menuService = {
   /**
    * Get all menus
    */
-  async getAllMenus(): Promise<Menu[]> {
-    const response = await fetch(`/api/menus/list`, {
+  async getAllMenus(params?: { page?: number; limit?: number }): Promise<import('@/types').PageResponse<Menu>> {
+    let url = '/api/menus/list'
+    if (params) {
+      const searchParams = new URLSearchParams()
+      if (params.page) searchParams.append('page', params.page.toString())
+      if (params.limit) searchParams.append('limit', params.limit.toString())
+      if (searchParams.toString()) url += '?' + searchParams.toString()
+    }
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: getAuthHeaders()
     })
     
-    return processApiResponse<Menu[]>(response)
+    return processApiResponse<import('@/types').PageResponse<Menu>>(response)
   },
 
   /**

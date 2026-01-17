@@ -4,6 +4,8 @@ import com.spec.kit.exam.system.annotation.PermissionRequired;
 import com.spec.kit.exam.system.entity.Role;
 import com.spec.kit.exam.system.service.RoleService;
 import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.RoleErrorCodeEnum;
+import com.spec.kit.exam.system.util.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +24,23 @@ public class RoleController {
      */
     @PermissionRequired(menu = "role-management", operation = "READ")
     @GetMapping("/list")
-    public Result<List<Role>> getAllRoles() {
+    public Result<PageResponse<Role>> getAllRoles(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer limit) {
         List<Role> roles = roleService.getAllRoles();
-        return Result.success(roles, "Roles retrieved successfully");
+        int totalCount = roles.size();
+        
+        // Simple pagination implementation
+        int startIndex = (page - 1) * limit;
+        if (startIndex >= totalCount) {
+            roles = new java.util.ArrayList<>();
+        } else {
+            int endIndex = Math.min(startIndex + limit, totalCount);
+            roles = roles.subList(startIndex, endIndex);
+        }
+        
+        PageResponse<Role> pageResponse = PageResponse.of(roles, totalCount, page, limit);
+        return Result.success(pageResponse, "Roles retrieved successfully");
     }
 
     /**
@@ -47,7 +63,7 @@ public class RoleController {
         if (role.isPresent()) {
             return Result.success(role.get(), "Role retrieved successfully");
         } else {
-            return Result.error("404", "Role not found");
+            return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "Role not found");
         }
     }
 
@@ -61,7 +77,7 @@ public class RoleController {
         if (role.isPresent()) {
             return Result.success(role.get(), "Role retrieved successfully");
         } else {
-            return Result.error("404", "Role not found");
+            return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "Role not found");
         }
     }
     

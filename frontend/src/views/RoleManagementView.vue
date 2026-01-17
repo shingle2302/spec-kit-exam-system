@@ -15,6 +15,16 @@
       :data-source="roleStore.roles"
       :loading="roleStore.loading"
       :row-key="(record: Role) => record.id"
+      :pagination="{
+        current: roleStore.pagination.current,
+        pageSize: roleStore.pagination.pageSize,
+        total: roleStore.pagination.total,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        onChange: handlePageChange,
+        onShowSizeChange: handlePageSizeChange,
+        pageSizeOptions: ['10', '20', '50', '100']
+      }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'isSuperAdminRole'">
@@ -172,6 +182,14 @@ onMounted(() => {
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString('zh-CN')
+}
+
+function handlePageChange(page: number, pageSize: number) {
+  roleStore.fetchRoles({ page, limit: pageSize })
+}
+
+function handlePageSizeChange(current: number, size: number) {
+  roleStore.fetchRoles({ page: 1, limit: size })
 }
 
 function buildPermissions(userPerms: string[], rolePerms: string[]): Permissions {

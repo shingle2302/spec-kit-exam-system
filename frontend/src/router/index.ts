@@ -52,6 +52,12 @@ const routes: RouteRecordRaw[] = [
         name: 'Profile',
         component: () => import('@/views/ProfileView.vue'),
         meta: { title: '个人中心' }
+      },
+      {
+        path: 'permissions',
+        name: 'PermissionManagement',
+        component: () => import('@/views/PermissionManagementView.vue'),
+        meta: { title: '权限管理', requiresAdmin: true }
       }
     ]
   },

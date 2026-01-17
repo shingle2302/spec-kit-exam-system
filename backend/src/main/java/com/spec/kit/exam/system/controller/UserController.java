@@ -5,12 +5,16 @@ import com.spec.kit.exam.system.entity.User;
 import com.spec.kit.exam.system.service.UserService;
 import com.spec.kit.exam.system.dto.UserDTO;
 import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.UserErrorCodeEnum;
+import com.spec.kit.exam.system.util.PageRequest;
+import com.spec.kit.exam.system.util.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,13 +28,28 @@ public class UserController {
      */
     @PermissionRequired(menu = "user-management", operation = "READ")
     @GetMapping("/list")
-    public Result<List<User>> getUsers(
+    public Result<PageResponse<User>> getUsers(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer limit,
             @RequestParam(required = false) String status) {
         
+        // Build query parameters
+        Map<String, Object> params = new HashMap<>();
+        if (status != null && !status.trim().isEmpty()) {
+            params.put("status", status);
+        }
+        params.put("page", page);
+        params.put("size", limit);
+        
+        // Get total count
+        int totalCount = userService.getUserCount(params);
+        
+        // Get paginated users
         List<User> users = userService.getUsers(page, limit, status);
-        return Result.success(users, "Users retrieved successfully");
+        
+        // Create page response
+        PageResponse<User> pageResponse = PageResponse.of(users, totalCount, page, limit);
+        return Result.success(pageResponse, "Users retrieved successfully");
     }
 
     /**
@@ -53,7 +72,7 @@ public class UserController {
         if (user.isPresent()) {
             return Result.success(user.get(), "User retrieved successfully");
         } else {
-            return Result.error("404", "User not found");
+            return Result.error(UserErrorCodeEnum.USER_NOT_FOUND, "User not found");
         }
     }
 
@@ -97,7 +116,7 @@ public class UserController {
             
             return Result.success(null, "User account unlocked successfully");
         } catch (Exception e) {
-            return Result.error("500", "Failed to unlock user: " + e.getMessage());
+            return Result.error(UserErrorCodeEnum.FAILED_TO_UNLOCK_USER, "Failed to unlock user: " + e.getMessage());
         }
     }
 }

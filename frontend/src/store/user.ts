@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { User, CreateUserRequest, UpdateUserRequest } from '@/types'
+import type { User, CreateUserRequest, UpdateUserRequest, PageResponse } from '@/types'
 import { userService } from '@/services/userService'
 import { message } from 'ant-design-vue'
 
 export const useUserStore = defineStore('user', () => {
   // State
   const users = ref<User[]>([])
+  const usersPageData = ref<PageResponse<User> | null>(null)
   const currentEditUser = ref<User | null>(null)
   const loading = ref(false)
   const pagination = ref({
@@ -20,7 +21,11 @@ export const useUserStore = defineStore('user', () => {
     loading.value = true
     try {
       const response = await userService.getUsers(params)
-      users.value = response
+      usersPageData.value = response
+      users.value = response.data
+      pagination.value.current = response.page
+      pagination.value.pageSize = response.size
+      pagination.value.total = response.total
       return { success: true, data: response }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '获取用户列表失败'
@@ -116,6 +121,7 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     users,
+    usersPageData,
     currentEditUser,
     loading,
     pagination,

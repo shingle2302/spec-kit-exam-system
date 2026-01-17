@@ -372,6 +372,22 @@ public class UserService {
     }
     
     /**
+     * Counts users based on query parameters
+     * @param params query parameters including status
+     * @return total count of users matching criteria
+     */
+    public int getUserCount(java.util.Map<String, Object> params) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        
+        // Apply status filter if provided
+        if (params.containsKey("status") && params.get("status") != null) {
+            queryWrapper.eq("status", params.get("status"));
+        }
+        
+        return userMapper.selectCount(queryWrapper).intValue();
+    }
+    
+    /**
      * Saves a user
      * @param user the user to save
      * @return the saved user

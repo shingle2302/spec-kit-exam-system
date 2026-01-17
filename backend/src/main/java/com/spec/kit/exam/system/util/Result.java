@@ -1,5 +1,8 @@
 package com.spec.kit.exam.system.util;
 
+import com.spec.kit.exam.system.enums.ErrorCode;
+import com.spec.kit.exam.system.enums.CommonErrorCodeEnum;
+
 /**
  * Utility class for unified API responses in {data, code, msg} format
  */
@@ -31,9 +34,20 @@ public class Result<T> {
     public static <T> Result<T> error(String code, String msg) {
         return new Result<>(null, code, msg);
     }
+    
+
+    
+    // Module-specific error methods
+    public static <T> Result<T> error(ErrorCode errorCode) {
+        return new Result<>(null, errorCode.getCode(), errorCode.getMessage());
+    }
+    
+    public static <T> Result<T> error(ErrorCode errorCode, String customMessage) {
+        return new Result<>(null, errorCode.getCode(), customMessage != null ? customMessage : errorCode.getMessage());
+    }
 
     public static <T> Result<T> error(String msg) {
-        return new Result<>(null, "500", msg); // Default server error code
+        return new Result<>(null, CommonErrorCodeEnum.SYSTEM_ERROR.getCode(), msg); // Default server error code
     }
 
     public static <T> Result<T> error(String code, String msg, T data) {
@@ -42,12 +56,12 @@ public class Result<T> {
 
     // Validation error
     public static <T> Result<T> validationError(String msg) {
-        return new Result<>(null, "1001", msg); // Validation error code
+        return new Result<>(null, CommonErrorCodeEnum.VALIDATION_ERROR.getCode(), msg); // Validation error code
     }
 
     // Authorization error
     public static <T> Result<T> unauthorized(String msg) {
-        return new Result<>(null, "2001", msg); // Authorization error code
+        return new Result<>(null, CommonErrorCodeEnum.AUTHORIZATION_ERROR.getCode(), msg); // Authorization error code
     }
 
     // Getters and setters

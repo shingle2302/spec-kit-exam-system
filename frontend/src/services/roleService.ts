@@ -21,14 +21,25 @@ export const roleService = {
   /**
    * Get all roles
    */
-  async getRoles(): Promise<Role[]> {
-    const response = await fetch('/api/roles/list', {
+  async getRoles(params?: { page?: number; limit?: number }): Promise<import('@/types').PageResponse<Role>> {
+    let url = '/api/roles/list'
+    if (params) {
+      const searchParams = new URLSearchParams()
+      if (params.page) searchParams.append('page', params.page.toString())
+      if (params.limit) searchParams.append('limit', params.limit.toString())
+      if (searchParams.toString()) url += '?' + searchParams.toString()
+    }
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: getAuthHeaders()
     })
-    const data = await processApiResponse<Role[]>(response)
-    // Parse permissions for each role
-    return data.map(parseRoleResponse)
+    const data = await processApiResponse<import('@/types').PageResponse<any>>(response)
+    // Parse permissions for each role in the data
+    if (data && data.data) {
+      data.data = data.data.map(parseRoleResponse)
+    }
+    return data
   },
 
   /**

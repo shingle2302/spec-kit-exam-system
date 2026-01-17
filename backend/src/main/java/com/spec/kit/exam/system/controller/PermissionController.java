@@ -4,6 +4,8 @@ import com.spec.kit.exam.system.annotation.PermissionRequired;
 import com.spec.kit.exam.system.entity.Permission;
 import com.spec.kit.exam.system.service.PermissionService;
 import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.PermissionErrorCodeEnum;
+import com.spec.kit.exam.system.util.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -38,7 +40,7 @@ public class PermissionController {
         if (success) {
             return Result.success(null, "Permissions assigned successfully");
         } else {
-            return Result.error("4001", "Failed to assign permissions");
+            return Result.error(PermissionErrorCodeEnum.FAILED_TO_ASSIGN_PERMISSIONS, "Failed to assign permissions");
         }
     }
     
@@ -52,7 +54,7 @@ public class PermissionController {
         if (success) {
             return Result.success(null, "Permissions removed successfully");
         } else {
-            return Result.error("4001", "Failed to remove permissions");
+            return Result.error(PermissionErrorCodeEnum.FAILED_TO_REMOVE_PERMISSIONS, "Failed to remove permissions");
         }
     }
     
@@ -61,9 +63,23 @@ public class PermissionController {
      */
     @PermissionRequired(menu = "permission-management", operation = "READ")
     @GetMapping("/list")
-    public Result<List<Permission>> getAllPermissions() {
+    public Result<PageResponse<Permission>> getAllPermissions(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer limit) {
         List<Permission> permissions = permissionService.getAllPermissions();
-        return Result.success(permissions, "Permissions retrieved successfully");
+        int totalCount = permissions.size();
+        
+        // Simple pagination implementation
+        int startIndex = (page - 1) * limit;
+        if (startIndex >= totalCount) {
+            permissions = new java.util.ArrayList<>();
+        } else {
+            int endIndex = Math.min(startIndex + limit, totalCount);
+            permissions = permissions.subList(startIndex, endIndex);
+        }
+        
+        PageResponse<Permission> pageResponse = PageResponse.of(permissions, totalCount, page, limit);
+        return Result.success(pageResponse, "Permissions retrieved successfully");
     }
     
     /**
@@ -86,7 +102,7 @@ public class PermissionController {
         if (success) {
             return Result.success(permission, "Permission updated successfully");
         } else {
-            return Result.error("4001", "Failed to update permission");
+            return Result.error(PermissionErrorCodeEnum.FAILED_TO_UPDATE_PERMISSION, "Failed to update permission");
         }
     }
     
@@ -100,7 +116,21 @@ public class PermissionController {
         if (success) {
             return Result.success(null, "Permission deleted successfully");
         } else {
-            return Result.error("4001", "Failed to delete permission");
+            return Result.error(PermissionErrorCodeEnum.FAILED_TO_DELETE_PERMISSION, "Failed to delete permission");
+        }
+    }
+    
+    /**
+     * Get a permission by ID
+     */
+    @PermissionRequired(menu = "permission-management", operation = "READ")
+    @GetMapping("/{id}")
+    public Result<Permission> getPermissionById(@PathVariable String id) {
+        Permission permission = permissionService.getPermissionById(id);
+        if (permission != null) {
+            return Result.success(permission, "Permission retrieved successfully");
+        } else {
+            return Result.error(PermissionErrorCodeEnum.PERMISSION_NOT_FOUND, "Permission not found");
         }
     }
     

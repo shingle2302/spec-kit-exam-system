@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { Tree as ATree, Input as AInput, Empty as AEmpty, Button as AButton } from 'ant-design-vue';
 import { DownOutlined, RightOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
 import { menuService } from '@/services/menuService';
@@ -163,7 +163,16 @@ const deleteMenu = (menuId) => {
 const loadMenuTree = async () => {
   try {
     const response = await menuService.getMenuTree(props.roleId);
-    menus.value = response.data || [];
+    // Check if response is paginated or direct array
+    if (response && typeof response === 'object' && Array.isArray(response.data)) {
+      // Handle paginated response
+      menus.value = response.data || [];
+    } else if (Array.isArray(response)) {
+      // Handle direct array response
+      menus.value = response || [];
+    } else {
+      menus.value = [];
+    }
   } catch (error) {
     console.error('Error loading menu tree:', error);
   }

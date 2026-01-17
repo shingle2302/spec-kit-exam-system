@@ -5,7 +5,7 @@ export const userService = {
   /**
    * Get all users with pagination and filtering
    */
-  async getUsers(params?: { page?: number; limit?: number; status?: string }): Promise<User[]> {
+  async getUsers(params?: { page?: number; limit?: number; status?: string }): Promise<import('@/types').PageResponse<User>> {
     let url = '/api/users/list'
     if (params) {
       const searchParams = new URLSearchParams()
@@ -19,7 +19,7 @@ export const userService = {
       method: 'GET',
       headers: getAuthHeaders()
     })
-    return processApiResponse<User[]>(response)
+    return processApiResponse<import('@/types').PageResponse<User>>(response)
   },
 
   /**

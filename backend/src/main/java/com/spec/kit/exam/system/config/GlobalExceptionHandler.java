@@ -1,6 +1,7 @@
 package com.spec.kit.exam.system.config;
 
 import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.CommonErrorCodeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,7 +21,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<Object> handleGeneralException(Exception ex) {
         logger.error("Unexpected error occurred: ", ex);
-        return Result.error("3001", "Internal server error occurred");
+        return Result.error(CommonErrorCodeEnum.GENERAL_SERVER_ERROR, "Internal server error occurred");
     }
 
     /**
@@ -29,7 +30,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public Result<Object> handleRuntimeException(RuntimeException ex) {
         logger.error("Runtime error occurred: ", ex);
-        return Result.error("3001", ex.getMessage());
+        return Result.error(CommonErrorCodeEnum.RUNTIME_EXCEPTION, ex.getMessage());
     }
 
     /**
