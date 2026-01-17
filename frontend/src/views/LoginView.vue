@@ -57,7 +57,8 @@
       <div class="demo-info">
         <a-divider>默认管理员账户</a-divider>
         <p>用户名: <code>admin</code></p>
-        <p>密码: <code>admin</code></p>
+        <p>密码: <code>Admin@123</code></p>
+        <p>H2 控制台: <code>http://localhost:8080/h2-console</code></p>
       </div>
     </div>
   </div>
