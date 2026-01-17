@@ -54,6 +54,7 @@ public class AuthController {
             if (authResult.isSuccess()) {
                 Map<String, Object> data = new HashMap<>();
                 data.put("accessToken", authResult.getToken());
+                // Make sure the user object is properly populated with all fields
                 data.put("user", authResult.getUser());
                 
                 return Result.success(data, "Login successful");

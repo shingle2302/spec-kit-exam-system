@@ -79,14 +79,23 @@ public class DataInitializationConfig implements CommandLineRunner {
         userQuery.eq("username", "admin");
         User existingUser = userMapper.selectOne(userQuery);
         
-        if (existingUser != null) {
-            return; // Admin user already exists
-        }
-        
         // Get the ADMIN role
         QueryWrapper<Role> adminRoleQuery = new QueryWrapper<>();
         adminRoleQuery.eq("name", "ADMIN");
         Role adminRole = roleMapper.selectOne(adminRoleQuery);
+        
+        if (existingUser != null) {
+            // Update existing admin user to be super admin if not already
+            if (existingUser.getIsSuperAdmin() == null || !existingUser.getIsSuperAdmin()) {
+                existingUser.setIsSuperAdmin(true);
+                existingUser.setUpdatedAt(LocalDateTime.now());
+                userMapper.updateById(existingUser);
+                System.out.println("==> Existing admin user upgraded to SUPER ADMIN. Username: admin");
+            } else {
+                System.out.println("==> Admin user already exists as super admin.");
+            }
+            return; // Admin user already exists
+        }
         
         User adminUser = new User();
         adminUser.setUsername("admin");
@@ -95,7 +104,7 @@ public class DataInitializationConfig implements CommandLineRunner {
         adminUser.setEmail("admin@system.local");
         adminUser.setPhone("+10000000000");
         adminUser.setStatus("ACTIVE");
-        adminUser.setIsSuperAdmin(false); // Regular admin, not super admin
+        adminUser.setIsSuperAdmin(true); // Set admin as super admin
         adminUser.setCreatedAt(LocalDateTime.now());
         adminUser.setUpdatedAt(LocalDateTime.now());
         adminUser.setFailedLoginAttempts(0);
@@ -105,6 +114,6 @@ public class DataInitializationConfig implements CommandLineRunner {
         }
         
         userMapper.insert(adminUser);
-        System.out.println("==> Default admin user created successfully. Username: admin, Password: Admin@123");
+        System.out.println("==> Default SUPER ADMIN user created successfully. Username: admin, Password: Admin@123");
     }
 }
