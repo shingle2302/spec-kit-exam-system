@@ -12,7 +12,7 @@ import java.util.List;
  * Controller for menu-related operations
  */
 @RestController
-@RequestMapping("/api/menu")
+@RequestMapping("/api/menus")
 public class MenuController {
     
     @Autowired

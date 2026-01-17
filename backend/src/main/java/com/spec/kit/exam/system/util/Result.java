@@ -17,15 +17,15 @@ public class Result<T> {
 
     // Static factory methods for common responses
     public static <T> Result<T> success(T data) {
-        return new Result<>(data, 0, "success");
+        return new Result<>(data, 1000, "success");
     }
 
     public static <T> Result<T> success(T data, String msg) {
-        return new Result<>(data, 0, msg);
+        return new Result<>(data, 1000, msg);
     }
 
     public static <T> Result<T> success() {
-        return new Result<>(null, 0, "success");
+        return new Result<>(null, 1000, "success");
     }
 
     public static <T> Result<T> error(int code, String msg) {

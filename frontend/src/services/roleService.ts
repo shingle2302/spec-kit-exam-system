@@ -1,5 +1,5 @@
-import api from './api'
-import type { Role, CreateRoleRequest, UpdateRoleRequest, ApiResponse } from '@/types'
+import { processApiResponse, getAuthHeaders } from './api'
+import type { Role, CreateRoleRequest, UpdateRoleRequest } from '@/types'
 
 // Convert permissions object to JSON string for backend
 function prepareRoleData(roleData: CreateRoleRequest | UpdateRoleRequest) {
@@ -22,41 +22,74 @@ export const roleService = {
    * Get all roles
    */
   async getRoles(): Promise<Role[]> {
-    const response = await api.get<Role[]>('/roles')
+    const response = await fetch('/api/roles/list', {
+      method: 'GET',
+      headers: getAuthHeaders()
+    })
+    const data = await processApiResponse<Role[]>(response)
     // Parse permissions for each role
-    return response.data.map(parseRoleResponse)
+    return data.map(parseRoleResponse)
   },
 
   /**
    * Get a specific role by ID
    */
   async getRoleById(id: string): Promise<Role> {
-    const response = await api.get<Role>(`/roles/${id}`)
-    return parseRoleResponse(response.data)
+    const response = await fetch(`/api/roles/${id}`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    })
+    const data = await processApiResponse<Role>(response)
+    return parseRoleResponse(data)
   },
 
   /**
    * Create a new role
    */
   async createRole(roleData: CreateRoleRequest): Promise<Role> {
-    const response = await api.post<Role>('/roles', prepareRoleData(roleData))
-    return parseRoleResponse(response.data)
+    const response = await fetch('/api/roles/create', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(prepareRoleData(roleData))
+    })
+    const data = await processApiResponse<Role>(response)
+    return parseRoleResponse(data)
   },
 
   /**
    * Update an existing role
    */
   async updateRole(id: string, roleData: UpdateRoleRequest): Promise<Role> {
-    const response = await api.put<Role>(`/roles/${id}`, prepareRoleData(roleData))
-    return parseRoleResponse(response.data)
+    const response = await fetch('/api/roles/update', {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({...prepareRoleData(roleData), id})
+    })
+    const data = await processApiResponse<Role>(response)
+    return parseRoleResponse(data)
   },
 
   /**
    * Delete a role
    */
   async deleteRole(id: string): Promise<void> {
-    await api.delete(`/roles/${id}`)
+    const response = await fetch(`/api/roles/delete/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    })
+    await processApiResponse<void>(response)
+  },
+
+  /**
+   * Get a specific role by code
+   */
+  async getRoleByCode(code: string): Promise<Role> {
+    const response = await fetch(`/api/roles/code/${code}`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    })
+    const data = await processApiResponse<Role>(response)
+    return parseRoleResponse(data)
   }
 }
 
-export default roleService

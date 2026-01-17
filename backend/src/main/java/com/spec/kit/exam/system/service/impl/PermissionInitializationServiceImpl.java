@@ -254,8 +254,8 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
      */
     private void ensureMenuExists(String menuId) {
         // Check if the menu already exists
-        Optional<Menu> existingMenuOpt = menuService.getMenuById(menuId);
-        if (existingMenuOpt.isEmpty()) {
+        Menu existingMenu = menuService.getMenuById(menuId);
+        if (existingMenu == null) {
             // Create a basic menu entry if it doesn't exist
             Menu newMenu = new Menu();
             newMenu.setId(menuId);
