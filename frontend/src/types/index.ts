@@ -104,6 +104,7 @@ export interface AuthResponse {
 export interface Menu {
   id: string
   name: string
+  code: string
   path: string
   component: string
   icon: string

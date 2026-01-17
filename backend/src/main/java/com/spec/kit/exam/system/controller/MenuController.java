@@ -37,7 +37,11 @@ public class MenuController {
     @PostMapping("/create")
     public Result<Menu> createMenu(@RequestBody Menu menu) {
         Menu createdMenu = menuService.createMenu(menu);
-        return Result.success(createdMenu, "Menu created successfully");
+        if (createdMenu != null) {
+            return Result.success(createdMenu, "Menu created successfully");
+        } else {
+            return Result.error(MenuErrorCodeEnum.MENU_ALREADY_EXISTS);
+        }
     }
     
     /**
@@ -65,6 +69,20 @@ public class MenuController {
             return Result.success(null, "Menu deleted successfully");
         } else {
             return Result.error(MenuErrorCodeEnum.FAILED_TO_DELETE_MENU, "Failed to delete menu");
+        }
+    }
+    
+    /**
+     * Get menu by ID
+     */
+    @PermissionRequired(menu = "menu-management", operation = "READ")
+    @GetMapping("/{id}")
+    public Result<Menu> getMenuById(@PathVariable String id) {
+        Menu menu = menuService.getMenuById(id);
+        if (menu != null) {
+            return Result.success(menu, "Menu retrieved successfully");
+        } else {
+            return Result.error(MenuErrorCodeEnum.MENU_NOT_FOUND);
         }
     }
     

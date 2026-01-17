@@ -86,6 +86,10 @@ public class MenuServiceImpl implements MenuService {
         if (menu.getOrderNum() == null) {
             menu.setOrderNum(0);
         }
+        // Check if menu with same name and parent already exists
+        if (menuExists(menu.getName(), menu.getParentId())) {
+            return null; // Indicate failure - menu already exists
+        }
         menu.setCreatedAt(LocalDateTime.now());
         menu.setUpdatedAt(LocalDateTime.now());
         

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE) // Run first before other initializations
-public class DataInitializationConfig implements CommandLineRunner {
+public class UserRoleInitializationConfig implements CommandLineRunner {
 
     @Autowired
     private UserMapper userMapper;
@@ -32,26 +32,26 @@ public class DataInitializationConfig implements CommandLineRunner {
         createDefaultRolesIfNeeded();
         
         // Create default admin user if it doesn't exist
-        createDefaultAdminUserIfNeeded();
+        createDefaultAdminAccount();
     }
 
     private void createDefaultRolesIfNeeded() {
         // Check if admin role already exists
         QueryWrapper<Role> roleQuery = new QueryWrapper<>();
-        roleQuery.eq("name", "ADMIN");
+        roleQuery.eq("name", "SUPER_ADMIN");
         Role existingAdminRole = roleMapper.selectOne(roleQuery);
         
         if (existingAdminRole == null) {
             Role adminRole = new Role();
-            adminRole.setName("ADMIN");
+            adminRole.setName("SUPER_ADMIN");
             adminRole.setDescription("Administrator with broad system access");
-            adminRole.setIsSuperAdminRole(false);
+            adminRole.setIsSuperAdminRole(true);
             adminRole.setIsActive(true);
             adminRole.setCreatedAt(LocalDateTime.now());
             adminRole.setUpdatedAt(LocalDateTime.now());
             
             roleMapper.insert(adminRole);
-            System.out.println("Default ADMIN role created.");
+            System.out.println("SUPER ADMIN role created.");
         }
         
         // Check if user role already exists
@@ -73,15 +73,19 @@ public class DataInitializationConfig implements CommandLineRunner {
         }
     }
 
-    private void createDefaultAdminUserIfNeeded() {
+
+    /**
+     * Create default admin account if it doesn't exist
+     */
+    private void createDefaultAdminAccount() {
         // Check if admin user already exists
         QueryWrapper<User> userQuery = new QueryWrapper<>();
         userQuery.eq("username", "admin");
         User existingUser = userMapper.selectOne(userQuery);
         
-        // Get the ADMIN role
+        // Get the SUPER_ADMIN role
         QueryWrapper<Role> adminRoleQuery = new QueryWrapper<>();
-        adminRoleQuery.eq("name", "ADMIN");
+        adminRoleQuery.eq("name", "SUPER_ADMIN");
         Role adminRole = roleMapper.selectOne(adminRoleQuery);
         
         if (existingUser != null) {
@@ -116,4 +120,5 @@ public class DataInitializationConfig implements CommandLineRunner {
         userMapper.insert(adminUser);
         System.out.println("==> Default SUPER ADMIN user created successfully. Username: admin, Password: Admin@123");
     }
+
 }

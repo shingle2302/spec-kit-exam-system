@@ -1,11 +1,8 @@
 package com.spec.kit.exam.system.config;
 
-import com.spec.kit.exam.system.entity.Role;
-import com.spec.kit.exam.system.entity.User;
 import com.spec.kit.exam.system.service.PermissionInitializationService;
 import com.spec.kit.exam.system.service.RoleService;
 import com.spec.kit.exam.system.service.UserService;
-import com.spec.kit.exam.system.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -15,14 +12,9 @@ import org.springframework.context.annotation.Configuration;
  * Configuration for permission-related functionality including super admin initialization
  */
 @Configuration
-public class PermissionConfig {
+public class PermissionInitializationConfig {
     
-    @Autowired
-    private UserService userService;
-    
-    @Autowired
-    private RoleService roleService;
-    
+
     @Autowired
     private PermissionInitializationService permissionInitializationService;
 
@@ -32,51 +24,11 @@ public class PermissionConfig {
     @Bean
     public CommandLineRunner initializeSuperAdmin() {
         return args -> {
-            // Create or verify super admin account exists
-            createSuperAdminAccount();
-            
             // Initialize permissions from annotations
             initializePermissionsFromAnnotations();
         };
     }
 
-    /**
-     * Create super admin account if it doesn't exist
-     */
-    private void createSuperAdminAccount() {
-        System.out.println("Initializing super admin account...");
-        
-        // Check if super admin already exists
-        User existingSuperAdmin = userService.getByUsername("superadmin");
-        if (existingSuperAdmin != null) {
-            System.out.println("Super admin account already exists.");
-            return;
-        }
-        
-        // Create super admin role if it doesn't exist
-        Role superAdminRole = roleService.getByName("SUPER_ADMIN");
-        if (superAdminRole == null) {
-            superAdminRole = new Role();
-            superAdminRole.setName("SUPER_ADMIN");
-            superAdminRole.setDescription("Super Administrator with all permissions");
-            superAdminRole.setIsSuperAdminRole(true);
-            superAdminRole.setIsActive(true);
-            roleService.save(superAdminRole);
-            System.out.println("Super admin role created.");
-        }
-        
-        // Create super admin user
-        User superAdmin = new User();
-        superAdmin.setUsername("superadmin");
-        superAdmin.setPasswordHash(PasswordUtil.hashPasswordStatic("SuperAdmin123!"));
-        superAdmin.setEmail("superadmin@exam-system.local");
-        superAdmin.setIsSuperAdmin(true);
-        superAdmin.setStatus("ACTIVE");
-        superAdmin.setRoleId(superAdminRole.getId());
-        
-        userService.save(superAdmin);
-        System.out.println("Super admin account created with username: superadmin and default password");
-    }
     
     /**
      * Initialize permissions from @PermissionRequired annotations

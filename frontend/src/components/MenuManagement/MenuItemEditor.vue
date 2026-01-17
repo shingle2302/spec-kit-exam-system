@@ -13,6 +13,10 @@
         <a-input v-model:value="formState.name" placeholder="Enter menu name" />
       </a-form-item>
       
+      <a-form-item label="Menu Code" name="code" :rules="[{ required: true, message: 'Please input menu code!' }]">
+        <a-input v-model:value="formState.code" placeholder="Enter menu code (e.g., user-management)" />
+      </a-form-item>
+      
       <a-form-item label="Parent Menu" name="parentId">
         <a-select
           v-model:value="formState.parentId"
@@ -93,6 +97,7 @@ const menuOptions = ref([]);
 // Form state
 const formState = reactive({
   name: '',
+  code: '',
   parentId: undefined,
   path: '',
   component: '',
@@ -106,6 +111,11 @@ const rules = {
   name: [
     { required: true, message: 'Please input menu name!' },
     { min: 2, max: 100, message: 'Name must be between 2 and 100 characters', trigger: 'blur' }
+  ],
+  code: [
+    { required: true, message: 'Please input menu code!' },
+    { min: 2, max: 50, message: 'Code must be between 2 and 50 characters', trigger: 'blur' },
+    { pattern: /^[a-z0-9\-]+$/, message: 'Code can only contain lowercase letters, numbers, and hyphens', trigger: 'blur' }
   ],
   path: [
     { required: true, message: 'Please input route path!' },
@@ -172,6 +182,8 @@ const onCancel = () => {
       formState[key] = 1;
     } else if (key === 'status') {
       formState[key] = 'ACTIVE';
+    } else if (key === 'code') {
+      formState[key] = ''; // Initialize code field as empty
     } else {
       formState[key] = '';
     }
@@ -191,6 +203,8 @@ watch(
           formState[key] = 1;
         } else if (key === 'status') {
           formState[key] = 'ACTIVE';
+        } else if (key === 'code') {
+          formState[key] = ''; // Initialize code field as empty
         } else {
           formState[key] = '';
         }
