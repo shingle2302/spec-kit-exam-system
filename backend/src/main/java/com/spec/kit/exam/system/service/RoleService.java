@@ -185,4 +185,51 @@ public class RoleService {
         Optional<Role> roleOpt = getRoleById(roleId);
         return roleOpt.isPresent() && Boolean.TRUE.equals(roleOpt.get().getIsSuperAdminRole());
     }
+
+    /**
+     * Gets a role by name
+     * @param name the role name
+     * @return the role if found, null otherwise
+     */
+    public Role getByName(String name) {
+        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Role> queryWrapper = 
+            new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+        queryWrapper.eq("name", name);
+        return roleMapper.selectOne(queryWrapper);
+    }
+    
+    /**
+     * Gets a role by code
+     * @param code the role code
+     * @return the role if found, null otherwise
+     */
+    public Optional<Role> getRoleByCode(String code) {
+        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Role> queryWrapper = 
+            new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+        queryWrapper.eq("code", code);
+        Role role = roleMapper.selectOne(queryWrapper);
+        return Optional.ofNullable(role);
+    }
+    
+    /**
+     * Saves a role
+     * @param role the role to save
+     * @return the saved role
+     */
+    public Role save(Role role) {
+        if (role.getId() == null || role.getId().isEmpty()) {
+            // New role
+            role.setCreatedAt(LocalDateTime.now());
+            role.setUpdatedAt(LocalDateTime.now());
+            if (role.getIsActive() == null) {
+                role.setIsActive(true);
+            }
+            roleMapper.insert(role);
+        } else {
+            // Update existing role
+            role.setUpdatedAt(LocalDateTime.now());
+            roleMapper.updateById(role);
+        }
+        return role;
+    }
 }

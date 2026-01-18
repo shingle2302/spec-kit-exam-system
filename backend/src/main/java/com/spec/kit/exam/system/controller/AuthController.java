@@ -4,6 +4,8 @@ import com.spec.kit.exam.system.dto.LoginRequestDTO;
 import com.spec.kit.exam.system.dto.RegisterRequestDTO;
 import com.spec.kit.exam.system.service.AuthService;
 import com.spec.kit.exam.system.service.UserService;
+import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.UserErrorCodeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +27,7 @@ public class AuthController {
      * POST /auth/register endpoint for user registration
      */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestDTO registerRequest) {
+    public Result<?> register(@RequestBody RegisterRequestDTO registerRequest) {
         try {
             // Call the registration service method
             var user = userService.registerUser(
@@ -35,18 +37,9 @@ public class AuthController {
                 registerRequest.getPhone()
             );
             
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "User registered successfully");
-            response.put("data", user);
-            
-            return ResponseEntity.ok(response);
+            return Result.success(user, "User registered successfully");
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-            
-            return ResponseEntity.badRequest().body(response);
+            return Result.error(UserErrorCodeEnum.REGISTRATION_ERROR, e.getMessage());
         }
     }
 
@@ -54,37 +47,31 @@ public class AuthController {
      * POST /auth/login endpoint supporting identifier (username/email/phone) and password
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
+    public Result<Map<String, Object>> login(@RequestBody LoginRequestDTO loginRequest) {
         try {
             var authResult = authService.authenticate(loginRequest);
             
             if (authResult.isSuccess()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("data", Map.of(
-                    "accessToken", authResult.getToken(),
-                    "user", authResult.getUser()
-                ));
+                Map<String, Object> data = new HashMap<>();
+                data.put("accessToken", authResult.getToken());
+                // Make sure the user object is properly populated with all fields
+                data.put("user", authResult.getUser());
                 
-                return ResponseEntity.ok(response);
+                return Result.success(data, "Login successful");
             } else {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", authResult.getMessage());
+                String message = authResult.getMessage();
                 
-                // Return 423 if account is locked (as specified in contracts)
-                if (authResult.getMessage().contains("locked")) {
-                    return ResponseEntity.status(HttpStatus.LOCKED).body(response);
+                // Return appropriate error codes based on the failure reason
+                if (message.toLowerCase().contains("locked")) {
+                    // Account locked - use specific error code for locked accounts
+                    return Result.error(UserErrorCodeEnum.ACCOUNT_LOCKED, message);
+                } else {
+                    // General authentication failure
+                    return Result.unauthorized(message);
                 }
-                
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Authentication failed: " + e.getMessage());
-            
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return Result.error(UserErrorCodeEnum.AUTHENTICATION_FAILED, "Authentication failed: " + e.getMessage());
         }
     }
 
@@ -92,22 +79,15 @@ public class AuthController {
      * POST /auth/logout endpoint to invalidate sessions
      */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
-        // Extract user ID from token (simplified)
-        // In a real implementation, you'd validate the token and extract user info
+    public Result<Void> logout(@RequestHeader("Authorization") String token) {
         try {
-            // For now, we'll just return a success response
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Logged out successfully");
+            // Extract user ID from token and invalidate the session
+            // In a real implementation, you'd validate the token and extract user info
+            authService.logout(token);
             
-            return ResponseEntity.ok(response);
+            return Result.success(null, "Logged out successfully");
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Logout failed: " + e.getMessage());
-            
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return Result.error(UserErrorCodeEnum.LOGOUT_FAILED, "Logout failed: " + e.getMessage());
         }
     }
 }

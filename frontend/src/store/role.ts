@@ -1,22 +1,32 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Role, CreateRoleRequest, UpdateRoleRequest } from '@/types'
+import type { Role, CreateRoleRequest, UpdateRoleRequest, PageResponse } from '@/types'
 import { roleService } from '@/services/roleService'
 import { message } from 'ant-design-vue'
 
 export const useRoleStore = defineStore('role', () => {
   // State
   const roles = ref<Role[]>([])
+  const rolesPageData = ref<PageResponse<Role> | null>(null)
   const currentEditRole = ref<Role | null>(null)
   const loading = ref(false)
+  const pagination = ref({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  })
 
   // Actions
-  async function fetchRoles() {
+  async function fetchRoles(params?: { page?: number; limit?: number }) {
     loading.value = true
     try {
-      const data = await roleService.getRoles()
-      roles.value = data
-      return { success: true, data }
+      const response = await roleService.getRoles(params)
+      rolesPageData.value = response
+      roles.value = response.data
+      pagination.value.current = response.page
+      pagination.value.pageSize = response.size
+      pagination.value.total = response.total
+      return { success: true, data: response }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '获取角色列表失败'
       message.error(errorMsg)
@@ -95,8 +105,10 @@ export const useRoleStore = defineStore('role', () => {
 
   return {
     roles,
+    rolesPageData,
     currentEditRole,
     loading,
+    pagination,
     fetchRoles,
     fetchRoleById,
     createRole,
