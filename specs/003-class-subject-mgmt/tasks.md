@@ -164,7 +164,7 @@ description: "Task list for grade and subject management feature implementation"
 
 - [ ] T073 [P] Add comprehensive logging for all grade and subject operations
 - [ ] T074 [P] Implement audit trail functionality for compliance
-- [ ] T075 Add performance optimizations (pagination using POST with body params, caching) to all endpoints
+- [ ] T075 Add performance optimizations (pagination using POST with body params as required by constitution, caching) to all endpoints
 - [ ] T075A Implement pagination using POST method with parameters passed in request body for all list endpoints as per constitution standards
 - [ ] T076 [P] Add comprehensive error boundary components in frontend
 - [ ] T077 Add data validation and sanitization for all inputs

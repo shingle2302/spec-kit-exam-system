@@ -33,3 +33,15 @@
 
 **Alternatives considered**:
 - Separate audit tables vs. audit fields in each entity were evaluated. The audit fields approach was chosen for simplicity and consistency with existing patterns.
+
+## Decision: Performance and Scalability Targets
+**Rationale**: Based on the success criteria defined in the specification, the system will target API response times under 500ms, UI response times under 100ms, and support for 100 concurrent users.
+
+**Alternatives considered**:
+- Higher performance targets were considered but rejected as the specified targets align with the project's requirements and industry standards.
+
+## Decision: Data Validation and Sanitization
+**Rationale**: Implement comprehensive input validation and sanitization to prevent injection attacks and ensure data integrity as required by the functional requirements.
+
+**Alternatives considered**:
+- Minimal validation vs. comprehensive validation approaches were evaluated. The comprehensive approach was chosen to ensure security and data quality.

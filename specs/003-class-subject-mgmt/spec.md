@@ -78,8 +78,9 @@ As an administrator, I want to ensure that only principals and super admins can 
 - **FR-014**: System MUST provide comprehensive error handling, empty states, and accessibility/localization features for all grade and subject management interfaces
 - **FR-015**: System MUST support importing and exporting grade and subject data in standard formats (CSV, JSON) for integration with other educational systems
 - **FR-016**: System MUST meet defined performance and scalability targets (concurrent users, data volume limits, peak usage handling) for grade and subject management operations
-- **FR-017**: System MUST provide observability features including logging, metrics, and audit trails for all grade and subject management operations
+- **FR-017**: System MUST provide comprehensive observability features including logging, metrics, audit trails, and security-relevant activity tracking for all grade and subject management operations, with detailed records of user actions and system events
 - **FR-018**: System MUST represent high school mathematics as two distinct subjects: "Mathematics (Liberal Arts)" and "Mathematics (Science)" to accommodate different academic streams
+- **FR-019**: System MUST implement data validation and sanitization for all user inputs to prevent injection attacks and ensure data integrity
 
 ### Key Entities
 
@@ -96,7 +97,7 @@ As an administrator, I want to ensure that only principals and super admins can 
 - **SC-002**: Users with other roles can successfully view grade and subject structures without being able to modify them, with 100% prevention of unauthorized changes
 - **SC-003**: The system correctly organizes grades according to the specified structure (small/medium/large for kindergarten, 6/3/3 grades for elementary/middle/high school) with 100% accuracy
 - **SC-004**: The system correctly organizes subjects according to the specified structure (general education for kindergarten, core subjects for elementary, 8 subjects for middle/high school with Math split in high school) with 100% accuracy
-- **SC-005**: Grade and subject management features achieve 99% uptime during business hours with response times under 2 seconds for all operations
+- **SC-005**: Grade and subject management features achieve 99% uptime during business hours with API response times under 500ms and UI response times under 100ms for all operations
 - **SC-006**: System supports at least 100 concurrent users performing grade and subject management operations during peak usage periods
 - **SC-007**: Data import/export operations complete within 30 seconds for datasets containing up to 10,000 records
 
@@ -111,3 +112,5 @@ As an administrator, I want to ensure that only principals and super admins can 
 - Q: Should high school mathematics be represented as a single subject with stream classification or as two separate subjects? → A: Represent high school mathematics as two distinct subjects: "Mathematics (Liberal Arts)" and "Mathematics (Science)"
 - Q: Are unified response body, pagination query objects, and response objects already available in the codebase? → A: Unified response objects already exist in the util directory and need to be investigated and relocated appropriately rather than creating new ones
 - Q: Should we use "classroom" or "grade" when referring to grade levels (like elementary Grade 1, Grade 2, etc.)? → A: Use "grade" instead of "classroom" when referring to grade levels
+- Q: What are the specific performance requirements for the system? → A: Specify exact performance requirements: API response time < 500ms, UI response < 100ms, support 100 concurrent users
+- Q: Should the specification define specific data validation and sanitization requirements for user inputs? → A: Define specific data validation and sanitization requirements for all user inputs

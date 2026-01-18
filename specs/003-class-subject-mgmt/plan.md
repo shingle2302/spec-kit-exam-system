@@ -17,7 +17,7 @@ This plan implements grade and subject management functionality that allows prin
 **Testing**: JUnit (backend), Vitest/Jest (frontend), Cypress (E2E)  
 **Target Platform**: Web application (Linux server)  
 **Project Type**: Web application (frontend + backend)  
-**Performance Goals**: API response time < 500ms, UI interactions < 100ms, support 100 concurrent users  
+**Performance Goals**: API response time < 500ms as required by constitution, UI interactions < 100ms as required by constitution, support 100 concurrent users  
 **Constraints**: Must follow WCAG 2.1 AA accessibility standards, maintain 99% uptime, response time < 2 seconds for all operations, comply with Alibaba Java Coding Guidelines and SonarQube complexity rules, use package structure com.spec.kit.exam.system  
 **Scale/Scope**: Support up to 10,000 grade and subject records, handle peak usage periods with 100 concurrent users
 
