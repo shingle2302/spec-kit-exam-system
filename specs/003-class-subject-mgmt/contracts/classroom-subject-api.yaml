@@ -1,0 +1,725 @@
+openapi: 3.0.3
+info:
+  title: Classroom and Subject Management API
+  description: API for managing classroom structures and subjects organized by education level
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Development server
+
+paths:
+  /classrooms:
+    get:
+      summary: Get all classrooms with optional filtering
+      description: Retrieve a list of classrooms with optional filters by education level, grade, or active status
+      parameters:
+        - name: educationLevelId
+          in: query
+          description: Filter by education level ID
+          required: false
+          schema:
+            type: string
+        - name: gradeNumber
+          in: query
+          description: Filter by grade number
+          required: false
+          schema:
+            type: integer
+        - name: isActive
+          in: query
+          description: Filter by active status
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Page size for pagination
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful response with classroom list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ClassroomResponse'
+                  totalPages:
+                    type: integer
+                  totalElements:
+                    type: integer
+                  currentPage:
+                    type: integer
+                  size:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    
+    post:
+      summary: Create a new classroom
+      description: Create a new classroom with the provided details. Only principals and super admins can perform this action.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClassroomRequest'
+      responses:
+        '201':
+          description: Classroom created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /classrooms/{id}:
+    get:
+      summary: Get classroom by ID
+      description: Retrieve details of a specific classroom by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Classroom ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with classroom details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    put:
+      summary: Update classroom
+      description: Update an existing classroom. Only principals and super admins can perform this action.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Classroom ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClassroomRequest'
+      responses:
+        '200':
+          description: Classroom updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    
+    delete:
+      summary: Delete classroom
+      description: Delete an existing classroom. Only principals and super admins can perform this action.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Classroom ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Classroom deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /subjects:
+    get:
+      summary: Get all subjects with optional filtering
+      description: Retrieve a list of subjects with optional filters by education level or active status
+      parameters:
+        - name: educationLevelId
+          in: query
+          description: Filter by education level ID
+          required: false
+          schema:
+            type: string
+        - name: isActive
+          in: query
+          description: Filter by active status
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Page size for pagination
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful response with subject list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SubjectResponse'
+                  totalPages:
+                    type: integer
+                  totalElements:
+                    type: integer
+                  currentPage:
+                    type: integer
+                  size:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    
+    post:
+      summary: Create a new subject
+      description: Create a new subject with the provided details. Only principals and super admins can perform this action.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubjectRequest'
+      responses:
+        '201':
+          description: Subject created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /subjects/{id}:
+    get:
+      summary: Get subject by ID
+      description: Retrieve details of a specific subject by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Subject ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with subject details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    put:
+      summary: Update subject
+      description: Update an existing subject. Only principals and super admins can perform this action.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Subject ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubjectRequest'
+      responses:
+        '200':
+          description: Subject updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    
+    delete:
+      summary: Delete subject
+      description: Delete an existing subject. Only principals and super admins can perform this action.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Subject ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Subject deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /education-levels:
+    get:
+      summary: Get all education levels
+      description: Retrieve a list of all education levels
+      responses:
+        '200':
+          description: Successful response with education level list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EducationLevelResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /data/import:
+    post:
+      summary: Import classroom and subject data
+      description: Import classroom and subject data from CSV or JSON format. Only principals and super admins can perform this action.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - dataType
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload (CSV or JSON format)
+                dataType:
+                  type: string
+                  enum: [CLASSROOM, SUBJECT]
+                  description: Type of data to import
+      responses:
+        '200':
+          description: Data imported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResultResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /data/export:
+    post:
+      summary: Export classroom and subject data
+      description: Export classroom and subject data in CSV or JSON format
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      responses:
+        '200':
+          description: Data exported successfully
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+            application/json:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  schemas:
+    ClassroomResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the classroom
+        name:
+          type: string
+          description: Display name of the classroom
+        educationLevel:
+          $ref: '#/components/schemas/EducationLevelResponse'
+        gradeNumber:
+          type: integer
+          description: Grade number within the education level
+        classType:
+          type: string
+          description: Type of class (e.g., "small", "medium", "large", "regular")
+        capacity:
+          type: integer
+          description: Maximum number of students that can be enrolled
+        description:
+          type: string
+          description: Optional description of the classroom
+        isActive:
+          type: boolean
+          description: Whether the classroom is currently active
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the record was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the record was last updated
+        version:
+          type: integer
+          description: Version number for optimistic locking
+    
+    CreateClassroomRequest:
+      type: object
+      required:
+        - name
+        - educationLevelId
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: Display name of the classroom
+        educationLevelId:
+          type: string
+          description: ID of the education level
+        gradeNumber:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: Grade number within the education level (required for non-kindergarten)
+        classType:
+          type: string
+          enum: [small, medium, large, regular]
+          description: Type of class (required for kindergarten, optional for others)
+        capacity:
+          type: integer
+          minimum: 1
+          description: Maximum number of students that can be enrolled
+        description:
+          type: string
+          maxLength: 500
+          description: Optional description of the classroom
+        isActive:
+          type: boolean
+          default: true
+          description: Whether the classroom is currently active
+    
+    UpdateClassroomRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: Display name of the classroom
+        educationLevelId:
+          type: string
+          description: ID of the education level
+        gradeNumber:
+          type: integer
+          minimum: 1
+          maximum: 12
+          description: Grade number within the education level
+        classType:
+          type: string
+          enum: [small, medium, large, regular]
+          description: Type of class
+        capacity:
+          type: integer
+          minimum: 1
+          description: Maximum number of students that can be enrolled
+        description:
+          type: string
+          maxLength: 500
+          description: Optional description of the classroom
+        isActive:
+          type: boolean
+          description: Whether the classroom is currently active
+        version:
+          type: integer
+          description: Current version for optimistic locking (required)
+    
+    SubjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the subject
+        name:
+          type: string
+          description: Name of the subject (e.g., "Mathematics", "Mathematics (Liberal Arts)", "Mathematics (Science)")
+        educationLevel:
+          $ref: '#/components/schemas/EducationLevelResponse'
+        subjectCode:
+          type: string
+          description: Unique code for the subject (e.g., "MATH", "MATH-LA", "MATH-S")
+        description:
+          type: string
+          description: Optional description of the subject
+        isActive:
+          type: boolean
+          description: Whether the subject is currently active
+        subjectCategory:
+          type: string
+          description: Category for the subject (e.g., "core", "science", "math-liberal-arts", "math-science")
+        sortOrder:
+          type: integer
+          description: Order in which subjects should be displayed
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the record was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the record was last updated
+        version:
+          type: integer
+          description: Version number for optimistic locking
+    
+    CreateSubjectRequest:
+      type: object
+      required:
+        - name
+        - educationLevelId
+        - subjectCode
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: Name of the subject
+        educationLevelId:
+          type: string
+          description: ID of the education level
+        subjectCode:
+          type: string
+          maxLength: 20
+          description: Unique code for the subject
+        description:
+          type: string
+          maxLength: 500
+          description: Optional description of the subject
+        isActive:
+          type: boolean
+          default: true
+          description: Whether the subject is currently active
+        subjectCategory:
+          type: string
+          description: Category for the subject
+        sortOrder:
+          type: integer
+          minimum: 1
+          description: Order in which subjects should be displayed
+    
+    UpdateSubjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: Name of the subject
+        educationLevelId:
+          type: string
+          description: ID of the education level
+        subjectCode:
+          type: string
+          maxLength: 20
+          description: Unique code for the subject
+        description:
+          type: string
+          maxLength: 500
+          description: Optional description of the subject
+        isActive:
+          type: boolean
+          description: Whether the subject is currently active
+        subjectCategory:
+          type: string
+          description: Category for the subject
+        sortOrder:
+          type: integer
+          minimum: 1
+          description: Order in which subjects should be displayed
+        version:
+          type: integer
+          description: Current version for optimistic locking (required)
+    
+    EducationLevelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the education level
+        name:
+          type: string
+          description: Name of the education level
+        levelCode:
+          type: string
+          description: Unique code for the education level
+        sortOrder:
+          type: integer
+          description: Order in which education levels should be displayed
+    
+    ImportResultResponse:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Total number of records processed
+        successfulRecords:
+          type: integer
+          description: Number of records successfully imported
+        failedRecords:
+          type: integer
+          description: Number of records that failed to import
+        errors:
+          type: array
+          items:
+            type: string
+          description: List of error messages for failed records
+    
+    ExportRequest:
+      type: object
+      required:
+        - dataType
+        - format
+      properties:
+        dataType:
+          type: string
+          enum: [CLASSROOM, SUBJECT, BOTH]
+          description: Type of data to export
+        format:
+          type: string
+          enum: [CSV, JSON]
+          description: Format for the exported data
+        filters:
+          type: object
+          description: Optional filters to apply to the export
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input parameters
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: Error message
+              details:
+                type: array
+                items:
+                  type: string
+                description: Detailed error information
+    Unauthorized:
+      description: Unauthorized - authentication required
+    Forbidden:
+      description: Forbidden - insufficient permissions
+    NotFound:
+      description: Not found - requested resource does not exist
+    Conflict:
+      description: Conflict - resource already exists or concurrent modification detected
