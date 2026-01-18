@@ -42,10 +42,22 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '角色管理', requiresAdmin: true }
       },
       {
+        path: 'menus',
+        name: 'MenuManagement',
+        component: () => import('@/views/MenuManagementView.vue'),
+        meta: { title: '菜单管理', requiresAdmin: true }
+      },
+      {
         path: 'profile',
         name: 'Profile',
         component: () => import('@/views/ProfileView.vue'),
         meta: { title: '个人中心' }
+      },
+      {
+        path: 'permissions',
+        name: 'PermissionManagement',
+        component: () => import('@/views/PermissionManagementView.vue'),
+        meta: { title: '权限管理', requiresAdmin: true }
       }
     ]
   },

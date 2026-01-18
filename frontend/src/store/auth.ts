@@ -12,7 +12,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Getters
   const isAuthenticated = computed(() => !!token.value)
-  const isAdmin = computed(() => user.value?.isSuperAdmin === true)
+  const isAdmin = computed(() => {
+    // Debug logging to understand the issue
+    console.log('Checking if user is admin:', user.value?.isSuperAdmin, user.value);
+    return user.value?.isSuperAdmin === true;
+  })
   const currentUser = computed(() => user.value)
 
   // Initialize from localStorage
@@ -36,11 +40,11 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     try {
       const response = await authService.login(credentials)
-      if (response.success && response.data) {
-        token.value = response.data.accessToken
-        user.value = response.data.user
-        localStorage.setItem('accessToken', response.data.accessToken)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
+      if (response && response.accessToken && response.user) {
+        token.value = response.accessToken
+        user.value = response.user
+        localStorage.setItem('accessToken', response.accessToken)
+        localStorage.setItem('user', JSON.stringify(response.user))
         message.success('登录成功')
         return { success: true }
       } else {
@@ -60,7 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     try {
       const response = await authService.register(userData)
-      if (response.success) {
+      if (response) {
         message.success('注册成功，请登录')
         return { success: true }
       } else {

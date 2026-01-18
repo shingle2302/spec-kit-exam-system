@@ -100,6 +100,34 @@ export interface AuthResponse {
   message?: string
 }
 
+// Menu Types
+export interface Menu {
+  id: string
+  name: string
+  code: string
+  path: string
+  component: string
+  icon: string
+  parentId: string | null
+  orderNum: number
+  status: 'ACTIVE' | 'INACTIVE'
+  createdAt: string
+  updatedAt: string
+}
+
+// Permission Types
+export interface Permission {
+  id: string
+  menuId: string
+  menuName: string
+  buttonName: string
+  operationType: 'QUERY' | 'CREATE' | 'UPDATE' | 'DELETE' | 'UNLOCK' | 'LOCK'
+  description: string
+  status: 'ACTIVE' | 'INACTIVE'
+  createdAt: string
+  updatedAt: string
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean
@@ -109,6 +137,16 @@ export interface ApiResponse<T = any> {
     field: string
     message: string
   }>
+}
+
+export interface PageResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  size: number
+  totalPage: number
+  hasNext: boolean
+  hasPrevious: boolean
 }
 
 export interface PaginatedResponse<T> {

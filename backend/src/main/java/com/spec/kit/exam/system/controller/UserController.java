@@ -1,14 +1,20 @@
 package com.spec.kit.exam.system.controller;
 
+import com.spec.kit.exam.system.annotation.PermissionRequired;
 import com.spec.kit.exam.system.entity.User;
 import com.spec.kit.exam.system.service.UserService;
 import com.spec.kit.exam.system.dto.UserDTO;
+import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.UserErrorCodeEnum;
+import com.spec.kit.exam.system.util.PageRequest;
+import com.spec.kit.exam.system.util.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,65 +24,84 @@ public class UserController {
     private UserService userService;
 
     /**
-     * GET /users endpoint with pagination and status filtering
+     * GET /users/list endpoint with pagination and status filtering
      */
-    @GetMapping
-    public ResponseEntity<List<User>> getUsers(
+    @PermissionRequired(menu = "user-management", operation = "READ")
+    @GetMapping("/list")
+    public Result<PageResponse<User>> getUsers(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer limit,
             @RequestParam(required = false) String status) {
         
+        // Build query parameters
+        Map<String, Object> params = new HashMap<>();
+        if (status != null && !status.trim().isEmpty()) {
+            params.put("status", status);
+        }
+        params.put("page", page);
+        params.put("size", limit);
+        
+        // Get total count
+        int totalCount = userService.getUserCount(params);
+        
+        // Get paginated users
         List<User> users = userService.getUsers(page, limit, status);
-        return ResponseEntity.ok(users);
+        
+        // Create page response
+        PageResponse<User> pageResponse = PageResponse.of(users, totalCount, page, limit);
+        return Result.success(pageResponse, "Users retrieved successfully");
     }
 
     /**
-     * POST /users endpoint for creating new users
+     * POST /users/create endpoint for creating new users
      */
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    @PermissionRequired(menu = "user-management", operation = "CREATE")
+    @PostMapping("/create")
+    public Result<User> createUser(@RequestBody User user) {
         User createdUser = userService.createUser(user);
-        return ResponseEntity.ok(createdUser);
+        return Result.success(createdUser, "User created successfully");
     }
 
     /**
      * GET /users/{id} endpoint for retrieving specific user
      */
+    @PermissionRequired(menu = "user-management", operation = "READ")
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
+    public Result<User> getUserById(@PathVariable String id) {
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
+            return Result.success(user.get(), "User retrieved successfully");
         } else {
-            return ResponseEntity.notFound().build();
+            return Result.error(UserErrorCodeEnum.USER_NOT_FOUND, "User not found");
         }
     }
 
     /**
-     * PUT /users/{id} endpoint for updating user information
+     * PUT /users/update endpoint for updating user information
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User user) {
-        // Set the ID to match the path variable
-        user.setId(id);
+    @PermissionRequired(menu = "user-management", operation = "UPDATE")
+    @PutMapping("/update")
+    public Result<User> updateUser(@RequestBody User user) {
         User updatedUser = userService.updateUser(user);
-        return ResponseEntity.ok(updatedUser);
+        return Result.success(updatedUser, "User updated successfully");
     }
 
     /**
-     * DELETE /users/{id} endpoint for deleting users
+     * DELETE /users/delete/{id} endpoint for deleting users
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+    @PermissionRequired(menu = "user-management", operation = "DELETE")
+    @DeleteMapping("/delete/{id}")
+    public Result<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        return Result.success(null, "User deleted successfully");
     }
 
     /**
-     * POST /users/{id}/unlock endpoint for admin account unlocking
+     * POST /users/unlock/{id} endpoint for admin account unlocking
      */
-    @PostMapping("/{id}/unlock")
-    public ResponseEntity<?> unlockUser(@PathVariable String id) {
+    @PermissionRequired(menu = "user-management", operation = "UNLOCK")
+    @PostMapping("/unlock/{id}")
+    public Result<Void> unlockUser(@PathVariable String id) {
         try {
             // In a real implementation, you'd verify that the caller is an admin
             // For now, we'll call the unlock method directly
@@ -89,15 +114,9 @@ public class UserController {
             // we'll add the method to UserService that calls AuthService
             userService.unlockUserAccount(id);
             
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "User account unlocked successfully"
-            ));
+            return Result.success(null, "User account unlocked successfully");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "message", "Failed to unlock user: " + e.getMessage()
-            ));
+            return Result.error(UserErrorCodeEnum.FAILED_TO_UNLOCK_USER, "Failed to unlock user: " + e.getMessage());
         }
     }
 }

@@ -41,6 +41,16 @@
       :data-source="userStore.users"
       :loading="userStore.loading"
       :row-key="(record: User) => record.id"
+      :pagination="{
+        current: userStore.pagination.current,
+        pageSize: userStore.pagination.pageSize,
+        total: userStore.pagination.total,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        onChange: handlePageChange,
+        onShowSizeChange: handlePageSizeChange,
+        pageSizeOptions: ['10', '20', '50', '100']
+      }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'status'">
@@ -217,12 +227,20 @@ function formatDate(dateStr: string) {
 }
 
 async function handleFilter() {
-  await userStore.fetchUsers({ status: filterStatus.value || undefined })
+  await userStore.fetchUsers({ page: 1, limit: userStore.pagination.pageSize, status: filterStatus.value || undefined })
 }
 
 async function handleRefresh() {
   filterStatus.value = ''
-  await userStore.fetchUsers()
+  await userStore.fetchUsers({ page: userStore.pagination.current, limit: userStore.pagination.pageSize })
+}
+
+async function handlePageChange(page: number, pageSize: number) {
+  await userStore.fetchUsers({ page, limit: pageSize, status: filterStatus.value || undefined })
+}
+
+async function handlePageSizeChange(current: number, size: number) {
+  await userStore.fetchUsers({ page: 1, limit: size, status: filterStatus.value || undefined })
 }
 
 function handleEdit(user: User) {

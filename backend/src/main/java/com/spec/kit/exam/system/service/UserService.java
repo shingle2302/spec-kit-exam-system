@@ -350,4 +350,59 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.updateById(user);
     }
+
+    /**
+     * Gets a user by ID
+     * @param id the user ID
+     * @return the user if found, null otherwise
+     */
+    public User getById(String id) {
+        return userMapper.selectById(id);
+    }
+    
+    /**
+     * Gets a user by username
+     * @param username the username
+     * @return the user if found, null otherwise
+     */
+    public User getByUsername(String username) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        return userMapper.selectOne(queryWrapper);
+    }
+    
+    /**
+     * Counts users based on query parameters
+     * @param params query parameters including status
+     * @return total count of users matching criteria
+     */
+    public int getUserCount(java.util.Map<String, Object> params) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        
+        // Apply status filter if provided
+        if (params.containsKey("status") && params.get("status") != null) {
+            queryWrapper.eq("status", params.get("status"));
+        }
+        
+        return userMapper.selectCount(queryWrapper).intValue();
+    }
+    
+    /**
+     * Saves a user
+     * @param user the user to save
+     * @return the saved user
+     */
+    public User save(User user) {
+        if (user.getId() == null || user.getId().isEmpty()) {
+            // New user
+            user.setCreatedAt(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now());
+            userMapper.insert(user);
+        } else {
+            // Update existing user
+            user.setUpdatedAt(LocalDateTime.now());
+            userMapper.updateById(user);
+        }
+        return user;
+    }
 }

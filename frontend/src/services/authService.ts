@@ -1,4 +1,4 @@
-import api from './api'
+import { processApiResponse, getAuthHeaders } from './api'
 import type { LoginRequest, RegisterRequest, AuthResponse } from '@/types'
 
 export const authService = {
@@ -6,23 +6,39 @@ export const authService = {
    * Login with identifier (username/email/phone) and password
    */
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/auth/login', credentials)
-    return response.data
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(credentials)
+    })
+    return processApiResponse<AuthResponse>(response)
   },
 
   /**
    * Register a new user account
    */
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/auth/register', userData)
-    return response.data
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    })
+    return processApiResponse<AuthResponse>(response)
   },
 
   /**
    * Logout the current user
    */
   async logout(): Promise<void> {
-    await api.post('/auth/logout')
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: getAuthHeaders()
+    })
+    await processApiResponse<void>(response)
     localStorage.removeItem('accessToken')
     localStorage.removeItem('user')
   },
@@ -57,4 +73,3 @@ export const authService = {
   }
 }
 
-export default authService

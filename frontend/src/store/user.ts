@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { User, CreateUserRequest, UpdateUserRequest } from '@/types'
+import type { User, CreateUserRequest, UpdateUserRequest, PageResponse } from '@/types'
 import { userService } from '@/services/userService'
 import { message } from 'ant-design-vue'
 
 export const useUserStore = defineStore('user', () => {
   // State
   const users = ref<User[]>([])
+  const usersPageData = ref<PageResponse<User> | null>(null)
   const currentEditUser = ref<User | null>(null)
   const loading = ref(false)
   const pagination = ref({
@@ -20,7 +21,11 @@ export const useUserStore = defineStore('user', () => {
     loading.value = true
     try {
       const response = await userService.getUsers(params)
-      users.value = response
+      usersPageData.value = response
+      users.value = response.data
+      pagination.value.current = response.page
+      pagination.value.pageSize = response.size
+      pagination.value.total = response.total
       return { success: true, data: response }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '获取用户列表失败'
@@ -50,13 +55,9 @@ export const useUserStore = defineStore('user', () => {
     loading.value = true
     try {
       const response = await userService.createUser(userData)
-      if (response.success) {
-        message.success('用户创建成功')
-        await fetchUsers()
-        return { success: true, data: response.data }
-      }
-      message.error(response.message || '创建用户失败')
-      return { success: false, message: response.message }
+      message.success('用户创建成功')
+      await fetchUsers()
+      return { success: true, data: response }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '创建用户失败'
       message.error(errorMsg)
@@ -70,13 +71,9 @@ export const useUserStore = defineStore('user', () => {
     loading.value = true
     try {
       const response = await userService.updateUser(id, userData)
-      if (response.success) {
-        message.success('用户更新成功')
-        await fetchUsers()
-        return { success: true, data: response.data }
-      }
-      message.error(response.message || '更新用户失败')
-      return { success: false, message: response.message }
+      message.success('用户更新成功')
+      await fetchUsers()
+      return { success: true, data: response }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '更新用户失败'
       message.error(errorMsg)
@@ -105,14 +102,10 @@ export const useUserStore = defineStore('user', () => {
   async function unlockUser(id: string) {
     loading.value = true
     try {
-      const response = await userService.unlockUser(id)
-      if (response.success) {
-        message.success('用户账户已解锁')
-        await fetchUsers()
-        return { success: true }
-      }
-      message.error(response.message || '解锁用户失败')
-      return { success: false, message: response.message }
+      await userService.unlockUser(id)
+      message.success('用户账户已解锁')
+      await fetchUsers()
+      return { success: true }
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || '解锁用户失败'
       message.error(errorMsg)
@@ -128,6 +121,7 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     users,
+    usersPageData,
     currentEditUser,
     loading,
     pagination,

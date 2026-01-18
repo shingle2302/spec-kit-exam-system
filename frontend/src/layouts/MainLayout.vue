@@ -39,6 +39,24 @@
           <span>角色管理</span>
         </a-menu-item>
         
+        <a-menu-item 
+          v-if="authStore.isAdmin" 
+          key="menus" 
+          @click="navigateTo('/menus')"
+        >
+          <template #icon><AppstoreOutlined /></template>
+          <span>菜单管理</span>
+        </a-menu-item>
+        
+        <a-menu-item 
+          v-if="authStore.isAdmin" 
+          key="permissions" 
+          @click="navigateTo('/permissions')"
+        >
+          <template #icon><LockOutlined /></template>
+          <span>权限管理</span>
+        </a-menu-item>
+        
         <a-menu-item key="profile" @click="navigateTo('/profile')">
           <template #icon><SettingOutlined /></template>
           <span>个人中心</span>
@@ -111,7 +129,9 @@ import {
   SettingOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  AppstoreOutlined,
+  LockOutlined
 } from '@ant-design/icons-vue'
 
 const router = useRouter()
@@ -131,6 +151,10 @@ watch(
       selectedKeys.value = ['users']
     } else if (path.includes('/roles')) {
       selectedKeys.value = ['roles']
+    } else if (path.includes('/menus')) {
+      selectedKeys.value = ['menus']
+    } else if (path.includes('/permissions')) {
+      selectedKeys.value = ['permissions']
     } else if (path.includes('/profile')) {
       selectedKeys.value = ['profile']
     }

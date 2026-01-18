@@ -52,7 +52,7 @@ public class AuthService {
 
         // Check if account is locked
         if (isAccountLocked(user)) {
-            return new AuthResult(false, "Account is locked due to multiple failed login attempts", null, null);
+            return new AuthResult(false, "ACCOUNT_LOCKED: Account is locked due to multiple failed login attempts", null, null);
         }
 
         // Validate password
@@ -77,7 +77,7 @@ public class AuthService {
             if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
                 // Lock the account
                 lockAccount(user);
-                return new AuthResult(false, "Account locked due to multiple failed login attempts", null, null);
+                return new AuthResult(false, "ACCOUNT_LOCKED: Account locked due to multiple failed login attempts", null, null);
             }
             
             return new AuthResult(false, "Invalid credentials. Attempts: " + failedAttempts + "/" + MAX_FAILED_ATTEMPTS, null, null);
@@ -86,12 +86,18 @@ public class AuthService {
 
     /**
      * Logs out the user by invalidating the session
-     * @param userId the ID of the user to logout
+     * @param token the JWT token to invalidate
      */
-    public void logout(String userId) {
+    public void logout(String token) {
         // In a real implementation, you might want to store active tokens in Redis
         // and invalidate them upon logout
         // For now, we'll just return as the token will expire naturally
+        // You could extract the username from the token and add it to a blacklist
+        String username = jwtUtil.getUsernameFromToken(token.replace("Bearer ", ""));
+        String logoutKey = "logout_token:" + token;
+        // Store the token in Redis with expiration time matching the token's TTL
+        // We'll use the default expiration time from configuration for now
+        redisTemplate.opsForValue().set(logoutKey, true, LOCKOUT_DURATION_MINUTES, TimeUnit.MINUTES);
     }
 
     /**

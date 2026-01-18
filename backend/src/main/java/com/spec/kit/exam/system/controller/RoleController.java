@@ -1,7 +1,11 @@
 package com.spec.kit.exam.system.controller;
 
+import com.spec.kit.exam.system.annotation.PermissionRequired;
 import com.spec.kit.exam.system.entity.Role;
 import com.spec.kit.exam.system.service.RoleService;
+import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.enums.RoleErrorCodeEnum;
+import com.spec.kit.exam.system.util.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,53 +20,84 @@ public class RoleController {
     private RoleService roleService;
 
     /**
-     * GET /roles endpoint for retrieving all roles
+     * GET /role/list endpoint for retrieving all roles
      */
-    @GetMapping
-    public ResponseEntity<List<Role>> getAllRoles() {
+    @PermissionRequired(menu = "role-management", operation = "READ")
+    @GetMapping("/list")
+    public Result<PageResponse<Role>> getAllRoles(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer limit) {
         List<Role> roles = roleService.getAllRoles();
-        return ResponseEntity.ok(roles);
+        int totalCount = roles.size();
+        
+        // Simple pagination implementation
+        int startIndex = (page - 1) * limit;
+        if (startIndex >= totalCount) {
+            roles = new java.util.ArrayList<>();
+        } else {
+            int endIndex = Math.min(startIndex + limit, totalCount);
+            roles = roles.subList(startIndex, endIndex);
+        }
+        
+        PageResponse<Role> pageResponse = PageResponse.of(roles, totalCount, page, limit);
+        return Result.success(pageResponse, "Roles retrieved successfully");
     }
 
     /**
-     * POST /roles endpoint for creating new roles
+     * POST /role/create endpoint for creating new roles
      */
-    @PostMapping
-    public ResponseEntity<Role> createRole(@RequestBody Role role) {
+    @PermissionRequired(menu = "role-management", operation = "CREATE")
+    @PostMapping("/create")
+    public Result<Role> createRole(@RequestBody Role role) {
         Role createdRole = roleService.createRole(role);
-        return ResponseEntity.ok(createdRole);
+        return Result.success(createdRole, "Role created successfully");
     }
 
     /**
-     * GET /roles/{id} endpoint for retrieving specific role
+     * GET /role/{id} endpoint for retrieving specific role
      */
+    @PermissionRequired(menu = "role-management", operation = "READ")
     @GetMapping("/{id}")
-    public ResponseEntity<Role> getRoleById(@PathVariable String id) {
+    public Result<Role> getRoleById(@PathVariable String id) {
         Optional<Role> role = roleService.getRoleById(id);
         if (role.isPresent()) {
-            return ResponseEntity.ok(role.get());
+            return Result.success(role.get(), "Role retrieved successfully");
         } else {
-            return ResponseEntity.notFound().build();
+            return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "Role not found");
         }
     }
 
     /**
-     * PUT /roles/{id} endpoint for updating roles
+     * GET /role/code/{code} endpoint for retrieving role by code
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<Role> updateRole(@PathVariable String id, @RequestBody Role role) {
-        // Set the ID to match the path variable
-        role.setId(id);
+    @PermissionRequired(menu = "role-management", operation = "READ")
+    @GetMapping("/code/{code}")
+    public Result<Role> getRoleByCode(@PathVariable String code) {
+        Optional<Role> role = roleService.getRoleByCode(code);
+        if (role.isPresent()) {
+            return Result.success(role.get(), "Role retrieved successfully");
+        } else {
+            return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "Role not found");
+        }
+    }
+    
+    /**
+     * PUT /role/update endpoint for updating roles
+     */
+    @PermissionRequired(menu = "role-management", operation = "UPDATE")
+    @PutMapping("/update")
+    public Result<Role> updateRole(@RequestBody Role role) {
         Role updatedRole = roleService.updateRole(role);
-        return ResponseEntity.ok(updatedRole);
+        return Result.success(updatedRole, "Role updated successfully");
     }
 
     /**
-     * DELETE /roles/{id} endpoint for deleting roles
+     * DELETE /role/delete/{id} endpoint for deleting roles
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRole(@PathVariable String id) {
+    @PermissionRequired(menu = "role-management", operation = "DELETE")
+    @DeleteMapping("/delete/{id}")
+    public Result<Void> deleteRole(@PathVariable String id) {
         roleService.deleteRole(id);
-        return ResponseEntity.noContent().build();
+        return Result.success(null, "Role deleted successfully");
     }
 }
