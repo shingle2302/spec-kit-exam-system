@@ -1,63 +1,35 @@
-# Research Summary: Classroom and Subject Management
+# Research Findings: Grade and Subject Management
 
-## Overview
-This document summarizes research conducted for implementing the classroom and subject management feature in the exam system, focusing on the requirements identified in the feature specification.
+## Decision: Grade and Subject Entity Design
+**Rationale**: Based on the feature specification, we need to create entities that support education level-based organization with role-based access control. The design follows the requirements for specific grade structures across education levels.
 
-## Decisions and Rationale
+**Alternatives considered**: 
+- Using a single generic "Group" entity instead of separate Grade and Subject entities was considered but rejected as it would not clearly separate the distinct concepts of grade levels vs. academic subjects.
+- Storing education levels as enums vs. separate entities was evaluated, with separate entities chosen for flexibility.
 
-### 1. Database Schema Design
-**Decision**: Implement normalized relational database structure with separate tables for classrooms, subjects, and education levels
-**Rationale**: The specification requires hierarchical organization of classrooms by education level and grade, with subjects tied to education levels. A normalized schema will support this structure efficiently while maintaining data integrity.
+## Decision: High School Mathematics Representation
+**Rationale**: As specified in the feature requirements, high school mathematics will be represented as two distinct subjects: "Mathematics (Liberal Arts)" and "Mathematics (Science)" to accommodate different academic streams.
 
-**Table Structure**:
-- `education_levels`: id, name, sort_order
-- `classrooms`: id, name, education_level_id, grade_number, class_type
-- `subjects`: id, name, education_level_id, subject_category
+**Alternatives considered**: 
+- Using a single Mathematics subject with a "stream" property was considered but rejected to maintain simplicity in the data model and avoid additional complexity in queries.
 
-### 2. Role-Based Access Control Implementation
-**Decision**: Implement Spring Security with custom authorization annotations and service-layer checks
-**Rationale**: The specification requires different permissions for principals, super admins, and other roles. Spring Security provides robust framework support for role-based access control with fine-grained permissions.
+## Decision: Role-Based Access Control Implementation
+**Rationale**: Following the existing pattern from the menu-permission system, we'll implement role-based access control using Spring Security with custom annotations and aspect-oriented programming for clean separation of concerns.
 
-### 3. Data Import/Export Format
-**Decision**: Support both CSV and JSON formats for data import/export operations
-**Rationale**: CSV is widely used in educational systems for data exchange, while JSON provides flexibility for programmatic integration. Both formats align with the specification requirement for standard formats.
+**Alternatives considered**:
+- Method-level security annotations vs. programmatic security checks were evaluated. The annotation-based approach with aspects was chosen to maintain consistency with the existing codebase.
 
-### 4. Caching Strategy
-**Decision**: Implement Redis caching for frequently accessed classroom and subject data
-**Rationale**: The system needs to handle up to 100 concurrent users during peak periods. Caching will improve response times and reduce database load for read-heavy operations.
+## Decision: Data Import/Export Format
+**Rationale**: Supporting CSV and JSON formats for data import/export as specified in the requirements, using existing libraries compatible with the tech stack (likely Apache POI for Excel/CSV and Jackson for JSON).
 
-### 5. Audit Trail Implementation
-**Decision**: Implement database-level audit trail for all classroom and subject management operations
-**Rationale**: The specification requires observability features including audit trails. Database triggers or application-level logging will track all CRUD operations for compliance and debugging purposes.
+**Alternatives considered**:
+- Additional formats like XML were considered but not included as they weren't specified in the requirements.
 
-### 6. High School Mathematics Subject Representation
-**Decision**: Represent high school mathematics as two distinct subjects: "Mathematics (Liberal Arts)" and "Mathematics (Science)"
-**Rationale**: The specification requires accommodation of different academic streams in high school. Having separate subjects allows for proper tracking and reporting for each stream.
+## Decision: Pagination Implementation
+**Rationale**: Following the constitution requirement, all list endpoints will use POST method with parameters passed in request body rather than GET with query parameters. This allows for complex filter objects and maintains consistency across the API.
 
-## Alternatives Considered
+## Decision: Audit Trail Implementation
+**Rationale**: Using the existing BaseEntity pattern with audit fields (createTime, updateTime, createdBy, updatedBy) to maintain consistency with the codebase and meet compliance requirements.
 
-### Alternative to Normalized Schema
-- **Alternative**: Denormalized document-based storage (MongoDB)
-- **Rejected Because**: Would complicate relationship management between classrooms, subjects, and education levels, making it harder to maintain referential integrity
-
-### Alternative to Spring Security
-- **Alternative**: Custom-built authorization system
-- **Rejected Because**: Would require significant development time and introduce security risks; Spring Security is battle-tested and provides comprehensive features
-
-### Alternative to Redis Caching
-- **Alternative**: Application-level in-memory caching
-- **Rejected Because**: Would not persist across application restarts and wouldn't be shared across multiple application instances
-
-## Technical Challenges and Solutions
-
-### Challenge: Concurrent Edit Conflicts
-- **Issue**: Multiple authorized users may attempt to modify the same classroom or subject data simultaneously
-- **Solution**: Implement optimistic locking using version fields in database tables, with appropriate error handling and user feedback
-
-### Challenge: Performance with Large Datasets
-- **Issue**: System must handle up to 10,000 records efficiently
-- **Solution**: Implement pagination, database indexing, and caching strategies to maintain performance
-
-### Challenge: Hierarchical Data Display
-- **Issue**: Classroom data has hierarchical structure (education level → grade → class)
-- **Solution**: Use tree-structured components in the frontend with lazy loading for better performance
+**Alternatives considered**:
+- Separate audit tables vs. audit fields in each entity were evaluated. The audit fields approach was chosen for simplicity and consistency with existing patterns.

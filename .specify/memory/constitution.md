@@ -1,8 +1,8 @@
 <!-- 
 Sync Impact Report:
-- Version change: 1.0.0 → 1.1.0
-- Modified principles: Code Quality Standards (expanded to include Alibaba coding standards and Sonar complexity rules)
-- Added sections: API Response Standards, Request Method Standards
+- Version change: 1.1.0 → 1.2.0
+- Modified principles: Architecture and Technology Standards (added package structure requirements)
+- Added sections: Package Structure Standards
 - Removed sections: N/A
 - Templates requiring updates: ⚠ pending - .specify/templates/plan-template.md, .specify/templates/spec-template.md, .specify/templates/tasks-template.md, .specify/templates/commands/*.md
 - Follow-up TODOs: None
@@ -24,7 +24,7 @@ User interfaces must follow consistent design patterns and component libraries a
 All system responses must meet defined SLAs: API endpoints under 500ms, UI interactions under 100ms, and page load times under 3 seconds. Performance benchmarks must be established and monitored for all critical paths. Resource utilization must remain within defined thresholds under expected load conditions.
 
 ### Architecture and Technology Standards
-Frontend applications must use Vue3 with Ant Design Vue components for consistent UI patterns. Backend services must use Spring Boot with MyBatisPlus for database operations. Support dual database configuration (H2 for development, PostgreSQL for production) with seamless switching capability. All data must be simultaneously stored in Elasticsearch for fast search queries. Redis caching must be implemented for frequently accessed data to improve response times.
+Frontend applications must use Vue3 with Ant Design Vue components for consistent UI patterns. Backend services must use Spring Boot with MyBatisPlus for database operations. Package structure must follow com.spec.kit.exam.system convention. Support dual database configuration (H2 for development, PostgreSQL for production) with seamless switching capability. All data must be simultaneously stored in Elasticsearch for fast search queries. Redis caching must be implemented for frequently accessed data to improve response times.
 
 ### API Response Standards
 All API responses must follow the standardized format {data, code, msg} where:
@@ -34,6 +34,9 @@ All API responses must follow the standardized format {data, code, msg} where:
 
 ### Request Method Standards
 Pagination queries and all complex requests must use POST method with parameters passed in the request body rather than URL query parameters. This ensures consistency and allows handling of complex filter objects.
+
+### Package Structure Standards
+All backend code must follow the package structure convention: com.spec.kit.exam.system. DTO (Data Transfer Objects) must be used for frontend-backend interaction objects. Entity classes must represent database entities. Existing project structure must be preserved and not modified unnecessarily.
 
 ## Technology Stack Requirements
 
@@ -63,4 +66,4 @@ All development must follow a structured workflow including:
 
 This constitution serves as the authoritative guide for all technical decisions within the project. All code changes must comply with these principles. Amendments to this constitution require approval from the technical steering committee and must include a migration plan for existing code. All team members are responsible for ensuring compliance with these standards during code reviews and development activities.
 
-**Version**: 1.1.0 | **Ratified**: 2025-12-26 | **Last Amended**: 2026-01-18
+**Version**: 1.2.0 | **Ratified**: 2025-12-26 | **Last Amended**: 2026-01-18
