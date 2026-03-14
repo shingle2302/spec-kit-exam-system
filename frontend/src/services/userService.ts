@@ -5,19 +5,15 @@ export const userService = {
   /**
    * Get all users with pagination and filtering
    */
-  async getUsers(params?: { page?: number; limit?: number; status?: string }): Promise<import('@/types').PageResponse<User>> {
-    let url = '/api/users/list'
-    if (params) {
-      const searchParams = new URLSearchParams()
-      if (params.page) searchParams.append('page', params.page.toString())
-      if (params.limit) searchParams.append('limit', params.limit.toString())
-      if (params.status) searchParams.append('status', params.status)
-      if (searchParams.toString()) url += '?' + searchParams.toString()
-    }
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: getAuthHeaders()
+  async getUsers(params?: { page?: number; size?: number; filters?: { status?: string } }): Promise<import('@/types').PageResponse<User>> {
+    const response = await fetch('/api/users/list', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        page: params?.page ?? 1,
+        size: params?.size ?? 10,
+        filters: params?.filters ?? {}
+      })
     })
     return processApiResponse<import('@/types').PageResponse<User>>(response)
   },
@@ -79,4 +75,3 @@ export const userService = {
     return processApiResponse<void>(response)
   }
 }
-

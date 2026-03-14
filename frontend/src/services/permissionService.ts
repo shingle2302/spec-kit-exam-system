@@ -10,7 +10,7 @@ export const permissionService = {
       method: 'GET',
       headers: getAuthHeaders()
     })
-    
+
     return processApiResponse<Permission[]>(response)
   },
 
@@ -26,7 +26,7 @@ export const permissionService = {
         permissionIds: permissionIds
       })
     })
-    
+
     return processApiResponse<void>(response)
   },
 
@@ -42,27 +42,24 @@ export const permissionService = {
         permissionIds: permissionIds
       })
     })
-    
+
     return processApiResponse<void>(response)
   },
 
   /**
    * Get all permissions
    */
-  async getAllPermissions(params?: { page?: number; limit?: number }): Promise<import('@/types').PageResponse<Permission>> {
-    let url = '/api/permissions/list'
-    if (params) {
-      const searchParams = new URLSearchParams()
-      if (params.page) searchParams.append('page', params.page.toString())
-      if (params.limit) searchParams.append('limit', params.limit.toString())
-      if (searchParams.toString()) url += '?' + searchParams.toString()
-    }
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: getAuthHeaders()
+  async getAllPermissions(params?: { page?: number; size?: number; filters?: Record<string, unknown> }): Promise<import('@/types').PageResponse<Permission>> {
+    const response = await fetch('/api/permissions/list', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        page: params?.page ?? 1,
+        size: params?.size ?? 10,
+        filters: params?.filters ?? {}
+      })
     })
-    
+
     return processApiResponse<import('@/types').PageResponse<Permission>>(response)
   },
 
@@ -75,7 +72,7 @@ export const permissionService = {
       headers: getAuthHeaders(),
       body: JSON.stringify(permission)
     })
-    
+
     return processApiResponse<Permission>(response)
   },
 
@@ -88,7 +85,7 @@ export const permissionService = {
       headers: getAuthHeaders(),
       body: JSON.stringify(permission)
     })
-    
+
     return processApiResponse<Permission>(response)
   },
 
@@ -100,7 +97,7 @@ export const permissionService = {
       method: 'GET',
       headers: getAuthHeaders()
     })
-    
+
     return processApiResponse<Permission>(response)
   },
 
@@ -112,7 +109,7 @@ export const permissionService = {
       method: 'DELETE',
       headers: getAuthHeaders()
     })
-    
+
     return processApiResponse<void>(response)
   }
 }

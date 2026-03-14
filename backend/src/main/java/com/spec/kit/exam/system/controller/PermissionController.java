@@ -5,9 +5,11 @@ import com.spec.kit.exam.system.entity.Permission;
 import com.spec.kit.exam.system.service.PermissionService;
 import com.spec.kit.exam.system.util.Result;
 import com.spec.kit.exam.system.enums.PermissionErrorCodeEnum;
+import com.spec.kit.exam.system.util.PageRequestDTO;
 import com.spec.kit.exam.system.util.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**
@@ -16,10 +18,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/permissions")
 public class PermissionController {
-    
+
     @Autowired
     private PermissionService permissionService;
-    
+
     /**
      * Get permissions for a specific role
      */
@@ -29,7 +31,7 @@ public class PermissionController {
         List<Permission> permissions = permissionService.getPermissionsByRole(roleId);
         return Result.success(permissions, "Permissions retrieved successfully");
     }
-    
+
     /**
      * Assign permissions to a role
      */
@@ -43,7 +45,7 @@ public class PermissionController {
             return Result.error(PermissionErrorCodeEnum.FAILED_TO_ASSIGN_PERMISSIONS, "Failed to assign permissions");
         }
     }
-    
+
     /**
      * Remove permissions from a role
      */
@@ -57,31 +59,41 @@ public class PermissionController {
             return Result.error(PermissionErrorCodeEnum.FAILED_TO_REMOVE_PERMISSIONS, "Failed to remove permissions");
         }
     }
-    
+
     /**
-     * Get all permissions
+     * Get all permissions.
      */
     @PermissionRequired(menu = "permission-management", operation = "READ")
-    @GetMapping("/list")
-    public Result<PageResponse<Permission>> getAllPermissions(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer limit) {
+    @PostMapping("/list")
+    public Result<PageResponse<Permission>> getAllPermissions(@RequestBody(required = false) PageRequestDTO request) {
+        PageRequestDTO pageRequest = request == null ? new PageRequestDTO() : request;
         List<Permission> permissions = permissionService.getAllPermissions();
         int totalCount = permissions.size();
-        
-        // Simple pagination implementation
-        int startIndex = (page - 1) * limit;
+
+        int startIndex = (pageRequest.getPage() - 1) * pageRequest.getSize();
         if (startIndex >= totalCount) {
             permissions = new java.util.ArrayList<>();
         } else {
-            int endIndex = Math.min(startIndex + limit, totalCount);
+            int endIndex = Math.min(startIndex + pageRequest.getSize(), totalCount);
             permissions = permissions.subList(startIndex, endIndex);
         }
-        
-        PageResponse<Permission> pageResponse = PageResponse.of(permissions, totalCount, page, limit);
+
+        PageResponse<Permission> pageResponse = PageResponse.of(permissions, totalCount, pageRequest.getPage(), pageRequest.getSize());
         return Result.success(pageResponse, "Permissions retrieved successfully");
     }
-    
+
+    /**
+     * @deprecated use POST /api/permissions/list with PageRequestDTO body instead.
+     */
+    @Deprecated
+    @PermissionRequired(menu = "permission-management", operation = "READ")
+    @GetMapping("/list")
+    public Result<PageResponse<Permission>> getAllPermissionsLegacy(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return getAllPermissions(new PageRequestDTO(page, size));
+    }
+
     /**
      * Create a new permission
      */
@@ -91,7 +103,7 @@ public class PermissionController {
         Permission createdPermission = permissionService.createPermission(permission);
         return Result.success(createdPermission, "Permission created successfully");
     }
-    
+
     /**
      * Update an existing permission
      */
@@ -105,7 +117,7 @@ public class PermissionController {
             return Result.error(PermissionErrorCodeEnum.FAILED_TO_UPDATE_PERMISSION, "Failed to update permission");
         }
     }
-    
+
     /**
      * Delete a permission by ID
      */
@@ -119,7 +131,7 @@ public class PermissionController {
             return Result.error(PermissionErrorCodeEnum.FAILED_TO_DELETE_PERMISSION, "Failed to delete permission");
         }
     }
-    
+
     /**
      * Get a permission by ID
      */
@@ -133,26 +145,26 @@ public class PermissionController {
             return Result.error(PermissionErrorCodeEnum.PERMISSION_NOT_FOUND, "Permission not found");
         }
     }
-    
+
     /**
      * Request class for permission assignment
      */
     public static class PermissionAssignmentRequest {
         private String roleId;
         private List<String> permissionIds;
-        
+
         public String getRoleId() {
             return roleId;
         }
-        
+
         public void setRoleId(String roleId) {
             this.roleId = roleId;
         }
-        
+
         public List<String> getPermissionIds() {
             return permissionIds;
         }
-        
+
         public void setPermissionIds(List<String> permissionIds) {
             this.permissionIds = permissionIds;
         }

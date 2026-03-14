@@ -17,10 +17,14 @@ export const useUserStore = defineStore('user', () => {
   })
 
   // Actions
-  async function fetchUsers(params?: { page?: number; limit?: number; status?: string }) {
+  async function fetchUsers(params?: { page?: number; size?: number; limit?: number; status?: string }) {
     loading.value = true
     try {
-      const response = await userService.getUsers(params)
+      const response = await userService.getUsers({
+        page: params?.page,
+        size: params?.size ?? params?.limit,
+        filters: { status: params?.status }
+      })
       usersPageData.value = response
       users.value = response.data
       pagination.value.current = response.page

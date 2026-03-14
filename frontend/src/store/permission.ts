@@ -17,10 +17,14 @@ export const usePermissionStore = defineStore('permission', () => {
   })
 
   // Actions
-  async function fetchPermissions(params?: { page?: number; limit?: number; status?: string }) {
+  async function fetchPermissions(params?: { page?: number; size?: number; limit?: number; status?: string }) {
     loading.value = true
     try {
-      const response = await permissionService.getAllPermissions(params)
+      const response = await permissionService.getAllPermissions({
+        page: params?.page,
+        size: params?.size ?? params?.limit,
+        filters: { status: params?.status }
+      })
       permissionsPageData.value = response
       permissions.value = response.data
       pagination.value.current = response.page
