@@ -46,7 +46,7 @@ public class RoleController {
     /**
      * POST /role/create endpoint for creating new roles
      */
-    @PermissionRequired(menu = "role-management", operation = "CREATE")
+    @PermissionRequired(menu = "role-management", button = "create", operation = "CREATE")
     @PostMapping("/create")
     public Result<Role> createRole(@RequestBody Role role) {
         Role createdRole = roleService.createRole(role);
@@ -84,7 +84,7 @@ public class RoleController {
     /**
      * PUT /role/update endpoint for updating roles
      */
-    @PermissionRequired(menu = "role-management", operation = "UPDATE")
+    @PermissionRequired(menu = "role-management", button = "edit", operation = "UPDATE")
     @PutMapping("/update")
     public Result<Role> updateRole(@RequestBody Role role) {
         Role updatedRole = roleService.updateRole(role);
@@ -94,7 +94,7 @@ public class RoleController {
     /**
      * DELETE /role/delete/{id} endpoint for deleting roles
      */
-    @PermissionRequired(menu = "role-management", operation = "DELETE")
+    @PermissionRequired(menu = "role-management", button = "delete", operation = "DELETE")
     @DeleteMapping("/delete/{id}")
     public Result<Void> deleteRole(@PathVariable String id) {
         roleService.deleteRole(id);

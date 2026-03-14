@@ -33,7 +33,7 @@ public class MenuController {
     /**
      * Create a new menu
      */
-    @PermissionRequired(menu = "menu-management", operation = "CREATE")
+    @PermissionRequired(menu = "menu-management", button = "create", operation = "CREATE")
     @PostMapping("/create")
     public Result<Menu> createMenu(@RequestBody Menu menu) {
         Menu createdMenu = menuService.createMenu(menu);
@@ -47,7 +47,7 @@ public class MenuController {
     /**
      * Update an existing menu
      */
-    @PermissionRequired(menu = "menu-management", operation = "UPDATE")
+    @PermissionRequired(menu = "menu-management", button = "edit", operation = "UPDATE")
     @PutMapping("/update")
     public Result<Menu> updateMenu(@RequestBody Menu menu) {
         boolean success = menuService.updateMenu(menu);
@@ -61,7 +61,7 @@ public class MenuController {
     /**
      * Delete a menu by ID
      */
-    @PermissionRequired(menu = "menu-management", operation = "DELETE")
+    @PermissionRequired(menu = "menu-management", button = "delete", operation = "DELETE")
     @DeleteMapping("/delete/{id}")
     public Result<Void> deleteMenu(@PathVariable String id) {
         boolean success = menuService.deleteMenu(id);

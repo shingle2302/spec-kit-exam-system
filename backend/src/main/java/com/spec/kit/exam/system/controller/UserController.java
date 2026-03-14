@@ -55,7 +55,7 @@ public class UserController {
     /**
      * POST /users/create endpoint for creating new users
      */
-    @PermissionRequired(menu = "user-management", operation = "CREATE")
+    @PermissionRequired(menu = "user-management", button = "create", operation = "CREATE")
     @PostMapping("/create")
     public Result<User> createUser(@RequestBody User user) {
         User createdUser = userService.createUser(user);
@@ -79,7 +79,7 @@ public class UserController {
     /**
      * PUT /users/update endpoint for updating user information
      */
-    @PermissionRequired(menu = "user-management", operation = "UPDATE")
+    @PermissionRequired(menu = "user-management", button = "edit", operation = "UPDATE")
     @PutMapping("/update")
     public Result<User> updateUser(@RequestBody User user) {
         User updatedUser = userService.updateUser(user);
@@ -89,7 +89,7 @@ public class UserController {
     /**
      * DELETE /users/delete/{id} endpoint for deleting users
      */
-    @PermissionRequired(menu = "user-management", operation = "DELETE")
+    @PermissionRequired(menu = "user-management", button = "delete", operation = "DELETE")
     @DeleteMapping("/delete/{id}")
     public Result<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
@@ -99,7 +99,7 @@ public class UserController {
     /**
      * POST /users/unlock/{id} endpoint for admin account unlocking
      */
-    @PermissionRequired(menu = "user-management", operation = "UNLOCK")
+    @PermissionRequired(menu = "user-management", button = "unlock", operation = "UNLOCK")
     @PostMapping("/unlock/{id}")
     public Result<Void> unlockUser(@PathVariable String id) {
         try {
