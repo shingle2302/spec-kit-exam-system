@@ -1,4 +1,10 @@
 // User Types
+export interface UserRoleSummary {
+  id?: string
+  code?: string
+  name?: string
+}
+
 export interface User {
   id: string
   username: string
@@ -6,6 +12,9 @@ export interface User {
   phone: string
   status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'LOCKED'
   roleId: string | null
+  roleCode?: string | null
+  roleName?: string | null
+  roles?: Array<UserRoleSummary | string>
   isSuperAdmin: boolean
   failedLoginAttempts: number
   lockedUntil: string | null

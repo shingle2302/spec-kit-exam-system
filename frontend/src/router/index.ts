@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { message } from 'ant-design-vue'
 import { useAuthStore } from '@/store'
 
 const routes: RouteRecordRaw[] = [
@@ -90,6 +91,7 @@ router.beforeEach((to, _from, next) => {
 
   // Check if route requires admin
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    message.warning('当前账号没有管理员权限，已跳转到仪表盘')
     next({ name: 'Dashboard' })
     return
   }
