@@ -1,9 +1,9 @@
 <template>
   <a-layout class="main-layout">
     <!-- Sidebar -->
-    <a-layout-sider 
-      v-model:collapsed="collapsed" 
-      collapsible 
+    <a-layout-sider
+      v-model:collapsed="collapsed"
+      collapsible
       :trigger="null"
       class="sidebar"
     >
@@ -20,43 +20,61 @@
           <template #icon><DashboardOutlined /></template>
           <span>仪表盘</span>
         </a-menu-item>
-        
-        <a-menu-item 
-          v-if="authStore.isAdmin" 
-          key="users" 
+
+        <a-menu-item
+          v-if="authStore.isAdmin"
+          key="users"
           @click="navigateTo('/users')"
         >
           <template #icon><UserOutlined /></template>
           <span>用户管理</span>
         </a-menu-item>
-        
-        <a-menu-item 
-          v-if="authStore.isAdmin" 
-          key="roles" 
+
+        <a-menu-item
+          v-if="authStore.isAdmin"
+          key="roles"
           @click="navigateTo('/roles')"
         >
           <template #icon><TeamOutlined /></template>
           <span>角色管理</span>
         </a-menu-item>
-        
-        <a-menu-item 
-          v-if="authStore.isAdmin" 
-          key="menus" 
+
+        <a-menu-item
+          v-if="authStore.isAdmin"
+          key="menus"
           @click="navigateTo('/menus')"
         >
           <template #icon><AppstoreOutlined /></template>
           <span>菜单管理</span>
         </a-menu-item>
-        
-        <a-menu-item 
-          v-if="authStore.isAdmin" 
-          key="permissions" 
+
+        <a-menu-item
+          v-if="authStore.isAdmin"
+          key="classes"
+          @click="navigateTo('/classes')"
+        >
+          <template #icon><BankOutlined /></template>
+          <span>班级管理</span>
+        </a-menu-item>
+
+        <a-menu-item
+          v-if="authStore.isAdmin"
+          key="subjects"
+          @click="navigateTo('/subjects')"
+        >
+          <template #icon><BookOutlined /></template>
+          <span>学科管理</span>
+        </a-menu-item>
+
+        <a-menu-item
+          v-if="authStore.isAdmin"
+          key="permissions"
           @click="navigateTo('/permissions')"
         >
           <template #icon><LockOutlined /></template>
           <span>权限管理</span>
         </a-menu-item>
-        
+
         <a-menu-item key="profile" @click="navigateTo('/profile')">
           <template #icon><SettingOutlined /></template>
           <span>个人中心</span>
@@ -79,7 +97,7 @@
             @click="collapsed = false"
           />
         </div>
-        
+
         <div class="header-right">
           <a-dropdown>
             <a class="user-dropdown" @click.prevent>
@@ -119,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/store'
 import {
@@ -131,7 +149,9 @@ import {
   MenuUnfoldOutlined,
   LogoutOutlined,
   AppstoreOutlined,
-  LockOutlined
+  LockOutlined,
+  BankOutlined,
+  BookOutlined
 } from '@ant-design/icons-vue'
 
 const router = useRouter()
@@ -155,6 +175,10 @@ watch(
       selectedKeys.value = ['menus']
     } else if (path.includes('/permissions')) {
       selectedKeys.value = ['permissions']
+    } else if (path.includes('/classes')) {
+      selectedKeys.value = ['classes']
+    } else if (path.includes('/subjects')) {
+      selectedKeys.value = ['subjects']
     } else if (path.includes('/profile')) {
       selectedKeys.value = ['profile']
     }
