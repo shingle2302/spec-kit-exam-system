@@ -89,16 +89,12 @@ export interface RegisterRequest {
   phone: string
 }
 
-export interface AuthResponse {
-  success: boolean
-  data?: {
-    accessToken: string
-    refreshToken?: string
-    user: User
-    expiresIn?: number
-  }
-  message?: string
+export interface AuthPayload {
+  accessToken: string
+  user: User
 }
+
+export type RegisterPayload = User
 
 // Menu Types
 export interface Menu {
