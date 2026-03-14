@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -212,6 +215,25 @@ public class PermissionServiceImpl implements PermissionService {
         if (userId == null || userId.isEmpty()) {
             return List.of();
         }
-        return permissionMapper.selectPermissionCodesByUserId(userId);
+
+        List<String> rawCodes = permissionMapper.selectPermissionCodesByUserId(userId);
+        Set<String> normalizedCodes = new LinkedHashSet<>();
+
+        for (String code : rawCodes) {
+            if (code == null || code.trim().isEmpty()) {
+                continue;
+            }
+
+            String normalizedCode = code.trim().toUpperCase(Locale.ROOT);
+            normalizedCodes.add(normalizedCode);
+
+            // Compatible mapping: MENU:BUTTON:OPERATION -> MENU:OPERATION
+            String[] parts = normalizedCode.split(":");
+            if (parts.length == 3) {
+                normalizedCodes.add(parts[0] + ":" + parts[2]);
+            }
+        }
+
+        return List.copyOf(normalizedCodes);
     }
 }

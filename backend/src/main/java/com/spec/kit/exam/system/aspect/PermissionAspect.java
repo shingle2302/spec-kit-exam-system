@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Aspect for handling permission checks using annotations
@@ -85,21 +86,36 @@ public class PermissionAspect {
             return Result.error(CommonErrorCodeEnum.INVALID_PERMISSION_CONFIG2, "Invalid permission configuration: operation is required");
         }
         
-        // Generate permission code and check if user has the required permission
-        String permissionCode = String.format("%s:%s", menu, operation).toUpperCase();
+        // Generate required permission code(s): menu:button:operation (preferred), menu:operation (compatible)
+        List<String> requiredPermissionCodes = buildRequiredPermissionCodes(menu, button, operation);
         List<String> userPermissions = permissionService.getPermissionCodesByUserId(currentUser.getId());
-        boolean hasPermission = userPermissions.contains(permissionCode);
+        boolean hasPermission = requiredPermissionCodes.stream().anyMatch(userPermissions::contains);
         
         if (!hasPermission) {
-            logger.warn("Permission denied for user: {} on menu: {} operation: {}", 
-                       currentUser.getUsername(), menu, operation);
-            return Result.unauthorized("Insufficient permissions");
+            String missingPermission = String.join(" or ", requiredPermissionCodes);
+            logger.warn("Permission denied for user: {} on menu: {} button: {} operation: {} required: {}",
+                       currentUser.getUsername(), menu, button, operation, missingPermission);
+            return Result.unauthorized("Insufficient permissions, missing permission: " + missingPermission);
         }
         
-        logger.debug("Permission granted for user: {} on menu: {} operation: {}", 
-                    currentUser.getUsername(), menu, operation);
+        logger.debug("Permission granted for user: {} on menu: {} button: {} operation: {}",
+                    currentUser.getUsername(), menu, button, operation);
         
         // Proceed with the original method call
         return joinPoint.proceed();
+    }
+
+    private List<String> buildRequiredPermissionCodes(String menu, String button, String operation) {
+        List<String> permissionCodes = new ArrayList<>();
+        String normalizedMenu = menu.trim();
+        String normalizedOperation = operation.trim();
+
+        if (button != null && !button.trim().isEmpty()) {
+            String normalizedButton = button.trim();
+            permissionCodes.add(String.format("%s:%s:%s", normalizedMenu, normalizedButton, normalizedOperation).toUpperCase());
+        }
+
+        permissionCodes.add(String.format("%s:%s", normalizedMenu, normalizedOperation).toUpperCase());
+        return permissionCodes;
     }
 }

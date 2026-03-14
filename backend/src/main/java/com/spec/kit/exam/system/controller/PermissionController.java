@@ -33,7 +33,7 @@ public class PermissionController {
     /**
      * Assign permissions to a role
      */
-    @PermissionRequired(menu = "permission-management", operation = "UPDATE")
+    @PermissionRequired(menu = "permission-management", button = "assign", operation = "UPDATE")
     @PostMapping("/assign")
     public Result<Void> assignPermissionsToRole(@RequestBody PermissionAssignmentRequest request) {
         boolean success = permissionService.assignPermissionsToRole(request.getRoleId(), request.getPermissionIds());
@@ -47,7 +47,7 @@ public class PermissionController {
     /**
      * Remove permissions from a role
      */
-    @PermissionRequired(menu = "permission-management", operation = "UPDATE")
+    @PermissionRequired(menu = "permission-management", button = "remove", operation = "UPDATE")
     @PostMapping("/remove")
     public Result<Void> removePermissionsFromRole(@RequestBody PermissionAssignmentRequest request) {
         boolean success = permissionService.removePermissionsFromRole(request.getRoleId(), request.getPermissionIds());
@@ -85,7 +85,7 @@ public class PermissionController {
     /**
      * Create a new permission
      */
-    @PermissionRequired(menu = "permission-management", operation = "CREATE")
+    @PermissionRequired(menu = "permission-management", button = "create", operation = "CREATE")
     @PostMapping("/create")
     public Result<Permission> createPermission(@RequestBody Permission permission) {
         Permission createdPermission = permissionService.createPermission(permission);
@@ -95,7 +95,7 @@ public class PermissionController {
     /**
      * Update an existing permission
      */
-    @PermissionRequired(menu = "permission-management", operation = "UPDATE")
+    @PermissionRequired(menu = "permission-management", button = "edit", operation = "UPDATE")
     @PutMapping("/update")
     public Result<Permission> updatePermission(@RequestBody Permission permission) {
         boolean success = permissionService.updatePermission(permission);
@@ -109,7 +109,7 @@ public class PermissionController {
     /**
      * Delete a permission by ID
      */
-    @PermissionRequired(menu = "permission-management", operation = "DELETE")
+    @PermissionRequired(menu = "permission-management", button = "delete", operation = "DELETE")
     @DeleteMapping("/delete/{id}")
     public Result<Void> deletePermission(@PathVariable String id) {
         boolean success = permissionService.deletePermission(id);
