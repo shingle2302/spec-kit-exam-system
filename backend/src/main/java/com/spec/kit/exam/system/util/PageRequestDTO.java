@@ -1,21 +1,24 @@
 package com.spec.kit.exam.system.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * DTO for pagination request parameters
+ * DTO for pagination request parameters.
+ *
+ * <p>Unified request field names: page, size, filters.</p>
  */
 public class PageRequestDTO {
     private int page = 1;           // Current page number (starting from 1)
     private int size = 10;          // Number of items per page
-    private String sortField;       // Field to sort by
-    private String sortOrder;       // Sort order: asc or desc
-    private Object filters;         // Additional filters as an object
+    private Map<String, Object> filters = new HashMap<>();
 
     // Constructors
     public PageRequestDTO() {}
 
     public PageRequestDTO(int page, int size) {
-        this.page = page > 0 ? page : 1;
-        this.size = size > 0 ? size : 10;
+        setPage(page);
+        setSize(size);
     }
 
     // Getters and setters
@@ -32,30 +35,14 @@ public class PageRequestDTO {
     }
 
     public void setSize(int size) {
-        this.size = size > 0 ? size : 10;
+        this.size = size > 0 ? Math.min(size, 100) : 10;
     }
 
-    public String getSortField() {
-        return sortField;
-    }
-
-    public void setSortField(String sortField) {
-        this.sortField = sortField;
-    }
-
-    public String getSortOrder() {
-        return sortOrder;
-    }
-
-    public void setSortOrder(String sortOrder) {
-        this.sortOrder = sortOrder;
-    }
-
-    public Object getFilters() {
+    public Map<String, Object> getFilters() {
         return filters;
     }
 
-    public void setFilters(Object filters) {
-        this.filters = filters;
+    public void setFilters(Map<String, Object> filters) {
+        this.filters = filters == null ? new HashMap<>() : filters;
     }
 }

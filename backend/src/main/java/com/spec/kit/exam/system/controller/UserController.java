@@ -3,18 +3,17 @@ package com.spec.kit.exam.system.controller;
 import com.spec.kit.exam.system.annotation.PermissionRequired;
 import com.spec.kit.exam.system.entity.User;
 import com.spec.kit.exam.system.service.UserService;
-import com.spec.kit.exam.system.dto.UserDTO;
 import com.spec.kit.exam.system.util.Result;
 import com.spec.kit.exam.system.enums.UserErrorCodeEnum;
-import com.spec.kit.exam.system.util.PageRequest;
+import com.spec.kit.exam.system.util.PageRequestDTO;
 import com.spec.kit.exam.system.util.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,32 +23,47 @@ public class UserController {
     private UserService userService;
 
     /**
-     * GET /users/list endpoint with pagination and status filtering
+     * POST /users/list endpoint with pagination and status filtering.
      */
     @PermissionRequired(menu = "user-management", operation = "READ")
-    @GetMapping("/list")
-    public Result<PageResponse<User>> getUsers(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer limit,
-            @RequestParam(required = false) String status) {
-        
-        // Build query parameters
-        Map<String, Object> params = new HashMap<>();
-        if (status != null && !status.trim().isEmpty()) {
-            params.put("status", status);
+    @PostMapping("/list")
+    public Result<PageResponse<User>> getUsers(@RequestBody(required = false) PageRequestDTO request) {
+        PageRequestDTO pageRequest = request == null ? new PageRequestDTO() : request;
+
+        Map<String, Object> params = new HashMap<>(pageRequest.getFilters());
+        params.put("page", pageRequest.getPage());
+        params.put("size", pageRequest.getSize());
+
+        String status = null;
+        Object statusObj = params.get("status");
+        if (statusObj != null) {
+            status = statusObj.toString();
         }
-        params.put("page", page);
-        params.put("size", limit);
-        
-        // Get total count
+
         int totalCount = userService.getUserCount(params);
-        
-        // Get paginated users
-        List<User> users = userService.getUsers(page, limit, status);
-        
-        // Create page response
-        PageResponse<User> pageResponse = PageResponse.of(users, totalCount, page, limit);
+        List<User> users = userService.getUsers(pageRequest.getPage(), pageRequest.getSize(), status);
+
+        PageResponse<User> pageResponse = PageResponse.of(users, totalCount, pageRequest.getPage(), pageRequest.getSize());
         return Result.success(pageResponse, "Users retrieved successfully");
+    }
+
+    /**
+     * @deprecated use POST /api/users/list with PageRequestDTO body instead.
+     */
+    @Deprecated
+    @PermissionRequired(menu = "user-management", operation = "READ")
+    @GetMapping("/list")
+    public Result<PageResponse<User>> getUsersLegacy(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String status) {
+        PageRequestDTO request = new PageRequestDTO(page, size);
+        if (status != null && !status.trim().isEmpty()) {
+            Map<String, Object> filters = new HashMap<>();
+            filters.put("status", status);
+            request.setFilters(filters);
+        }
+        return getUsers(request);
     }
 
     /**
@@ -103,17 +117,7 @@ public class UserController {
     @PostMapping("/unlock/{id}")
     public Result<Void> unlockUser(@PathVariable String id) {
         try {
-            // In a real implementation, you'd verify that the caller is an admin
-            // For now, we'll call the unlock method directly
-            
-            // Call the unlock functionality in AuthService
-            // We'll need to get the AuthService bean in this controller
-            // For now, we'll use a simplified approach
-            
-            // Since we don't have direct access to AuthService here, 
-            // we'll add the method to UserService that calls AuthService
             userService.unlockUserAccount(id);
-            
             return Result.success(null, "User account unlocked successfully");
         } catch (Exception e) {
             return Result.error(UserErrorCodeEnum.FAILED_TO_UNLOCK_USER, "Failed to unlock user: " + e.getMessage());

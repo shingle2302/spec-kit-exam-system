@@ -17,10 +17,10 @@ export const useRoleStore = defineStore('role', () => {
   })
 
   // Actions
-  async function fetchRoles(params?: { page?: number; limit?: number }) {
+  async function fetchRoles(params?: { page?: number; size?: number; limit?: number }) {
     loading.value = true
     try {
-      const response = await roleService.getRoles(params)
+      const response = await roleService.getRoles({ page: params?.page, size: params?.size ?? params?.limit, filters: {} })
       rolesPageData.value = response
       roles.value = response.data
       pagination.value.current = response.page

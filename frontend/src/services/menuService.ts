@@ -14,7 +14,7 @@ export const menuService = {
       method: 'GET',
       headers: getAuthHeaders()
     })
-    
+
     return processApiResponse<Menu[]>(response)
   },
 
@@ -27,7 +27,7 @@ export const menuService = {
       headers: getAuthHeaders(),
       body: JSON.stringify(menu)
     })
-    
+
     return processApiResponse<Menu>(response)
   },
 
@@ -40,7 +40,7 @@ export const menuService = {
       headers: getAuthHeaders(),
       body: JSON.stringify(menu)
     })
-    
+
     return processApiResponse<Menu>(response)
   },
 
@@ -52,27 +52,24 @@ export const menuService = {
       method: 'DELETE',
       headers: getAuthHeaders()
     })
-    
+
     return processApiResponse<void>(response)
   },
 
   /**
    * Get all menus
    */
-  async getAllMenus(params?: { page?: number; limit?: number }): Promise<import('@/types').PageResponse<Menu>> {
-    let url = '/api/menus/list'
-    if (params) {
-      const searchParams = new URLSearchParams()
-      if (params.page) searchParams.append('page', params.page.toString())
-      if (params.limit) searchParams.append('limit', params.limit.toString())
-      if (searchParams.toString()) url += '?' + searchParams.toString()
-    }
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: getAuthHeaders()
+  async getAllMenus(params?: { page?: number; size?: number; filters?: Record<string, unknown> }): Promise<import('@/types').PageResponse<Menu>> {
+    const response = await fetch('/api/menus/list', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        page: params?.page ?? 1,
+        size: params?.size ?? 10,
+        filters: params?.filters ?? {}
+      })
     })
-    
+
     return processApiResponse<import('@/types').PageResponse<Menu>>(response)
   },
 
@@ -84,7 +81,7 @@ export const menuService = {
       method: 'GET',
       headers: getAuthHeaders()
     })
-    
+
     return processApiResponse<Menu>(response)
   }
 }

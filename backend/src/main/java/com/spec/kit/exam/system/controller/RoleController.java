@@ -5,10 +5,11 @@ import com.spec.kit.exam.system.entity.Role;
 import com.spec.kit.exam.system.service.RoleService;
 import com.spec.kit.exam.system.util.Result;
 import com.spec.kit.exam.system.enums.RoleErrorCodeEnum;
+import com.spec.kit.exam.system.util.PageRequestDTO;
 import com.spec.kit.exam.system.util.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -20,27 +21,37 @@ public class RoleController {
     private RoleService roleService;
 
     /**
-     * GET /role/list endpoint for retrieving all roles
+     * POST /roles/list endpoint for retrieving all roles.
      */
     @PermissionRequired(menu = "role-management", operation = "READ")
-    @GetMapping("/list")
-    public Result<PageResponse<Role>> getAllRoles(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer limit) {
+    @PostMapping("/list")
+    public Result<PageResponse<Role>> getAllRoles(@RequestBody(required = false) PageRequestDTO request) {
+        PageRequestDTO pageRequest = request == null ? new PageRequestDTO() : request;
         List<Role> roles = roleService.getAllRoles();
         int totalCount = roles.size();
-        
-        // Simple pagination implementation
-        int startIndex = (page - 1) * limit;
+
+        int startIndex = (pageRequest.getPage() - 1) * pageRequest.getSize();
         if (startIndex >= totalCount) {
             roles = new java.util.ArrayList<>();
         } else {
-            int endIndex = Math.min(startIndex + limit, totalCount);
+            int endIndex = Math.min(startIndex + pageRequest.getSize(), totalCount);
             roles = roles.subList(startIndex, endIndex);
         }
-        
-        PageResponse<Role> pageResponse = PageResponse.of(roles, totalCount, page, limit);
+
+        PageResponse<Role> pageResponse = PageResponse.of(roles, totalCount, pageRequest.getPage(), pageRequest.getSize());
         return Result.success(pageResponse, "Roles retrieved successfully");
+    }
+
+    /**
+     * @deprecated use POST /api/roles/list with PageRequestDTO body instead.
+     */
+    @Deprecated
+    @PermissionRequired(menu = "role-management", operation = "READ")
+    @GetMapping("/list")
+    public Result<PageResponse<Role>> getAllRolesLegacy(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return getAllRoles(new PageRequestDTO(page, size));
     }
 
     /**
@@ -80,7 +91,7 @@ public class RoleController {
             return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "Role not found");
         }
     }
-    
+
     /**
      * PUT /role/update endpoint for updating roles
      */
