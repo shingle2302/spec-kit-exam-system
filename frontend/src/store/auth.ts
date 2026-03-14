@@ -48,11 +48,12 @@ export const useAuthStore = defineStore('auth', () => {
         message.success('登录成功')
         return { success: true }
       } else {
-        message.error(response.message || '登录失败')
-        return { success: false, message: response.message }
+        const errorMsg = '登录失败'
+        message.error(errorMsg)
+        return { success: false, message: errorMsg }
       }
     } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '登录失败'
+      const errorMsg = error?.message || '登录失败'
       message.error(errorMsg)
       return { success: false, message: errorMsg }
     } finally {
@@ -64,15 +65,16 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     try {
       const response = await authService.register(userData)
-      if (response) {
+      if (response && response.id) {
         message.success('注册成功，请登录')
         return { success: true }
       } else {
-        message.error(response.message || '注册失败')
-        return { success: false, message: response.message }
+        const errorMsg = '注册失败'
+        message.error(errorMsg)
+        return { success: false, message: errorMsg }
       }
     } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '注册失败'
+      const errorMsg = error?.message || '注册失败'
       message.error(errorMsg)
       return { success: false, message: errorMsg }
     } finally {
