@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Implementation of PermissionInitializationService interface
@@ -61,7 +59,7 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
                     String[] parts = permissionCode.split(":");
                     if (parts.length >= 2) {
                         String menuId = parts[0];
-                        String operationType = parts[1];
+                        String operationType = parts[parts.length - 1];
                         
                         // Ensure the menu exists before creating the permission
                         ensureMenuExists(menuId);
@@ -227,15 +225,21 @@ public class PermissionInitializationServiceImpl implements PermissionInitializa
                                 
                                 // Generate permission code based on annotation values
                                 String menu = permAnnotation.menu();
+                                String button = permAnnotation.button();
                                 String operation = permAnnotation.operation();
-                                
+
                                 if (!menu.isEmpty() && !operation.isEmpty()) {
-                                    String permissionCode = String.format("%s:%s", menu, operation).toUpperCase();
-                                    
-                                    // Add to unique set to avoid duplicates
-                                    uniquePermissions.add(permissionCode);
-                                    
-                                    logger.debug("Found permission: {} in {}.{}", permissionCode, className, method.getName());
+                                    // Prefer button-level permission when button is configured
+                                    if (button != null && !button.trim().isEmpty()) {
+                                        String buttonPermissionCode = String.format("%s:%s:%s", menu, button, operation).toUpperCase();
+                                        uniquePermissions.add(buttonPermissionCode);
+                                        logger.debug("Found button permission: {} in {}.{}", buttonPermissionCode, className, method.getName());
+                                    }
+
+                                    // Always keep menu-level code for backward compatibility
+                                    String menuPermissionCode = String.format("%s:%s", menu, operation).toUpperCase();
+                                    uniquePermissions.add(menuPermissionCode);
+                                    logger.debug("Found menu permission: {} in {}.{}", menuPermissionCode, className, method.getName());
                                 }
                             }
                         }

@@ -1,11 +1,11 @@
 import { processApiResponse, getAuthHeaders } from './api'
-import type { LoginRequest, RegisterRequest, AuthResponse } from '@/types'
+import type { LoginRequest, RegisterRequest, AuthPayload, RegisterPayload } from '@/types'
 
 export const authService = {
   /**
    * Login with identifier (username/email/phone) and password
    */
-  async login(credentials: LoginRequest): Promise<AuthResponse> {
+  async login(credentials: LoginRequest): Promise<AuthPayload> {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
@@ -13,13 +13,13 @@ export const authService = {
       },
       body: JSON.stringify(credentials)
     })
-    return processApiResponse<AuthResponse>(response)
+    return processApiResponse<AuthPayload>(response)
   },
 
   /**
    * Register a new user account
    */
-  async register(userData: RegisterRequest): Promise<AuthResponse> {
+  async register(userData: RegisterRequest): Promise<RegisterPayload> {
     const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
@@ -27,7 +27,7 @@ export const authService = {
       },
       body: JSON.stringify(userData)
     })
-    return processApiResponse<AuthResponse>(response)
+    return processApiResponse<RegisterPayload>(response)
   },
 
   /**

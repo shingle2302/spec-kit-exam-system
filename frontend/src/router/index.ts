@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { message } from 'ant-design-vue'
 import { useAuthStore } from '@/store'
 import { hasPermission } from '@/utils/permissionChecker'
 
@@ -53,6 +54,13 @@ const routes: RouteRecordRaw[] = [
         name: 'ClassManagement',
         component: () => import('@/views/ClassManagement.vue'),
         meta: { title: '班级管理', requiresPermission: { menu: 'class-management', operation: 'READ' } }
+      },
+
+      {
+        path: 'exam-plans',
+        name: 'ExamPlanManagement',
+        component: () => import('@/views/ExamPlanManagement.vue'),
+        meta: { title: '考试计划管理', requiresPermission: { menu: 'exam-plan-management', operation: 'READ' } }
       },
       {
         path: 'subjects',
@@ -121,6 +129,7 @@ router.beforeEach((to, _from, next) => {
 
   // Check if route requires admin
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    message.warning('当前账号没有管理员权限，已跳转到仪表盘')
     next({ name: 'Dashboard' })
     return
   }

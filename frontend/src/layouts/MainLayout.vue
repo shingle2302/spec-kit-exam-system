@@ -68,6 +68,15 @@
 
         <a-menu-item
           v-if="authStore.isAdmin"
+          key="exam-plans"
+          @click="navigateTo('/exam-plans')"
+        >
+          <template #icon><ReadOutlined /></template>
+          <span>考试计划</span>
+        </a-menu-item>
+
+        <a-menu-item
+          v-if="authStore.isAdmin"
           key="permissions"
           @click="navigateTo('/permissions')"
         >
@@ -181,6 +190,7 @@ import {
   EditOutlined,
   ReadOutlined,
   LineChartOutlined
+  ReadOutlined
 } from '@ant-design/icons-vue'
 
 const router = useRouter()
@@ -208,6 +218,8 @@ watch(
       selectedKeys.value = ['classes']
     } else if (path.includes('/subjects')) {
       selectedKeys.value = ['subjects']
+    } else if (path.includes('/exam-plans')) {
+      selectedKeys.value = ['exam-plans']
     } else if (path.includes('/profile')) {
       selectedKeys.value = ['profile']
     } else if (path.includes('/teacher-exam-workflow')) {

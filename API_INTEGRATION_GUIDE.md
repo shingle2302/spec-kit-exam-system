@@ -26,41 +26,69 @@
 ## API端点
 
 ### 用户管理
-- `GET /api/users/list` - 获取用户列表
+- `POST /api/users/list` - 获取用户列表（分页请求体：`page`,`size`,`filters`）
+- `GET /api/users/list` - （兼容，已废弃）获取用户列表
 - `POST /api/users/create` - 创建用户
 - `PUT /api/users/update` - 更新用户
 - `DELETE /api/users/delete/{id}` - 删除用户
 - `POST /api/users/unlock/{id}` - 解锁用户
 
 ### 角色管理
-- `GET /api/role/list` - 获取角色列表
-- `POST /api/role/create` - 创建角色
-- `PUT /api/role/update` - 更新角色
-- `DELETE /api/role/delete/{id}` - 删除角色
-- `GET /api/role/{id}` - 获取角色详情
-- `GET /api/role/code/{code}` - 根据代码获取角色
+- `POST /api/roles/list` - 获取角色列表（分页请求体：`page`,`size`,`filters`）
+- `GET /api/roles/list` - （兼容，已废弃）获取角色列表
+- `POST /api/roles/create` - 创建角色
+- `PUT /api/roles/update` - 更新角色
+- `DELETE /api/roles/delete/{id}` - 删除角色
+- `GET /api/roles/{id}` - 获取角色详情
+- `GET /api/roles/code/{code}` - 根据代码获取角色
 
 ### 菜单管理
-- `GET /api/menu/tree` - 获取菜单树
-- `POST /api/menu/create` - 创建菜单
-- `PUT /api/menu/update` - 更新菜单
-- `DELETE /api/menu/delete/{id}` - 删除菜单
-- `GET /api/menu/list` - 获取所有菜单
-- `GET /api/menu/{id}` - 获取菜单详情
+- `GET /api/menus/tree` - 获取菜单树
+- `POST /api/menus/create` - 创建菜单
+- `PUT /api/menus/update` - 更新菜单
+- `DELETE /api/menus/delete/{id}` - 删除菜单
+- `POST /api/menus/list` - 获取所有菜单（分页请求体：`page`,`size`,`filters`）
+- `GET /api/menus/list` - （兼容，已废弃）获取所有菜单
+- `GET /api/menus/{id}` - 获取菜单详情
 
 ### 权限管理
-- `GET /api/permission/role/{roleId}` - 获取角色权限
-- `POST /api/permission/assign` - 分配权限给角色
-- `POST /api/permission/remove` - 移除角色权限
-- `GET /api/permission/list` - 获取所有权限
-- `POST /api/permission/create` - 创建权限
-- `PUT /api/permission/update` - 更新权限
-- `DELETE /api/permission/delete/{id}` - 删除权限
+- `GET /api/permissions/role/{roleId}` - 获取角色权限
+- `POST /api/permissions/assign` - 分配权限给角色
+- `POST /api/permissions/remove` - 移除角色权限
+- `POST /api/permissions/list` - 获取所有权限（分页请求体：`page`,`size`,`filters`）
+- `GET /api/permissions/list` - （兼容，已废弃）获取所有权限
+- `POST /api/permissions/create` - 创建权限
+- `PUT /api/permissions/update` - 更新权限
+- `DELETE /api/permissions/delete/{id}` - 删除权限
 
 ### 认证
 - `POST /api/auth/login` - 用户登录
 - `POST /api/auth/register` - 用户注册
 - `POST /api/auth/logout` - 用户登出
+
+
+### 列表分页请求体规范
+列表接口统一使用以下请求体字段：
+
+```json
+{
+  "page": 1,
+  "size": 10,
+  "filters": {
+    "status": "ACTIVE"
+  }
+}
+```
+
+前端调用示例：
+
+```typescript
+await fetch('/api/users/list', {
+  method: 'POST',
+  headers: getAuthHeaders(),
+  body: JSON.stringify({ page: 1, size: 10, filters: { status: 'ACTIVE' } })
+})
+```
 
 ## 前端API服务
 
