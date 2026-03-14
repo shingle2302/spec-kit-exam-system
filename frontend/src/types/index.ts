@@ -1,4 +1,10 @@
 // User Types
+export interface UserRoleSummary {
+  id?: string
+  code?: string
+  name?: string
+}
+
 export interface User {
   id: string
   username: string
@@ -6,6 +12,9 @@ export interface User {
   phone: string
   status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'LOCKED'
   roleId: string | null
+  roleCode?: string | null
+  roleName?: string | null
+  roles?: Array<UserRoleSummary | string>
   isSuperAdmin: boolean
   failedLoginAttempts: number
   lockedUntil: string | null
@@ -89,16 +98,12 @@ export interface RegisterRequest {
   phone: string
 }
 
-export interface AuthResponse {
-  success: boolean
-  data?: {
-    accessToken: string
-    refreshToken?: string
-    user: User
-    expiresIn?: number
-  }
-  message?: string
+export interface AuthPayload {
+  accessToken: string
+  user: User
 }
+
+export type RegisterPayload = User
 
 // Menu Types
 export interface Menu {

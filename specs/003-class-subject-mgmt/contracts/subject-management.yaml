@@ -1,0 +1,506 @@
+openapi: 3.0.1
+info:
+  title: Subject Management API
+  description: API for managing educational subjects by class and level
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Development server
+
+paths:
+  /subjects:
+    post:
+      summary: Create a new subject
+      description: Creates a new subject with the provided details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubjectCreateRequest'
+      responses:
+        '200':
+          description: Subject created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: subject-management
+        button: create-subject
+        operation: CREATE
+
+    get:
+      summary: Query subjects with pagination
+      description: Retrieve a paginated list of subjects based on filters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubjectQueryRequest'
+      responses:
+        '200':
+          description: Subjects retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectPageResponse'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: subject-management
+        button: view-subject
+        operation: READ
+
+  /subjects/{id}:
+    get:
+      summary: Get subject by ID
+      description: Retrieve a specific subject by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Subject retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectDetailResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: Subject not found
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: subject-management
+        button: view-subject
+        operation: READ
+
+    put:
+      summary: Update subject
+      description: Updates an existing subject with the provided details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubjectUpdateRequest'
+      responses:
+        '200':
+          description: Subject updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: Subject not found
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: subject-management
+        button: edit-subject
+        operation: UPDATE
+
+    delete:
+      summary: Delete subject
+      description: Deletes an existing subject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Subject deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: Subject not found
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: subject-management
+        button: delete-subject
+        operation: DELETE
+
+  /subjects/classes:
+    get:
+      summary: Get available classes for subjects
+      description: Retrieve a list of available classes for subject assignment
+      responses:
+        '200':
+          description: Classes retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassListResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: subject-management
+        button: view-class
+        operation: READ
+
+  /subjects/levels:
+    get:
+      summary: Get available educational levels
+      description: Retrieve a list of available educational levels
+      responses:
+        '200':
+          description: Educational levels retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalLevelListResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: subject-management
+        button: view-level
+        operation: READ
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        data:
+          type: object
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    SubjectCreateRequest:
+      type: object
+      required:
+        - name
+        - classId
+        - educationalLevelId
+      properties:
+        name:
+          type: string
+          description: Name of the subject
+          example: "Mathematics"
+        classId:
+          type: integer
+          format: int64
+          description: ID of the class this subject belongs to
+          example: 1
+        educationalLevelId:
+          type: integer
+          format: int64
+          description: ID of the educational level
+          example: 2
+        description:
+          type: string
+          description: Description of the subject
+          example: "Advanced mathematics for high school students"
+        specialization:
+          type: string
+          description: Specialization if applicable (e.g., arts, science for math)
+          example: "science"
+
+    SubjectUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the subject
+          example: "Mathematics"
+        classId:
+          type: integer
+          format: int64
+          description: ID of the class this subject belongs to
+          example: 1
+        educationalLevelId:
+          type: integer
+          format: int64
+          description: ID of the educational level
+          example: 2
+        description:
+          type: string
+          description: Description of the subject
+          example: "Updated description for mathematics"
+        specialization:
+          type: string
+          description: Specialization if applicable (e.g., arts, science for math)
+          example: "arts"
+
+    SubjectQueryRequest:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Page number (starting from 1)
+          example: 1
+        size:
+          type: integer
+          description: Page size (max 100)
+          example: 10
+        sortField:
+          type: string
+          description: Field to sort by
+          example: "createTime"
+        sortOrder:
+          type: string
+          description: Sort order (asc or desc)
+          example: "desc"
+        filters:
+          type: object
+          description: Additional filter conditions
+          properties:
+            name:
+              type: string
+              description: Subject name filter
+            classId:
+              type: integer
+              format: int64
+              description: Class ID filter
+            educationalLevelId:
+              type: integer
+              format: int64
+              description: Educational level ID filter
+            specialization:
+              type: string
+              description: Specialization filter
+
+    SubjectPageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubjectListItem'
+            total:
+              type: integer
+              description: Total number of records
+              example: 150
+            current:
+              type: integer
+              description: Current page number
+              example: 1
+            size:
+              type: integer
+              description: Page size
+              example: 10
+            pages:
+              type: integer
+              description: Total number of pages
+              example: 15
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    SubjectListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Mathematics"
+        className:
+          type: string
+          example: "Grade 1 Class A"
+        educationalLevelName:
+          type: string
+          example: "High School"
+        specialization:
+          type: string
+          example: "science"
+        description:
+          type: string
+          example: "Advanced mathematics for high school students"
+        status:
+          type: string
+          example: "ACTIVE"
+        createTime:
+          type: string
+          format: date-time
+          example: "2026-01-18T10:00:00Z"
+
+    SubjectDetailResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SubjectDetail'
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    SubjectDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Mathematics"
+        classId:
+          type: integer
+          format: int64
+          example: 1
+        className:
+          type: string
+          example: "Grade 1 Class A"
+        educationalLevelId:
+          type: integer
+          format: int64
+          example: 2
+        educationalLevelName:
+          type: string
+          example: "High School"
+        specialization:
+          type: string
+          example: "science"
+        description:
+          type: string
+          example: "Advanced mathematics for high school students"
+        status:
+          type: string
+          example: "ACTIVE"
+        createTime:
+          type: string
+          format: date-time
+          example: "2026-01-18T10:00:00Z"
+        updateTime:
+          type: string
+          format: date-time
+          example: "2026-01-18T10:00:00Z"
+
+    ClassListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassItem'
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    ClassItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Grade 1 Class A"
+        gradeName:
+          type: string
+          example: "Grade 1"
+        educationalLevelName:
+          type: string
+          example: "Elementary School"
+        capacity:
+          type: integer
+          example: 30
+
+    EducationalLevelListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EducationalLevelItem'
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    EducationalLevelItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Kindergarten"
+        description:
+          type: string
+          example: "Early childhood education"
+        ordering:
+          type: integer
+          example: 1

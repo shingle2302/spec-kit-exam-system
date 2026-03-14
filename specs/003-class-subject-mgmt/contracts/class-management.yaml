@@ -1,0 +1,438 @@
+openapi: 3.0.1
+info:
+  title: Class Management API
+  description: API for managing educational classes by level and grade
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Development server
+
+paths:
+  /classes:
+    post:
+      summary: Create a new class
+      description: Creates a new class with the provided details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassCreateRequest'
+      responses:
+        '200':
+          description: Class created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: class-management
+        button: create-class
+        operation: CREATE
+
+    get:
+      summary: Query classes with pagination
+      description: Retrieve a paginated list of classes based on filters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassQueryRequest'
+      responses:
+        '200':
+          description: Classes retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassPageResponse'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: class-management
+        button: view-class
+        operation: READ
+
+  /classes/{id}:
+    get:
+      summary: Get class by ID
+      description: Retrieve a specific class by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Class retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDetailResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: Class not found
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: class-management
+        button: view-class
+        operation: READ
+
+    put:
+      summary: Update class
+      description: Updates an existing class with the provided details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassUpdateRequest'
+      responses:
+        '200':
+          description: Class updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: Class not found
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: class-management
+        button: edit-class
+        operation: UPDATE
+
+    delete:
+      summary: Delete class
+      description: Deletes an existing class
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Class deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: Class not found
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: class-management
+        button: delete-class
+        operation: DELETE
+
+  /classes/grades:
+    get:
+      summary: Get available grades
+      description: Retrieve a list of available grades by educational level
+      responses:
+        '200':
+          description: Grades retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeListResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+      security:
+        - bearerAuth: []
+      x-permission-required:
+        menu: class-management
+        button: view-grade
+        operation: READ
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        data:
+          type: object
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    ClassCreateRequest:
+      type: object
+      required:
+        - name
+        - gradeId
+        - capacity
+      properties:
+        name:
+          type: string
+          description: Name of the class
+          example: "Grade 1 Class A"
+        gradeId:
+          type: integer
+          format: int64
+          description: ID of the grade
+          example: 1
+        capacity:
+          type: integer
+          description: Maximum capacity of the class
+          example: 30
+        description:
+          type: string
+          description: Description of the class
+          example: "First grade class for the 2026 academic year"
+
+    ClassUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the class
+          example: "Grade 1 Class A"
+        gradeId:
+          type: integer
+          format: int64
+          description: ID of the grade
+          example: 1
+        capacity:
+          type: integer
+          description: Maximum capacity of the class
+          example: 35
+        description:
+          type: string
+          description: Description of the class
+          example: "Updated description for first grade class"
+
+    ClassQueryRequest:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Page number (starting from 1)
+          example: 1
+        size:
+          type: integer
+          description: Page size (max 100)
+          example: 10
+        sortField:
+          type: string
+          description: Field to sort by
+          example: "createTime"
+        sortOrder:
+          type: string
+          description: Sort order (asc or desc)
+          example: "desc"
+        filters:
+          type: object
+          description: Additional filter conditions
+          properties:
+            name:
+              type: string
+              description: Class name filter
+            gradeId:
+              type: integer
+              format: int64
+              description: Grade ID filter
+            educationalLevelId:
+              type: integer
+              format: int64
+              description: Educational level ID filter
+
+    ClassPageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/ClassListItem'
+            total:
+              type: integer
+              description: Total number of records
+              example: 150
+            current:
+              type: integer
+              description: Current page number
+              example: 1
+            size:
+              type: integer
+              description: Page size
+              example: 10
+            pages:
+              type: integer
+              description: Total number of pages
+              example: 15
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    ClassListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Grade 1 Class A"
+        gradeName:
+          type: string
+          example: "Grade 1"
+        educationalLevelName:
+          type: string
+          example: "Elementary School"
+        capacity:
+          type: integer
+          example: 30
+        description:
+          type: string
+          example: "First grade class for the 2026 academic year"
+        createTime:
+          type: string
+          format: date-time
+          example: "2026-01-18T10:00:00Z"
+
+    ClassDetailResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ClassDetail'
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    ClassDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Grade 1 Class A"
+        gradeId:
+          type: integer
+          format: int64
+          example: 1
+        gradeName:
+          type: string
+          example: "Grade 1"
+        educationalLevelId:
+          type: integer
+          format: int64
+          example: 2
+        educationalLevelName:
+          type: string
+          example: "Elementary School"
+        capacity:
+          type: integer
+          example: 30
+        description:
+          type: string
+          example: "First grade class for the 2026 academic year"
+        status:
+          type: string
+          example: "ACTIVE"
+        createTime:
+          type: string
+          format: date-time
+          example: "2026-01-18T10:00:00Z"
+        updateTime:
+          type: string
+          format: date-time
+          example: "2026-01-18T10:00:00Z"
+
+    GradeListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeItem'
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+
+    GradeItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Grade 1"
+        levelId:
+          type: integer
+          format: int64
+          example: 2
+        levelName:
+          type: string
+          example: "Elementary School"
+        description:
+          type: string
+          example: "First grade in elementary school"

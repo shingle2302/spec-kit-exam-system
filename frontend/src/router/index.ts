@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { message } from 'ant-design-vue'
 import { useAuthStore } from '@/store'
+import { hasPermission } from '@/utils/permissionChecker'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -48,6 +50,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '菜单管理', requiresAdmin: true }
       },
       {
+        path: 'classes',
+        name: 'ClassManagement',
+        component: () => import('@/views/ClassManagement.vue'),
+        meta: { title: '班级管理', requiresPermission: { menu: 'class-management', operation: 'READ' } }
+      },
+      {
+        path: 'subjects',
+        name: 'SubjectManagement',
+        component: () => import('@/views/SubjectManagement.vue'),
+        meta: { title: '学科管理', requiresPermission: { menu: 'subject-management', operation: 'READ' } }
+      },
+      {
         path: 'profile',
         name: 'Profile',
         component: () => import('@/views/ProfileView.vue'),
@@ -90,8 +104,19 @@ router.beforeEach((to, _from, next) => {
 
   // Check if route requires admin
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    message.warning('当前账号没有管理员权限，已跳转到仪表盘')
     next({ name: 'Dashboard' })
     return
+  }
+
+
+  // Check route-level permission requirements
+  if (to.meta.requiresPermission) {
+    const required = to.meta.requiresPermission as { menu: string; operation: string }
+    if (!authStore.isAdmin && !hasPermission(required.menu, required.operation)) {
+      next({ name: 'Dashboard' })
+      return
+    }
   }
 
   // Redirect to dashboard if already authenticated and trying to access login/register
