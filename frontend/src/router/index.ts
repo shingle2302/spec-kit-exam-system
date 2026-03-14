@@ -55,6 +55,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/ClassManagement.vue'),
         meta: { title: '班级管理', requiresPermission: { menu: 'class-management', operation: 'READ' } }
       },
+
+      {
+        path: 'exam-plans',
+        name: 'ExamPlanManagement',
+        component: () => import('@/views/ExamPlanManagement.vue'),
+        meta: { title: '考试计划管理', requiresPermission: { menu: 'exam-plan-management', operation: 'READ' } }
+      },
       {
         path: 'subjects',
         name: 'SubjectManagement',
