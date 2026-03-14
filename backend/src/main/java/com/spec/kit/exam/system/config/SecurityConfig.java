@@ -41,6 +41,11 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/subjects/**").hasAnyRole("ADMIN", "PRINCIPAL", "SUPER_ADMIN")
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/subjects/**").hasAnyRole("ADMIN", "PRINCIPAL", "SUPER_ADMIN")
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/subjects", "/api/subjects/**").hasAnyRole("ADMIN", "PRINCIPAL", "SUPER_ADMIN", "TEACHER", "STUDENT", "USER")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/exam-workflow/papers", "/api/exam-workflow/sessions").hasAnyRole("ADMIN", "PRINCIPAL", "SUPER_ADMIN", "TEACHER")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/exam-workflow/sessions/*/invigilation/start", "/api/exam-workflow/sessions/*/invigilation/end").hasAnyRole("ADMIN", "PRINCIPAL", "SUPER_ADMIN", "TEACHER")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/exam-workflow/submissions/*/grade", "/api/exam-workflow/sessions/*/publish", "/api/exam-workflow/sessions/*/analysis").hasAnyRole("ADMIN", "PRINCIPAL", "SUPER_ADMIN", "TEACHER")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/exam-workflow/submissions").hasAnyRole("STUDENT", "USER", "ADMIN", "SUPER_ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/exam-workflow/dashboard").hasAnyRole("ADMIN", "PRINCIPAL", "SUPER_ADMIN", "TEACHER")
                 .anyRequest().authenticated() // Require authentication for all other requests
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

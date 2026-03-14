@@ -69,6 +69,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '学科管理', requiresPermission: { menu: 'subject-management', operation: 'READ' } }
       },
       {
+        path: 'teacher-exam-workflow',
+        name: 'TeacherExamWorkflow',
+        component: () => import('@/views/TeacherExamWorkflowView.vue'),
+        meta: { title: '教师考试工作台', requiresPermission: { menu: 'exam-management', operation: 'UPDATE' } }
+      },
+      {
+        path: 'student-exam-center',
+        name: 'StudentExamCenter',
+        component: () => import('@/views/StudentExamCenterView.vue'),
+        meta: { title: '学生考试中心', requiresPermission: { menu: 'exam-management', operation: 'CREATE' } }
+      },
+      {
+        path: 'academic-exam-ops',
+        name: 'AcademicExamOps',
+        component: () => import('@/views/AcademicExamOpsView.vue'),
+        meta: { title: '教务考试运营', requiresPermission: { menu: 'exam-management', operation: 'READ' } }
+      },
+      {
         path: 'profile',
         name: 'Profile',
         component: () => import('@/views/ProfileView.vue'),

@@ -84,6 +84,32 @@
           <span>权限管理</span>
         </a-menu-item>
 
+        <a-menu-item
+          v-if="authStore.isAdmin"
+          key="teacher-exam-workflow"
+          @click="navigateTo('/teacher-exam-workflow')"
+        >
+          <template #icon><EditOutlined /></template>
+          <span>教师考试工作台</span>
+        </a-menu-item>
+
+        <a-menu-item
+          key="student-exam-center"
+          @click="navigateTo('/student-exam-center')"
+        >
+          <template #icon><ReadOutlined /></template>
+          <span>学生考试中心</span>
+        </a-menu-item>
+
+        <a-menu-item
+          v-if="authStore.isAdmin"
+          key="academic-exam-ops"
+          @click="navigateTo('/academic-exam-ops')"
+        >
+          <template #icon><LineChartOutlined /></template>
+          <span>教务考试运营</span>
+        </a-menu-item>
+
         <a-menu-item key="profile" @click="navigateTo('/profile')">
           <template #icon><SettingOutlined /></template>
           <span>个人中心</span>
@@ -161,6 +187,9 @@ import {
   LockOutlined,
   BankOutlined,
   BookOutlined,
+  EditOutlined,
+  ReadOutlined,
+  LineChartOutlined
   ReadOutlined
 } from '@ant-design/icons-vue'
 
@@ -193,6 +222,12 @@ watch(
       selectedKeys.value = ['exam-plans']
     } else if (path.includes('/profile')) {
       selectedKeys.value = ['profile']
+    } else if (path.includes('/teacher-exam-workflow')) {
+      selectedKeys.value = ['teacher-exam-workflow']
+    } else if (path.includes('/student-exam-center')) {
+      selectedKeys.value = ['student-exam-center']
+    } else if (path.includes('/academic-exam-ops')) {
+      selectedKeys.value = ['academic-exam-ops']
     }
   },
   { immediate: true }
