@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/store'
+import { hasPermission } from '@/utils/permissionChecker'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -48,6 +49,36 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '菜单管理', requiresAdmin: true }
       },
       {
+        path: 'classes',
+        name: 'ClassManagement',
+        component: () => import('@/views/ClassManagement.vue'),
+        meta: { title: '班级管理', requiresPermission: { menu: 'class-management', operation: 'READ' } }
+      },
+      {
+        path: 'subjects',
+        name: 'SubjectManagement',
+        component: () => import('@/views/SubjectManagement.vue'),
+        meta: { title: '学科管理', requiresPermission: { menu: 'subject-management', operation: 'READ' } }
+      },
+      {
+        path: 'teacher-exam-workflow',
+        name: 'TeacherExamWorkflow',
+        component: () => import('@/views/TeacherExamWorkflowView.vue'),
+        meta: { title: '教师考试工作台', requiresPermission: { menu: 'exam-management', operation: 'UPDATE' } }
+      },
+      {
+        path: 'student-exam-center',
+        name: 'StudentExamCenter',
+        component: () => import('@/views/StudentExamCenterView.vue'),
+        meta: { title: '学生考试中心', requiresPermission: { menu: 'exam-management', operation: 'CREATE' } }
+      },
+      {
+        path: 'academic-exam-ops',
+        name: 'AcademicExamOps',
+        component: () => import('@/views/AcademicExamOpsView.vue'),
+        meta: { title: '教务考试运营', requiresPermission: { menu: 'exam-management', operation: 'READ' } }
+      },
+      {
         path: 'profile',
         name: 'Profile',
         component: () => import('@/views/ProfileView.vue'),
@@ -92,6 +123,16 @@ router.beforeEach((to, _from, next) => {
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
     next({ name: 'Dashboard' })
     return
+  }
+
+
+  // Check route-level permission requirements
+  if (to.meta.requiresPermission) {
+    const required = to.meta.requiresPermission as { menu: string; operation: string }
+    if (!authStore.isAdmin && !hasPermission(required.menu, required.operation)) {
+      next({ name: 'Dashboard' })
+      return
+    }
   }
 
   // Redirect to dashboard if already authenticated and trying to access login/register
