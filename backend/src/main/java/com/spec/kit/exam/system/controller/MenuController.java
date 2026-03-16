@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/menus")
 @RequiredArgsConstructor
-public class MenuController {
+public class MenuController extends BaseController {
 
     private final MenuService menuService;
 
@@ -35,14 +35,14 @@ public class MenuController {
         }
 
         PageResponse<Menu> pageResponse = PageResponse.of(menus, totalCount, pageRequest.getPage(), pageRequest.getSize());
-        return Result.success(pageResponse, "菜单列表查询成功");
+        return successList(pageResponse);
     }
 
     @PermissionRequired(menu = "menu-management", operation = "READ")
     @GetMapping("/tree")
     public Result<List<Menu>> getMenuTree(@RequestParam(required = false) String roleId) {
         List<Menu> menuTree = menuService.getMenuTreeByRole(roleId);
-        return Result.success(menuTree, "菜单树结构查询成功");
+        return successList(menuTree);
     }
 
     @PermissionRequired(menu = "menu-management", operation = "READ")
@@ -50,7 +50,7 @@ public class MenuController {
     public Result<Menu> getById(@PathVariable String id) {
         Menu menu = menuService.getMenuById(id);
         if (menu != null) {
-            return Result.success(menu, "菜单详情查询成功");
+            return successDetail(menu);
         } else {
             return Result.error(MenuErrorCodeEnum.MENU_NOT_FOUND);
         }
@@ -61,7 +61,7 @@ public class MenuController {
     public Result<Menu> create(@RequestBody Menu menu) {
         Menu createdMenu = menuService.createMenu(menu);
         if (createdMenu != null) {
-            return Result.success(createdMenu, "菜单创建成功");
+            return successCreate(createdMenu);
         } else {
             return Result.error(MenuErrorCodeEnum.MENU_ALREADY_EXISTS);
         }
@@ -73,7 +73,7 @@ public class MenuController {
         menu.setId(id);
         boolean success = menuService.updateMenu(menu);
         if (success) {
-            return Result.success(menu, "菜单更新成功");
+            return successUpdate(menu);
         } else {
             return Result.error(MenuErrorCodeEnum.FAILED_TO_UPDATE_MENU, "菜单更新失败");
         }
@@ -84,7 +84,7 @@ public class MenuController {
     public Result<Void> delete(@PathVariable String id) {
         boolean success = menuService.deleteMenu(id);
         if (success) {
-            return Result.success(null, "菜单删除成功");
+            return successDelete();
         } else {
             return Result.error(MenuErrorCodeEnum.FAILED_TO_DELETE_MENU, "菜单删除失败");
         }
@@ -98,6 +98,6 @@ public class MenuController {
         statistics.put("total", allMenus.size());
         statistics.put("parentMenus", allMenus.stream().filter(m -> m.getParentId() == null).count());
         statistics.put("childMenus", allMenus.stream().filter(m -> m.getParentId() != null).count());
-        return Result.success(statistics, "菜单统计查询成功");
+        return successStatistics(statistics);
     }
 }

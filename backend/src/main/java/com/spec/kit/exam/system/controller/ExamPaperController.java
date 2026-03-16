@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/exam-papers")
 @RequiredArgsConstructor
-public class ExamPaperController {
+public class ExamPaperController extends BaseController {
 
     private final ExamPaperService examPaperService;
 
@@ -26,7 +26,7 @@ public class ExamPaperController {
     @GetMapping
     @PermissionRequired(permissionCode = "EXAM_PAPER_QUERY")
     public Result list(PageRequest pageRequest) {
-        return Result.success(examPaperService.list(pageRequest));
+        return successList(examPaperService.list(pageRequest));
     }
 
     /**
@@ -35,7 +35,7 @@ public class ExamPaperController {
     @GetMapping("/grade/{gradeId}")
     @PermissionRequired(permissionCode = "EXAM_PAPER_QUERY")
     public Result listByGradeId(@PathVariable Long gradeId) {
-        return Result.success(examPaperService.listByGradeId(gradeId));
+        return successList(examPaperService.listByGradeId(gradeId));
     }
 
     /**
@@ -46,7 +46,7 @@ public class ExamPaperController {
     public Result listBySubjectAndGrade(
             @RequestParam Long subjectId,
             @RequestParam Long gradeId) {
-        return Result.success(examPaperService.listBySubjectAndGrade(subjectId, gradeId));
+        return successList(examPaperService.listBySubjectAndGrade(subjectId, gradeId));
     }
 
     /**
@@ -55,7 +55,7 @@ public class ExamPaperController {
     @GetMapping("/{id}")
     @PermissionRequired(permissionCode = "EXAM_PAPER_QUERY")
     public Result getById(@PathVariable Long id) {
-        return Result.success(examPaperService.getById(id));
+        return successDetail(examPaperService.getById(id));
     }
 
     /**
@@ -64,7 +64,7 @@ public class ExamPaperController {
     @PostMapping
     @PermissionRequired(permissionCode = "EXAM_PAPER_CREATE")
     public Result create(@RequestBody ExamPaper examPaper) {
-        return Result.success(examPaperService.create(examPaper));
+        return successCreate(examPaperService.create(examPaper));
     }
 
     /**
@@ -74,7 +74,7 @@ public class ExamPaperController {
     @PermissionRequired(permissionCode = "EXAM_PAPER_UPDATE")
     public Result update(@PathVariable Long id, @RequestBody ExamPaper examPaper) {
         examPaper.setId(id);
-        return Result.success(examPaperService.update(examPaper));
+        return successUpdate(examPaperService.update(examPaper));
     }
 
     /**
@@ -84,7 +84,7 @@ public class ExamPaperController {
     @PermissionRequired(permissionCode = "EXAM_PAPER_DELETE")
     public Result delete(@PathVariable Long id) {
         examPaperService.delete(id);
-        return Result.success();
+        return successDelete();
     }
 
 }

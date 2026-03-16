@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/exam-plans")
-public class ExamPlanController {
+public class ExamPlanController extends BaseController {
 
     @Autowired
     private ExamPlanService examPlanService;
@@ -19,13 +19,13 @@ public class ExamPlanController {
     @PermissionRequired(menu = "exam-plan-management", button = "create-exam-plan", operation = "CREATE")
     @PostMapping
     public Result<ExamPlan> create(@RequestBody ExamPlan request) {
-        return Result.success(examPlanService.create(request));
+        return successCreate(examPlanService.create(request));
     }
 
     @PermissionRequired(menu = "exam-plan-management", button = "view-exam-plan", operation = "READ")
     @PostMapping("/query")
     public Result<Map<String, Object>> query(@RequestBody Map<String, Object> request) {
-        return Result.success(examPlanService.queryPage(request));
+        return successList(examPlanService.queryPage(request));
     }
 
     @PermissionRequired(menu = "exam-plan-management", button = "view-exam-plan", operation = "READ")
@@ -35,7 +35,7 @@ public class ExamPlanController {
         if (examPlan == null) {
             throw new IllegalArgumentException("Exam plan not found: " + id);
         }
-        return Result.success(examPlan);
+        return successDetail(examPlan);
     }
 
     @PermissionRequired(menu = "exam-plan-management", button = "edit-exam-plan", operation = "UPDATE")
@@ -44,7 +44,7 @@ public class ExamPlanController {
         if (!examPlanService.update(id, request)) {
             throw new IllegalArgumentException("Exam plan not found: " + id);
         }
-        return Result.success();
+        return successUpdate(null);
     }
 
     @PermissionRequired(menu = "exam-plan-management", button = "delete-exam-plan", operation = "DELETE")
@@ -53,6 +53,6 @@ public class ExamPlanController {
         if (!examPlanService.delete(id)) {
             throw new IllegalArgumentException("Exam plan not found: " + id);
         }
-        return Result.success();
+        return successDelete();
     }
 }

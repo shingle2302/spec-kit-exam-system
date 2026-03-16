@@ -17,7 +17,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/permissions")
-public class PermissionController {
+public class PermissionController extends BaseController {
 
     @Autowired
     private PermissionService permissionService;
@@ -29,7 +29,7 @@ public class PermissionController {
     @GetMapping("/role/{roleId}")
     public Result<List<Permission>> getPermissionsByRole(@PathVariable String roleId) {
         List<Permission> permissions = permissionService.getPermissionsByRole(roleId);
-        return Result.success(permissions, "Permissions retrieved successfully");
+        return successList(permissions);
     }
 
     /**
@@ -40,9 +40,9 @@ public class PermissionController {
     public Result<Void> assignPermissionsToRole(@RequestBody PermissionAssignmentRequest request) {
         boolean success = permissionService.assignPermissionsToRole(request.getRoleId(), request.getPermissionIds());
         if (success) {
-            return Result.success(null, "Permissions assigned successfully");
+            return success(null, "权限分配成功");
         } else {
-            return Result.error(PermissionErrorCodeEnum.FAILED_TO_ASSIGN_PERMISSIONS, "Failed to assign permissions");
+            return Result.error(PermissionErrorCodeEnum.FAILED_TO_ASSIGN_PERMISSIONS, "权限分配失败");
         }
     }
 
@@ -54,9 +54,9 @@ public class PermissionController {
     public Result<Void> removePermissionsFromRole(@RequestBody PermissionAssignmentRequest request) {
         boolean success = permissionService.removePermissionsFromRole(request.getRoleId(), request.getPermissionIds());
         if (success) {
-            return Result.success(null, "Permissions removed successfully");
+            return success(null, "权限移除成功");
         } else {
-            return Result.error(PermissionErrorCodeEnum.FAILED_TO_REMOVE_PERMISSIONS, "Failed to remove permissions");
+            return Result.error(PermissionErrorCodeEnum.FAILED_TO_REMOVE_PERMISSIONS, "权限移除失败");
         }
     }
 
@@ -79,7 +79,7 @@ public class PermissionController {
         }
 
         PageResponse<Permission> pageResponse = PageResponse.of(permissions, totalCount, pageRequest.getPage(), pageRequest.getSize());
-        return Result.success(pageResponse, "Permissions retrieved successfully");
+        return successList(pageResponse);
     }
 
     /**
@@ -101,7 +101,7 @@ public class PermissionController {
     @PostMapping("/create")
     public Result<Permission> createPermission(@RequestBody Permission permission) {
         Permission createdPermission = permissionService.createPermission(permission);
-        return Result.success(createdPermission, "Permission created successfully");
+        return successCreate(createdPermission);
     }
 
     /**
@@ -112,9 +112,9 @@ public class PermissionController {
     public Result<Permission> updatePermission(@RequestBody Permission permission) {
         boolean success = permissionService.updatePermission(permission);
         if (success) {
-            return Result.success(permission, "Permission updated successfully");
+            return successUpdate(permission);
         } else {
-            return Result.error(PermissionErrorCodeEnum.FAILED_TO_UPDATE_PERMISSION, "Failed to update permission");
+            return Result.error(PermissionErrorCodeEnum.FAILED_TO_UPDATE_PERMISSION, "权限更新失败");
         }
     }
 
@@ -126,9 +126,9 @@ public class PermissionController {
     public Result<Void> deletePermission(@PathVariable String id) {
         boolean success = permissionService.deletePermission(id);
         if (success) {
-            return Result.success(null, "Permission deleted successfully");
+            return successDelete();
         } else {
-            return Result.error(PermissionErrorCodeEnum.FAILED_TO_DELETE_PERMISSION, "Failed to delete permission");
+            return Result.error(PermissionErrorCodeEnum.FAILED_TO_DELETE_PERMISSION, "权限删除失败");
         }
     }
 
@@ -140,9 +140,9 @@ public class PermissionController {
     public Result<Permission> getPermissionById(@PathVariable String id) {
         Permission permission = permissionService.getPermissionById(id);
         if (permission != null) {
-            return Result.success(permission, "Permission retrieved successfully");
+            return successDetail(permission);
         } else {
-            return Result.error(PermissionErrorCodeEnum.PERMISSION_NOT_FOUND, "Permission not found");
+            return Result.error(PermissionErrorCodeEnum.PERMISSION_NOT_FOUND, "权限不存在");
         }
     }
 

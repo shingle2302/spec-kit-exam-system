@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/knowledge-points")
 @RequiredArgsConstructor
-public class KnowledgePointController {
+public class KnowledgePointController extends BaseController {
 
     private final KnowledgePointService knowledgePointService;
 
@@ -29,32 +29,32 @@ public class KnowledgePointController {
         int total = (int) result.get("total");
         
         PageResponse<KnowledgePointEntity> pageResponse = PageResponse.of(records, total, pageRequest.getPage(), pageRequest.getSize());
-        return Result.success(pageResponse, "知识点列表查询成功");
+        return successList(pageResponse);
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "READ")
     @GetMapping("/tree")
     public Result<List<Map<String, Object>>> getTree() {
-        return Result.success(knowledgePointService.getTree(), "知识点树结构查询成功");
+        return successList(knowledgePointService.getTree());
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "READ")
     @GetMapping("/tree/{subjectId}")
     public Result<List<Map<String, Object>>> getTreeBySubjectId(@PathVariable Long subjectId) {
-        return Result.success(knowledgePointService.getTreeBySubjectId(subjectId), "学科知识点树结构查询成功");
+        return successList(knowledgePointService.getTreeBySubjectId(subjectId));
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "READ")
     @GetMapping("/{id}")
     public Result<KnowledgePointEntity> getById(@PathVariable Long id) {
-        return Result.success(knowledgePointService.getById(id), "知识点详情查询成功");
+        return successDetail(knowledgePointService.getById(id));
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "CREATE")
     @PostMapping
     public Result<KnowledgePointEntity> create(@RequestBody KnowledgePointEntity knowledgePointEntity) {
         KnowledgePointEntity created = knowledgePointService.create(knowledgePointEntity);
-        return Result.success(created, "知识点创建成功");
+        return successCreate(created);
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "UPDATE")
@@ -62,29 +62,30 @@ public class KnowledgePointController {
     public Result<KnowledgePointEntity> update(@PathVariable Long id, @RequestBody KnowledgePointEntity knowledgePointEntity) {
         knowledgePointEntity.setId(id);
         KnowledgePointEntity updated = knowledgePointService.update(knowledgePointEntity);
-        return Result.success(updated, "知识点更新成功");
+        return successUpdate(updated);
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "DELETE")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         knowledgePointService.delete(id);
-        return Result.success(null, "知识点删除成功");
+        return successDelete();
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "READ")
     @GetMapping("/subjects")
     public Result<List<Map<String, Object>>> getSubjects() {
-        return Result.success(knowledgePointService.getSubjects(), "学科列表查询成功");
+        return successList(knowledgePointService.getSubjects());
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "READ")
     @GetMapping("/statistics")
     public Result<Map<String, Object>> getStatistics() {
-        Map<String, Object> statistics = new HashMap<>();
-        statistics.put("total", knowledgePointService.getTotalCount());
-        statistics.put("active", knowledgePointService.getActiveCount());
-        statistics.put("inactive", knowledgePointService.getInactiveCount());
-        return Result.success(statistics, "知识点统计查询成功");
+        Map<String, Object> statistics = buildStatistics(
+            knowledgePointService::getTotalCount,
+            knowledgePointService::getActiveCount,
+            knowledgePointService::getInactiveCount
+        );
+        return successStatistics(statistics);
     }
 }

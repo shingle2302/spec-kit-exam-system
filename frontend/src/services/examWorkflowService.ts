@@ -1,49 +1,63 @@
-import { getAuthHeaders, processApiResponse } from './api'
+import { BaseService } from './baseService'
+import type { PageResponse } from '@/types/common'
 
-export const examWorkflowService = {
+export class ExamWorkflowService extends BaseService<any, any, any> {
+  protected readonly baseUrl = '/api/exam-workflow'
+
   createPaper(payload: any) {
-    return fetch('/api/exam-workflow/papers', {
-      method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload)
-    }).then(processApiResponse<any>)
-  },
+    return this.request<any>(`${this.baseUrl}/papers`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+  }
+
   scheduleSession(payload: any) {
-    return fetch('/api/exam-workflow/sessions', {
-      method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload)
-    }).then(processApiResponse<any>)
-  },
+    return this.request<any>(`${this.baseUrl}/sessions`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+  }
+
   startInvigilation(sessionId: number, teacherId: string) {
-    return fetch(`/api/exam-workflow/sessions/${sessionId}/invigilation/start?teacherId=${teacherId}`, {
-      method: 'POST', headers: getAuthHeaders()
-    }).then(processApiResponse<any>)
-  },
+    return this.request<any>(`${this.baseUrl}/sessions/${sessionId}/invigilation/start?teacherId=${teacherId}`, {
+      method: 'POST'
+    })
+  }
+
   endInvigilation(sessionId: number, teacherId: string) {
-    return fetch(`/api/exam-workflow/sessions/${sessionId}/invigilation/end?teacherId=${teacherId}`, {
-      method: 'POST', headers: getAuthHeaders()
-    }).then(processApiResponse<any>)
-  },
+    return this.request<any>(`${this.baseUrl}/sessions/${sessionId}/invigilation/end?teacherId=${teacherId}`, {
+      method: 'POST'
+    })
+  }
+
   submit(payload: any) {
-    return fetch('/api/exam-workflow/submissions', {
-      method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload)
-    }).then(processApiResponse<any>)
-  },
+    return this.request<any>(`${this.baseUrl}/submissions`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+  }
+
   grade(submissionId: number, score: number, gradedBy: string) {
-    return fetch(`/api/exam-workflow/submissions/${submissionId}/grade?score=${score}&gradedBy=${gradedBy}`, {
-      method: 'POST', headers: getAuthHeaders()
-    }).then(processApiResponse<any>)
-  },
+    return this.request<any>(`${this.baseUrl}/submissions/${submissionId}/grade?score=${score}&gradedBy=${gradedBy}`, {
+      method: 'POST'
+    })
+  }
+
   publish(sessionId: number) {
-    return fetch(`/api/exam-workflow/sessions/${sessionId}/publish`, {
-      method: 'POST', headers: getAuthHeaders()
-    }).then(processApiResponse<any>)
-  },
+    return this.request<any>(`${this.baseUrl}/sessions/${sessionId}/publish`, {
+      method: 'POST'
+    })
+  }
+
   analysis(sessionId: number) {
-    return fetch(`/api/exam-workflow/sessions/${sessionId}/analysis`, {
-      method: 'POST', headers: getAuthHeaders()
-    }).then(processApiResponse<any>)
-  },
+    return this.request<any>(`${this.baseUrl}/sessions/${sessionId}/analysis`, {
+      method: 'POST'
+    })
+  }
+
   dashboard() {
-    return fetch('/api/exam-workflow/dashboard', {
-      method: 'GET', headers: getAuthHeaders()
-    }).then(processApiResponse<any>)
+    return this.request<any>(`${this.baseUrl}/dashboard`)
   }
 }
+
+export const examWorkflowService = new ExamWorkflowService()

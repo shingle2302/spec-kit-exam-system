@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/questions")
 @RequiredArgsConstructor
-public class QuestionController {
+public class QuestionController extends BaseController {
 
     private final QuestionService questionService;
 
@@ -26,7 +26,7 @@ public class QuestionController {
     @GetMapping
     @PermissionRequired(permissionCode = "QUESTION_QUERY")
     public Result list(PageRequest pageRequest) {
-        return Result.success(questionService.list(pageRequest));
+        return successList(questionService.list(pageRequest));
     }
 
     /**
@@ -38,7 +38,7 @@ public class QuestionController {
             @RequestParam(required = false) Long subjectId,
             @RequestParam(required = false) Long gradeId,
             @RequestParam(required = false) Long knowledgePointId) {
-        return Result.success(questionService.listByCondition(subjectId, gradeId, knowledgePointId));
+        return successList(questionService.listByCondition(subjectId, gradeId, knowledgePointId));
     }
 
     /**
@@ -47,7 +47,7 @@ public class QuestionController {
     @GetMapping("/{id}")
     @PermissionRequired(permissionCode = "QUESTION_QUERY")
     public Result getById(@PathVariable Long id) {
-        return Result.success(questionService.getById(id));
+        return successDetail(questionService.getById(id));
     }
 
     /**
@@ -56,7 +56,7 @@ public class QuestionController {
     @PostMapping
     @PermissionRequired(permissionCode = "QUESTION_CREATE")
     public Result create(@RequestBody QuestionEntity questionEntity) {
-        return Result.success(questionService.create(questionEntity));
+        return successCreate(questionService.create(questionEntity));
     }
 
     /**
@@ -66,7 +66,7 @@ public class QuestionController {
     @PermissionRequired(permissionCode = "QUESTION_UPDATE")
     public Result update(@PathVariable Long id, @RequestBody QuestionEntity questionEntity) {
         questionEntity.setId(id);
-        return Result.success(questionService.update(questionEntity));
+        return successUpdate(questionService.update(questionEntity));
     }
 
     /**
@@ -76,7 +76,7 @@ public class QuestionController {
     @PermissionRequired(permissionCode = "QUESTION_DELETE")
     public Result delete(@PathVariable Long id) {
         questionService.delete(id);
-        return Result.success();
+        return successDelete();
     }
 
 }

@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/grades")
 @RequiredArgsConstructor
-public class GradeController {
+public class GradeController extends BaseController {
 
     private final GradeService gradeService;
 
@@ -26,7 +26,7 @@ public class GradeController {
     @GetMapping
     @PermissionRequired(permissionCode = "GRADE_QUERY")
     public Result list(PageRequest pageRequest) {
-        return Result.success(gradeService.list(pageRequest));
+        return successList(gradeService.list(pageRequest));
     }
 
     /**
@@ -35,7 +35,7 @@ public class GradeController {
     @GetMapping("/active")
     @PermissionRequired(permissionCode = "GRADE_QUERY")
     public Result listActive() {
-        return Result.success(gradeService.listActive());
+        return successList(gradeService.listActive());
     }
 
     /**
@@ -44,7 +44,7 @@ public class GradeController {
     @GetMapping("/{id}")
     @PermissionRequired(permissionCode = "GRADE_QUERY")
     public Result getById(@PathVariable Long id) {
-        return Result.success(gradeService.getById(id));
+        return successDetail(gradeService.getById(id));
     }
 
     /**
@@ -53,7 +53,7 @@ public class GradeController {
     @PostMapping
     @PermissionRequired(permissionCode = "GRADE_CREATE")
     public Result create(@RequestBody GradeEntity gradeEntity) {
-        return Result.success(gradeService.create(gradeEntity));
+        return successCreate(gradeService.create(gradeEntity));
     }
 
     /**
@@ -63,7 +63,7 @@ public class GradeController {
     @PermissionRequired(permissionCode = "GRADE_UPDATE")
     public Result update(@PathVariable Long id, @RequestBody GradeEntity gradeEntity) {
         gradeEntity.setId(id);
-        return Result.success(gradeService.update(gradeEntity));
+        return successUpdate(gradeService.update(gradeEntity));
     }
 
     /**
@@ -73,7 +73,7 @@ public class GradeController {
     @PermissionRequired(permissionCode = "GRADE_DELETE")
     public Result delete(@PathVariable Long id) {
         gradeService.delete(id);
-        return Result.success();
+        return successDelete();
     }
 
 }

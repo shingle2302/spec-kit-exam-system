@@ -16,7 +16,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/roles")
 @RequiredArgsConstructor
-public class RoleController {
+public class RoleController extends BaseController {
 
     private final RoleService roleService;
 
@@ -36,7 +36,7 @@ public class RoleController {
         }
 
         PageResponse<Role> pageResponse = PageResponse.of(roles, totalCount, pageRequest.getPage(), pageRequest.getSize());
-        return Result.success(pageResponse, "角色列表查询成功");
+        return successList(pageResponse);
     }
 
     @PermissionRequired(menu = "role-management", operation = "READ")
@@ -44,7 +44,7 @@ public class RoleController {
     public Result<Role> getById(@PathVariable String id) {
         Optional<Role> role = roleService.getRoleById(id);
         if (role.isPresent()) {
-            return Result.success(role.get(), "角色详情查询成功");
+            return successDetail(role.get());
         } else {
             return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "角色不存在");
         }
@@ -55,7 +55,7 @@ public class RoleController {
     public Result<Role> getByCode(@PathVariable String code) {
         Optional<Role> role = roleService.getRoleByCode(code);
         if (role.isPresent()) {
-            return Result.success(role.get(), "角色详情查询成功");
+            return successDetail(role.get());
         } else {
             return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "角色不存在");
         }
@@ -65,7 +65,7 @@ public class RoleController {
     @PostMapping
     public Result<Role> create(@RequestBody Role role) {
         Role createdRole = roleService.createRole(role);
-        return Result.success(createdRole, "角色创建成功");
+        return successCreate(createdRole);
     }
 
     @PermissionRequired(menu = "role-management", operation = "UPDATE")
@@ -73,14 +73,14 @@ public class RoleController {
     public Result<Role> update(@PathVariable String id, @RequestBody Role role) {
         role.setId(id);
         Role updatedRole = roleService.updateRole(role);
-        return Result.success(updatedRole, "角色更新成功");
+        return successUpdate(updatedRole);
     }
 
     @PermissionRequired(menu = "role-management", operation = "DELETE")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable String id) {
         roleService.deleteRole(id);
-        return Result.success(null, "角色删除成功");
+        return successDelete();
     }
 
     @PermissionRequired(menu = "role-management", operation = "READ")
@@ -92,6 +92,6 @@ public class RoleController {
         statistics.put("adminRoles", allRoles.stream().filter(r -> r.getCode().equals("ADMIN")).count());
         statistics.put("userRoles", allRoles.stream().filter(r -> r.getCode().equals("USER")).count());
         statistics.put("otherRoles", allRoles.stream().filter(r -> !r.getCode().equals("ADMIN") && !r.getCode().equals("USER")).count());
-        return Result.success(statistics, "角色统计查询成功");
+        return successStatistics(statistics);
     }
 }

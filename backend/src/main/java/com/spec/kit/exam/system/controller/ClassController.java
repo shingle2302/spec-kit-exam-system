@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/classes")
 @RequiredArgsConstructor
-public class ClassController {
+public class ClassController extends BaseController {
     private final ClassService classService;
 
     @PermissionRequired(menu = "class-management", operation = "READ")
@@ -35,53 +35,54 @@ public class ClassController {
         int total = (int) result.get("total");
         
         PageResponse<Map<String, Object>> pageResponse = PageResponse.of(records, total, pageRequest.getPage(), pageRequest.getSize());
-        return Result.success(pageResponse, "班级列表查询成功");
+        return successList(pageResponse);
     }
 
     @PermissionRequired(menu = "class-management", operation = "READ")
     @GetMapping("/{id}")
     public Result<Map<String, Object>> getById(@PathVariable Long id) {
-        return Result.success(classService.getDetail(id), "班级详情查询成功");
+        return successDetail(classService.getDetail(id));
     }
 
     @PermissionRequired(menu = "class-management", operation = "CREATE")
     @PostMapping
     public Result<ClassEntity> create(@RequestBody ClassEntity request) {
         ClassEntity created = classService.create(request);
-        return Result.success(created, "班级创建成功");
+        return successCreate(created);
     }
 
     @PermissionRequired(menu = "class-management", operation = "UPDATE")
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Long id, @RequestBody ClassEntity request) {
         if (!classService.update(id, request)) {
-            return Result.error(404, "班级不存在: " + id);
+            return Result.error("404", "班级不存在: " + id);
         }
-        return Result.success(null, "班级更新成功");
+        return successUpdate(null);
     }
 
     @PermissionRequired(menu = "class-management", operation = "DELETE")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         if (!classService.delete(id)) {
-            return Result.error(404, "班级不存在: " + id);
+            return Result.error("404", "班级不存在: " + id);
         }
-        return Result.success(null, "班级删除成功");
+        return successDelete();
     }
 
     @PermissionRequired(menu = "class-management", operation = "READ")
     @GetMapping("/grades")
     public Result<List<Map<String, Object>>> getGrades() {
-        return Result.success(classService.getGrades(), "年级列表查询成功");
+        return successList(classService.getGrades());
     }
 
     @PermissionRequired(menu = "class-management", operation = "READ")
     @GetMapping("/statistics")
     public Result<Map<String, Object>> getStatistics() {
-        Map<String, Object> statistics = new HashMap<>();
-        statistics.put("total", classService.getTotalCount());
-        statistics.put("active", classService.getActiveCount());
-        statistics.put("inactive", classService.getInactiveCount());
-        return Result.success(statistics, "班级统计查询成功");
+        Map<String, Object> statistics = buildStatistics(
+            classService::getTotalCount,
+            classService::getActiveCount,
+            classService::getInactiveCount
+        );
+        return successStatistics(statistics);
     }
 }

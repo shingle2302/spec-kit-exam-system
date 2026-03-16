@@ -1,4 +1,5 @@
-import { getAuthHeaders, processApiResponse } from './api'
+import { BaseService } from './baseService'
+import type { PageResponse } from '@/types/common'
 
 export interface ExamPlanItem {
   id?: number
@@ -24,25 +25,15 @@ export function buildExamPlanQueryPayload(params: { page?: number; size?: number
   }
 }
 
-export const examPlanService = {
-  async list(params: { page?: number; size?: number; name?: string; academicYear?: string; examType?: string } = {}) {
-    const response = await fetch('/api/exam-plans/query', {
+export class ExamPlanService extends BaseService<ExamPlanItem, ExamPlanItem, Partial<ExamPlanItem>> {
+  protected readonly baseUrl = '/api/exam-plans'
+
+  async query(params: { page?: number; size?: number; name?: string; academicYear?: string; examType?: string } = {}) {
+    return this.request<any>(`${this.baseUrl}/query`, {
       method: 'POST',
-      headers: getAuthHeaders(),
       body: JSON.stringify(buildExamPlanQueryPayload(params))
     })
-    return processApiResponse<any>(response)
-  },
-  async create(payload: ExamPlanItem) {
-    const response = await fetch('/api/exam-plans', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) })
-    return processApiResponse<any>(response)
-  },
-  async update(id: number, payload: Partial<ExamPlanItem>) {
-    const response = await fetch(`/api/exam-plans/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(payload) })
-    return processApiResponse<void>(response)
-  },
-  async remove(id: number) {
-    const response = await fetch(`/api/exam-plans/${id}`, { method: 'DELETE', headers: getAuthHeaders() })
-    return processApiResponse<void>(response)
   }
 }
+
+export const examPlanService = new ExamPlanService()

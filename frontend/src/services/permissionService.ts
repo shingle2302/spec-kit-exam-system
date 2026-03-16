@@ -1,62 +1,37 @@
-import { processApiResponse, getAuthHeaders } from './api';
+import { BaseService } from './baseService'
+import type { PageResponse } from '@/types/common'
 
-const API_BASE_URL = '/api/permissions';
-
-export const permissionService = {
-  async list() {
-    const response = await fetch(`${API_BASE_URL}/list`, {
-      headers: getAuthHeaders(),
-    });
-    return processApiResponse(response);
-  },
+export class PermissionService extends BaseService<any, any, any> {
+  protected readonly baseUrl = '/api/permissions'
 
   async getRoles() {
-    const response = await fetch(`${API_BASE_URL}/roles`, {
-      headers: getAuthHeaders(),
-    });
-    return processApiResponse(response);
-  },
+    return this.request<any>(`${this.baseUrl}/roles`)
+  }
 
   async getPermissionConfig(roleId: number) {
-    const response = await fetch(`${API_BASE_URL}/config/${roleId}`, {
-      headers: getAuthHeaders(),
-    });
-    return processApiResponse(response);
-  },
+    return this.request<any>(`${this.baseUrl}/config/${roleId}`)
+  }
 
   async savePermissionConfig(config: any) {
-    const response = await fetch(`${API_BASE_URL}/config`, {
+    return this.request<any>(`${this.baseUrl}/config`, {
       method: 'POST',
-      headers: {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(config),
-    });
-    return processApiResponse(response);
-  },
+      body: JSON.stringify(config)
+    })
+  }
 
   async assignPermissions(roleId: number, permissionIds: number[]) {
-    const response = await fetch(`${API_BASE_URL}/assign`, {
+    return this.request<any>(`${this.baseUrl}/assign`, {
       method: 'POST',
-      headers: {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ roleId, permissionIds }),
-    });
-    return processApiResponse(response);
-  },
+      body: JSON.stringify({ roleId, permissionIds })
+    })
+  }
 
   async revokePermissions(roleId: number, permissionIds: number[]) {
-    const response = await fetch(`${API_BASE_URL}/revoke`, {
+    return this.request<any>(`${this.baseUrl}/revoke`, {
       method: 'POST',
-      headers: {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ roleId, permissionIds }),
-    });
-    return processApiResponse(response);
-  },
-};
+      body: JSON.stringify({ roleId, permissionIds })
+    })
+  }
+}
+
+export const permissionService = new PermissionService()
