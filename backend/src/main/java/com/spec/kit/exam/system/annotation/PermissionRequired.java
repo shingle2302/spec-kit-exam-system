@@ -14,4 +14,5 @@ public @interface PermissionRequired {
     String menu() default "";
     String button() default "";
     String operation() default "";
+    String permissionCode() default "";
 }

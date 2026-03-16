@@ -17,8 +17,15 @@ public class ExamPaper {
     private String status;
     private String createdBy;
     private String updatedBy;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
+
+    private Long gradeId;
+
+    public Long getGradeId() { return gradeId; }
+    public void setGradeId(Long gradeId) { this.gradeId = gradeId; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

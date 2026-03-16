@@ -74,15 +74,34 @@ public class PermissionAspect {
         String menu = permissionRequired.menu();
         String button = permissionRequired.button();
         String operation = permissionRequired.operation();
+        String permissionCode = permissionRequired.permissionCode();
         
-        // Validate that required attributes are provided
+        // If permissionCode is provided, use it directly
+        if (!permissionCode.isEmpty()) {
+            List<String> userPermissions = permissionService.getPermissionCodesByUserId(currentUser.getId());
+            boolean hasPermission = userPermissions.contains(permissionCode);
+            
+            if (!hasPermission) {
+                logger.warn("Permission denied for user: {} on permissionCode: {} required: {}",
+                           currentUser.getUsername(), permissionCode, permissionCode);
+                return Result.unauthorized("Insufficient permissions, missing permission: " + permissionCode);
+            }
+            
+            logger.debug("Permission granted for user: {} on permissionCode: {}",
+                        currentUser.getUsername(), permissionCode);
+            
+            // Proceed with the original method call
+            return joinPoint.proceed();
+        }
+        
+        // Validate that required attributes are provided (fallback to old method)
         if (menu.isEmpty()) {
-            logger.error("Menu attribute is required in @PermissionRequired annotation");
+            logger.error("Menu attribute is required in @PermissionRequired annotation when permissionCode is not provided");
             return Result.error(CommonErrorCodeEnum.INVALID_PERMISSION_CONFIG, "Invalid permission configuration: menu is required");
         }
         
         if (operation.isEmpty()) {
-            logger.error("Operation attribute is required in @PermissionRequired annotation");
+            logger.error("Operation attribute is required in @PermissionRequired annotation when permissionCode is not provided");
             return Result.error(CommonErrorCodeEnum.INVALID_PERMISSION_CONFIG2, "Invalid permission configuration: operation is required");
         }
         

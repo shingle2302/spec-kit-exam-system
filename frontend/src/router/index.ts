@@ -55,18 +55,41 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/ClassManagement.vue'),
         meta: { title: '班级管理', requiresPermission: { menu: 'class-management', operation: 'READ' } }
       },
-
-      {
-        path: 'exam-plans',
-        name: 'ExamPlanManagement',
-        component: () => import('@/views/ExamPlanManagement.vue'),
-        meta: { title: '考试计划管理', requiresPermission: { menu: 'exam-plan-management', operation: 'READ' } }
-      },
       {
         path: 'subjects',
         name: 'SubjectManagement',
         component: () => import('@/views/SubjectManagement.vue'),
         meta: { title: '学科管理', requiresPermission: { menu: 'subject-management', operation: 'READ' } }
+      },
+      {
+        path: 'grades',
+        name: 'GradeManagement',
+        component: () => import('@/views/GradeManagement.vue'),
+        meta: { title: '年级管理', requiresPermission: { menu: 'grade-management', operation: 'READ' } }
+      },
+      {
+        path: 'knowledge-points',
+        name: 'KnowledgePointManagement',
+        component: () => import('@/views/KnowledgePointManagement.vue'),
+        meta: { title: '知识点管理', requiresPermission: { menu: 'knowledge-point-management', operation: 'READ' } }
+      },
+      {
+        path: 'questions',
+        name: 'QuestionManagement',
+        component: () => import('@/views/QuestionManagement.vue'),
+        meta: { title: '题库管理', requiresPermission: { menu: 'question-management', operation: 'READ' } }
+      },
+      {
+        path: 'exam-papers',
+        name: 'ExamPaperManagement',
+        component: () => import('@/views/ExamPaperManagement.vue'),
+        meta: { title: '试卷管理', requiresPermission: { menu: 'exam-paper-management', operation: 'READ' } }
+      },
+      {
+        path: 'exam-plans',
+        name: 'ExamPlanManagement',
+        component: () => import('@/views/ExamPlanManagement.vue'),
+        meta: { title: '考试计划管理', requiresPermission: { menu: 'exam-plan-management', operation: 'READ' } }
       },
       {
         path: 'teacher-exam-workflow',
