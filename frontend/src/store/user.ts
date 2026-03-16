@@ -1,140 +1,74 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { User, CreateUserRequest, UpdateUserRequest, PageResponse } from '@/types'
-import { userService } from '@/services/userService'
-import { message } from 'ant-design-vue'
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { userService } from '../services/userService';
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  phone: string;
+  status: string;
+}
 
 export const useUserStore = defineStore('user', () => {
-  // State
-  const users = ref<User[]>([])
-  const usersPageData = ref<PageResponse<User> | null>(null)
-  const currentEditUser = ref<User | null>(null)
-  const loading = ref(false)
-  const pagination = ref({
-    current: 1,
-    pageSize: 10,
-    total: 0
-  })
+  const users = ref<User[]>([]);
+  const currentUser = ref<User | null>(null);
+  const loading = ref(false);
 
-  // Actions
-  async function fetchUsers(params?: { page?: number; size?: number; limit?: number; status?: string }) {
-    loading.value = true
+  async function fetchUsers(page: number = 1, size: number = 10) {
+    loading.value = true;
     try {
-      const response = await userService.getUsers({
-        page: params?.page,
-        size: params?.size ?? params?.limit,
-        filters: { status: params?.status }
-      })
-      usersPageData.value = response
-      users.value = response.data
-      pagination.value.current = response.page
-      pagination.value.pageSize = response.size
-      pagination.value.total = response.total
-      return { success: true, data: response }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '获取用户列表失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
+      const response = await userService.list(page, size);
+      users.value = response.data || [];
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
-  async function fetchUserById(id: string) {
-    loading.value = true
+  async function updateUser(userId: string, userData: Partial<User>) {
     try {
-      const response = await userService.getUserById(id)
-      currentEditUser.value = response
-      return { success: true, data: response }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '获取用户信息失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
-    } finally {
-      loading.value = false
+      const response = await userService.update(userId, userData);
+      const index = users.value.findIndex(u => u.id === userId);
+      if (index !== -1) {
+        users.value[index] = { ...users.value[index], ...userData };
+      }
+      return true;
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      return false;
     }
   }
 
-  async function createUser(userData: CreateUserRequest) {
-    loading.value = true
+  async function deleteUser(userId: string) {
     try {
-      const response = await userService.createUser(userData)
-      message.success('用户创建成功')
-      await fetchUsers()
-      return { success: true, data: response }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '创建用户失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
-    } finally {
-      loading.value = false
+      await userService.delete(userId);
+      users.value = users.value.filter(u => u.id !== userId);
+      return true;
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      return false;
     }
   }
 
-  async function updateUser(id: string, userData: UpdateUserRequest) {
-    loading.value = true
-    try {
-      const response = await userService.updateUser(id, userData)
-      message.success('用户更新成功')
-      await fetchUsers()
-      return { success: true, data: response }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '更新用户失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
-    } finally {
-      loading.value = false
-    }
+  function setCurrentUser(user: User) {
+    currentUser.value = user;
   }
 
-  async function deleteUser(id: string) {
-    loading.value = true
-    try {
-      await userService.deleteUser(id)
-      message.success('用户删除成功')
-      await fetchUsers()
-      return { success: true }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '删除用户失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function unlockUser(id: string) {
-    loading.value = true
-    try {
-      await userService.unlockUser(id)
-      message.success('用户账户已解锁')
-      await fetchUsers()
-      return { success: true }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '解锁用户失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
-    } finally {
-      loading.value = false
-    }
-  }
-
-  function setCurrentEditUser(user: User | null) {
-    currentEditUser.value = user
+  function clearCurrentUser() {
+    currentUser.value = null;
   }
 
   return {
     users,
-    usersPageData,
-    currentEditUser,
+    currentUser,
     loading,
-    pagination,
     fetchUsers,
-    fetchUserById,
-    createUser,
     updateUser,
     deleteUser,
-    unlockUser,
-    setCurrentEditUser
-  }
-})
+    setCurrentUser,
+    clearCurrentUser
+  };
+});

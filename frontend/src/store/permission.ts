@@ -1,123 +1,98 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { Permission, PageResponse } from '@/types'
-import { permissionService } from '@/services/permissionService'
-import { message } from 'ant-design-vue'
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { permissionService } from '../services/permissionService';
+
+interface Permission {
+  id: number;
+  name: string;
+  code: string;
+  type: string;
+}
+
+interface Role {
+  id: number;
+  name: string;
+  code: string;
+  permissions: Permission[];
+}
 
 export const usePermissionStore = defineStore('permission', () => {
-  // State
-  const permissions = ref<Permission[]>([])
-  const permissionsPageData = ref<PageResponse<Permission> | null>(null)
-  const currentEditPermission = ref<Permission | null>(null)
-  const loading = ref(false)
-  const pagination = ref({
-    current: 1,
-    pageSize: 10,
-    total: 0
-  })
+  const permissions = ref<Permission[]>([]);
+  const roles = ref<Role[]>([]);
+  const currentRole = ref<Role | null>(null);
+  const loading = ref(false);
 
-  // Actions
-  async function fetchPermissions(params?: { page?: number; size?: number; limit?: number; status?: string }) {
-    loading.value = true
+  async function fetchPermissions() {
+    loading.value = true;
     try {
-      const response = await permissionService.getAllPermissions({
-        page: params?.page,
-        size: params?.size ?? params?.limit,
-        filters: { status: params?.status }
-      })
-      permissionsPageData.value = response
-      permissions.value = response.data
-      pagination.value.current = response.page
-      pagination.value.pageSize = response.size
-      pagination.value.total = response.total
-      return { success: true, data: response }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '获取权限列表失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
+      const response = await permissionService.list();
+      permissions.value = response.data || [];
+    } catch (error) {
+      console.error('Failed to fetch permissions:', error);
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
-  async function fetchPermissionById(id: string) {
-    loading.value = true
+  async function fetchRoles() {
+    loading.value = true;
     try {
-      const data = await permissionService.getPermissionById(id)
-      currentEditPermission.value = data
-      return { success: true, data }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '获取权限信息失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
+      const response = await permissionService.getRoles();
+      roles.value = response.data || [];
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
-  async function createPermission(permissionData: Partial<Permission>) {
-    loading.value = true
-    try {
-      const data = await permissionService.createPermission(permissionData)
-      message.success('权限创建成功')
-      await fetchPermissions()
-      return { success: true, data }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '创建权限失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
-    } finally {
-      loading.value = false
+  function hasPermission(permissionCode: string): boolean {
+    if (!currentRole.value) {
+      return false;
     }
+    
+    return currentRole.value.permissions.some(
+      p => p.code === permissionCode
+    );
   }
 
-  async function updatePermission(id: string, permissionData: Partial<Permission>) {
-    loading.value = true
-    try {
-      const data = await permissionService.updatePermission({ ...permissionData, id })
-      message.success('权限更新成功')
-      await fetchPermissions()
-      return { success: true, data }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '更新权限失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
-    } finally {
-      loading.value = false
-    }
+  function hasAnyPermission(permissionCodes: string[]): boolean {
+    return permissionCodes.some(code => hasPermission(code));
   }
 
-  async function deletePermission(id: string) {
-    loading.value = true
-    try {
-      await permissionService.deletePermission(id)
-      message.success('权限删除成功')
-      await fetchPermissions()
-      return { success: true }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || '删除权限失败'
-      message.error(errorMsg)
-      return { success: false, message: errorMsg }
-    } finally {
-      loading.value = false
-    }
+  function hasAllPermissions(permissionCodes: string[]): boolean {
+    return permissionCodes.every(code => hasPermission(code));
   }
 
-  function setCurrentEditPermission(permission: Permission | null) {
-    currentEditPermission.value = permission
+  function setCurrentRole(role: Role) {
+    currentRole.value = role;
+    localStorage.setItem('currentRole', JSON.stringify(role));
+  }
+
+  function clearCurrentRole() {
+    currentRole.value = null;
+    localStorage.removeItem('currentRole');
+  }
+
+  function loadRoleFromStorage() {
+    const storedRole = localStorage.getItem('currentRole');
+    if (storedRole) {
+      currentRole.value = JSON.parse(storedRole);
+    }
   }
 
   return {
     permissions,
-    permissionsPageData,
-    currentEditPermission,
+    roles,
+    currentRole,
     loading,
-    pagination,
     fetchPermissions,
-    fetchPermissionById,
-    createPermission,
-    updatePermission,
-    deletePermission,
-    setCurrentEditPermission
-  }
-})
+    fetchRoles,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    setCurrentRole,
+    clearCurrentRole,
+    loadRoleFromStorage
+  };
+});

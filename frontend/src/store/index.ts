@@ -1,4 +1,10 @@
-export { useAuthStore } from './auth'
-export { useUserStore } from './user'
-export { useRoleStore } from './role'
-export { usePermissionStore } from './permission'
+import { createPinia } from 'pinia';
+import { useAuthStore } from './auth';
+import { useUserStore } from './user';
+import { usePermissionStore } from './permission';
+
+const pinia = createPinia();
+
+export { pinia, useAuthStore, useUserStore, usePermissionStore };
+
+export default pinia;

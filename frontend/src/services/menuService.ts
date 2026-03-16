@@ -1,6 +1,13 @@
 import { processApiResponse, getAuthHeaders } from './api'
 import type { Menu } from '@/types'
 
+export interface PageResponse<T> {
+  records: T[]
+  total: number
+  page: number
+  size: number
+}
+
 export const menuService = {
   /**
    * Get menu tree structure for a specific role
@@ -19,10 +26,39 @@ export const menuService = {
   },
 
   /**
+   * Get all menus
+   */
+  async list(params?: { page?: number; size?: number; filters?: Record<string, unknown> }): Promise<PageResponse<Menu>> {
+    const response = await fetch('/api/menus/list', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        page: params?.page ?? 1,
+        size: params?.size ?? 10,
+        filters: params?.filters ?? {}
+      })
+    })
+
+    return processApiResponse<PageResponse<Menu>>(response)
+  },
+
+  /**
+   * Get a menu by ID
+   */
+  async getById(menuId: string): Promise<Menu> {
+    const response = await fetch(`/api/menus/${encodeURIComponent(menuId)}`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    })
+
+    return processApiResponse<Menu>(response)
+  },
+
+  /**
    * Create a new menu
    */
-  async createMenu(menu: Partial<Menu>): Promise<Menu> {
-    const response = await fetch(`/api/menus/create`, {
+  async create(menu: Partial<Menu>): Promise<Menu> {
+    const response = await fetch(`/api/menus`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(menu)
@@ -34,11 +70,11 @@ export const menuService = {
   /**
    * Update an existing menu
    */
-  async updateMenu(menu: Partial<Menu>): Promise<Menu> {
-    const response = await fetch(`/api/menus/update`, {
+  async update(menuId: string, menu: Partial<Menu>): Promise<Menu> {
+    const response = await fetch(`/api/menus/${encodeURIComponent(menuId)}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify(menu)
+      body: JSON.stringify({...menu, id: menuId})
     })
 
     return processApiResponse<Menu>(response)
@@ -47,8 +83,8 @@ export const menuService = {
   /**
    * Delete a menu by ID
    */
-  async deleteMenu(menuId: string): Promise<void> {
-    const response = await fetch(`/api/menus/delete/${encodeURIComponent(menuId)}`, {
+  async remove(menuId: string): Promise<void> {
+    const response = await fetch(`/api/menus/${encodeURIComponent(menuId)}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     })
@@ -57,31 +93,14 @@ export const menuService = {
   },
 
   /**
-   * Get all menus
+   * Get menu statistics
    */
-  async getAllMenus(params?: { page?: number; size?: number; filters?: Record<string, unknown> }): Promise<import('@/types').PageResponse<Menu>> {
-    const response = await fetch('/api/menus/list', {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        page: params?.page ?? 1,
-        size: params?.size ?? 10,
-        filters: params?.filters ?? {}
-      })
-    })
-
-    return processApiResponse<import('@/types').PageResponse<Menu>>(response)
-  },
-
-  /**
-   * Get a menu by ID
-   */
-  async getMenuById(menuId: string): Promise<Menu> {
-    const response = await fetch(`/api/menus/${encodeURIComponent(menuId)}`, {
+  async getStatistics(): Promise<Record<string, unknown>> {
+    const response = await fetch('/api/menus/statistics', {
       method: 'GET',
       headers: getAuthHeaders()
     })
 
-    return processApiResponse<Menu>(response)
+    return processApiResponse<Record<string, unknown>>(response)
   }
 }

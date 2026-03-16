@@ -1,6 +1,13 @@
 import { processApiResponse, getAuthHeaders } from './api'
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from '@/types'
 
+export interface PageResponse<T> {
+  records: T[]
+  total: number
+  page: number
+  size: number
+}
+
 // Convert permissions object to JSON string for backend
 function prepareRoleData(roleData: CreateRoleRequest | UpdateRoleRequest) {
   return {
@@ -21,7 +28,7 @@ export const roleService = {
   /**
    * Get all roles
    */
-  async getRoles(params?: { page?: number; size?: number; filters?: Record<string, unknown> }): Promise<import('@/types').PageResponse<Role>> {
+  async list(params?: { page?: number; size?: number; filters?: Record<string, unknown> }): Promise<PageResponse<Role>> {
     const response = await fetch('/api/roles/list', {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -31,18 +38,18 @@ export const roleService = {
         filters: params?.filters ?? {}
       })
     })
-    const data = await processApiResponse<import('@/types').PageResponse<any>>(response)
-    // Parse permissions for each role in the data
-    if (data && data.data) {
-      data.data = data.data.map(parseRoleResponse)
+    const data = await processApiResponse<PageResponse<any>>(response)
+    // Parse permissions for each role in data
+    if (data && data.records) {
+      data.records = data.records.map(parseRoleResponse)
     }
-    return data
+    return data as PageResponse<Role>
   },
 
   /**
    * Get a specific role by ID
    */
-  async getRoleById(id: string): Promise<Role> {
+  async getById(id: string): Promise<Role> {
     const response = await fetch(`/api/roles/${id}`, {
       method: 'GET',
       headers: getAuthHeaders()
@@ -54,8 +61,8 @@ export const roleService = {
   /**
    * Create a new role
    */
-  async createRole(roleData: CreateRoleRequest): Promise<Role> {
-    const response = await fetch('/api/roles/create', {
+  async create(roleData: CreateRoleRequest): Promise<Role> {
+    const response = await fetch('/api/roles', {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(prepareRoleData(roleData))
@@ -67,8 +74,8 @@ export const roleService = {
   /**
    * Update an existing role
    */
-  async updateRole(id: string, roleData: UpdateRoleRequest): Promise<Role> {
-    const response = await fetch('/api/roles/update', {
+  async update(id: string, roleData: UpdateRoleRequest): Promise<Role> {
+    const response = await fetch(`/api/roles/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify({...prepareRoleData(roleData), id})
@@ -80,8 +87,8 @@ export const roleService = {
   /**
    * Delete a role
    */
-  async deleteRole(id: string): Promise<void> {
-    const response = await fetch(`/api/roles/delete/${id}`, {
+  async remove(id: string): Promise<void> {
+    const response = await fetch(`/api/roles/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     })
@@ -91,12 +98,23 @@ export const roleService = {
   /**
    * Get a specific role by code
    */
-  async getRoleByCode(code: string): Promise<Role> {
+  async getByCode(code: string): Promise<Role> {
     const response = await fetch(`/api/roles/code/${code}`, {
       method: 'GET',
       headers: getAuthHeaders()
     })
     const data = await processApiResponse<Role>(response)
     return parseRoleResponse(data)
+  },
+
+  /**
+   * Get role statistics
+   */
+  async getStatistics(): Promise<Record<string, unknown>> {
+    const response = await fetch('/api/roles/statistics', {
+      method: 'GET',
+      headers: getAuthHeaders()
+    })
+    return processApiResponse<Record<string, unknown>>(response)
   }
 }

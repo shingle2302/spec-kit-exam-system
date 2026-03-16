@@ -4,69 +4,84 @@ import com.spec.kit.exam.system.annotation.PermissionRequired;
 import com.spec.kit.exam.system.entity.ClassEntity;
 import com.spec.kit.exam.system.service.ClassService;
 import com.spec.kit.exam.system.util.Result;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.spec.kit.exam.system.util.PageRequestDTO;
+import com.spec.kit.exam.system.util.PageResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/classes")
+@RequiredArgsConstructor
 public class ClassController {
-    @Autowired
-    private ClassService classService;
+    private final ClassService classService;
 
-    @PermissionRequired(menu = "class-management", button = "create-class", operation = "CREATE")
+    @PermissionRequired(menu = "class-management", operation = "READ")
+    @PostMapping("/list")
+    public Result<PageResponse<Map<String, Object>>> list(@RequestBody(required = false) PageRequestDTO request) {
+        PageRequestDTO pageRequest = request == null ? new PageRequestDTO() : request;
+        Map<String, Object> filters = pageRequest.getFilters() != null ? pageRequest.getFilters() : new HashMap<>();
+        
+        Map<String, Object> req = new HashMap<>();
+        req.put("page", pageRequest.getPage());
+        req.put("size", pageRequest.getSize());
+        req.put("filters", filters);
+        
+        Map<String, Object> result = classService.queryPage(req);
+        List<Map<String, Object>> records = (List<Map<String, Object>>) result.get("records");
+        int total = (int) result.get("total");
+        
+        PageResponse<Map<String, Object>> pageResponse = PageResponse.of(records, total, pageRequest.getPage(), pageRequest.getSize());
+        return Result.success(pageResponse, "班级列表查询成功");
+    }
+
+    @PermissionRequired(menu = "class-management", operation = "READ")
+    @GetMapping("/{id}")
+    public Result<Map<String, Object>> getById(@PathVariable Long id) {
+        return Result.success(classService.getDetail(id), "班级详情查询成功");
+    }
+
+    @PermissionRequired(menu = "class-management", operation = "CREATE")
     @PostMapping
     public Result<ClassEntity> create(@RequestBody ClassEntity request) {
-        return Result.success(classService.create(request));
+        ClassEntity created = classService.create(request);
+        return Result.success(created, "班级创建成功");
     }
 
-    @PermissionRequired(menu = "class-management", button = "view-class", operation = "READ")
-    @GetMapping
-    public Result<Map<String, Object>> query(@RequestParam(defaultValue = "1") Integer page,
-                                             @RequestParam(defaultValue = "10") Integer size,
-                                             @RequestParam(required = false) String name,
-                                             @RequestParam(required = false) Long gradeId,
-                                             @RequestParam(required = false) Long educationalLevelId) {
-        Map<String, Object> req = new HashMap<>();
-        Map<String, Object> filters = new HashMap<>();
-        filters.put("name", name);
-        filters.put("gradeId", gradeId);
-        filters.put("educationalLevelId", educationalLevelId);
-        req.put("page", page);
-        req.put("size", size);
-        req.put("filters", filters);
-        return Result.success(classService.queryPage(req));
-    }
-
-    @PermissionRequired(menu = "class-management", button = "view-class", operation = "READ")
-    @GetMapping("/{id}")
-    public Result<Map<String, Object>> detail(@PathVariable Long id) {
-        return Result.success(classService.getDetail(id));
-    }
-
-    @PermissionRequired(menu = "class-management", button = "edit-class", operation = "UPDATE")
+    @PermissionRequired(menu = "class-management", operation = "UPDATE")
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Long id, @RequestBody ClassEntity request) {
         if (!classService.update(id, request)) {
-            throw new IllegalArgumentException("Class not found: " + id);
+            return Result.error(404, "班级不存在: " + id);
         }
-        return Result.success();
+        return Result.success(null, "班级更新成功");
     }
 
-    @PermissionRequired(menu = "class-management", button = "delete-class", operation = "DELETE")
+    @PermissionRequired(menu = "class-management", operation = "DELETE")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         if (!classService.delete(id)) {
-            throw new IllegalArgumentException("Class not found: " + id);
+            return Result.error(404, "班级不存在: " + id);
         }
-        return Result.success();
+        return Result.success(null, "班级删除成功");
     }
 
-    @PermissionRequired(menu = "class-management", button = "view-grade", operation = "READ")
+    @PermissionRequired(menu = "class-management", operation = "READ")
     @GetMapping("/grades")
-    public Result<Object> grades() {
-        return Result.success(classService.getGrades());
+    public Result<List<Map<String, Object>>> getGrades() {
+        return Result.success(classService.getGrades(), "年级列表查询成功");
+    }
+
+    @PermissionRequired(menu = "class-management", operation = "READ")
+    @GetMapping("/statistics")
+    public Result<Map<String, Object>> getStatistics() {
+        Map<String, Object> statistics = new HashMap<>();
+        statistics.put("total", classService.getTotalCount());
+        statistics.put("active", classService.getActiveCount());
+        statistics.put("inactive", classService.getInactiveCount());
+        return Result.success(statistics, "班级统计查询成功");
     }
 }

@@ -1,115 +1,62 @@
-import { processApiResponse, getAuthHeaders } from './api'
-import type { Permission } from '@/types'
+import { processApiResponse, getAuthHeaders } from './api';
+
+const API_BASE_URL = '/api/permissions';
 
 export const permissionService = {
-  /**
-   * Get permissions for a specific role
-   */
-  async getPermissionsByRole(roleId: string): Promise<Permission[]> {
-    const response = await fetch(`/api/permissions/role/${encodeURIComponent(roleId)}`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    })
-
-    return processApiResponse<Permission[]>(response)
+  async list() {
+    const response = await fetch(`${API_BASE_URL}/list`, {
+      headers: getAuthHeaders(),
+    });
+    return processApiResponse(response);
   },
 
-  /**
-   * Assign permissions to a role
-   */
-  async assignPermissionsToRole(roleId: string, permissionIds: string[]): Promise<void> {
-    const response = await fetch(`/api/permissions/assign`, {
+  async getRoles() {
+    const response = await fetch(`${API_BASE_URL}/roles`, {
+      headers: getAuthHeaders(),
+    });
+    return processApiResponse(response);
+  },
+
+  async getPermissionConfig(roleId: number) {
+    const response = await fetch(`${API_BASE_URL}/config/${roleId}`, {
+      headers: getAuthHeaders(),
+    });
+    return processApiResponse(response);
+  },
+
+  async savePermissionConfig(config: any) {
+    const response = await fetch(`${API_BASE_URL}/config`, {
       method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        roleId: roleId,
-        permissionIds: permissionIds
-      })
-    })
-
-    return processApiResponse<void>(response)
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    });
+    return processApiResponse(response);
   },
 
-  /**
-   * Remove permissions from a role
-   */
-  async removePermissionsFromRole(roleId: string, permissionIds: string[]): Promise<void> {
-    const response = await fetch(`/api/permissions/remove`, {
+  async assignPermissions(roleId: number, permissionIds: number[]) {
+    const response = await fetch(`${API_BASE_URL}/assign`, {
       method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        roleId: roleId,
-        permissionIds: permissionIds
-      })
-    })
-
-    return processApiResponse<void>(response)
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roleId, permissionIds }),
+    });
+    return processApiResponse(response);
   },
 
-  /**
-   * Get all permissions
-   */
-  async getAllPermissions(params?: { page?: number; size?: number; filters?: Record<string, unknown> }): Promise<import('@/types').PageResponse<Permission>> {
-    const response = await fetch('/api/permissions/list', {
+  async revokePermissions(roleId: number, permissionIds: number[]) {
+    const response = await fetch(`${API_BASE_URL}/revoke`, {
       method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        page: params?.page ?? 1,
-        size: params?.size ?? 10,
-        filters: params?.filters ?? {}
-      })
-    })
-
-    return processApiResponse<import('@/types').PageResponse<Permission>>(response)
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ roleId, permissionIds }),
+    });
+    return processApiResponse(response);
   },
-
-  /**
-   * Create a new permission
-   */
-  async createPermission(permission: Partial<Permission>): Promise<Permission> {
-    const response = await fetch(`/api/permissions/create`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(permission)
-    })
-
-    return processApiResponse<Permission>(response)
-  },
-
-  /**
-   * Update an existing permission
-   */
-  async updatePermission(permission: Partial<Permission>): Promise<Permission> {
-    const response = await fetch(`/api/permissions/update`, {
-      method: 'PUT',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(permission)
-    })
-
-    return processApiResponse<Permission>(response)
-  },
-
-  /**
-   * Get a permission by ID
-   */
-  async getPermissionById(permissionId: string): Promise<Permission> {
-    const response = await fetch(`/api/permissions/${encodeURIComponent(permissionId)}`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    })
-
-    return processApiResponse<Permission>(response)
-  },
-
-  /**
-   * Delete a permission by ID
-   */
-  async deletePermission(permissionId: string): Promise<void> {
-    const response = await fetch(`/api/permissions/delete/${encodeURIComponent(permissionId)}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    })
-
-    return processApiResponse<void>(response)
-  }
-}
+};

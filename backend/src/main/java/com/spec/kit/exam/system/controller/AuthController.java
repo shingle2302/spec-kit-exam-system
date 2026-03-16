@@ -2,13 +2,15 @@ package com.spec.kit.exam.system.controller;
 
 import com.spec.kit.exam.system.dto.LoginRequestDTO;
 import com.spec.kit.exam.system.dto.RegisterRequestDTO;
+import com.spec.kit.exam.system.dto.RefreshTokenRequest;
+import com.spec.kit.exam.system.dto.TokenResponse;
 import com.spec.kit.exam.system.service.AuthService;
 import com.spec.kit.exam.system.service.UserService;
+import com.spec.kit.exam.system.util.JwtUtilEnhanced;
 import com.spec.kit.exam.system.util.Result;
+import com.spec.kit.exam.system.entity.User;
 import com.spec.kit.exam.system.enums.UserErrorCodeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +24,9 @@ public class AuthController {
     
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private JwtUtilEnhanced jwtUtil;
 
     /**
      * POST /auth/register endpoint for user registration
@@ -88,6 +93,40 @@ public class AuthController {
             return Result.success(null, "Logged out successfully");
         } catch (Exception e) {
             return Result.error(UserErrorCodeEnum.LOGOUT_FAILED, "Logout failed: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * POST /auth/refresh endpoint to refresh access token
+     */
+    @PostMapping("/refresh")
+    public Result<TokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        try {
+            // Validate refresh token
+            var claims = jwtUtil.parseToken(request.getRefreshToken());
+            
+            // Check token type
+            if (!"refresh".equals(claims.get("type"))) {
+                return Result.error(UserErrorCodeEnum.AUTHENTICATION_FAILED, "无效的刷新令牌");
+            }
+            
+            // Get user info
+            Long userId = Long.parseLong(claims.get("userId").toString());
+            User user = userService.getById(userId);
+            
+            // Generate new access token
+            String newAccessToken = jwtUtil.generateAccessToken(user);
+            String newRefreshToken = jwtUtil.generateRefreshToken(user);
+            
+            TokenResponse response = new TokenResponse();
+            response.setAccessToken(newAccessToken);
+            response.setRefreshToken(newRefreshToken);
+            response.setExpiresIn(3600L); // 1 hour in seconds
+            
+            return Result.success(response, "令牌刷新成功");
+            
+        } catch (Exception e) {
+            return Result.error(UserErrorCodeEnum.AUTHENTICATION_FAILED, "令牌刷新失败: " + e.getMessage());
         }
     }
 }

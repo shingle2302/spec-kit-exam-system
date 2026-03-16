@@ -1,213 +1,340 @@
 <template>
   <div class="user-management">
-    <a-page-header title="用户管理" sub-title="管理系统用户">
-      <template #extra>
-        <a-button type="primary" @click="showCreateModal = true">
-          <template #icon><PlusOutlined /></template>
-          创建用户
+    <div class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">用户管理</h1>
+        <p class="page-description">管理系统用户账户和权限</p>
+      </div>
+      <div class="header-actions">
+        <a-button @click="handleExport" :loading="exporting">
+          <template #icon><ExportOutlined /></template>
+          导出数据
         </a-button>
-      </template>
-    </a-page-header>
+        <a-button type="primary" @click="handleAdd">
+          <template #icon><PlusOutlined /></template>
+          新增用户
+        </a-button>
+      </div>
+    </div>
 
-    <!-- Filters -->
-    <a-card style="margin-bottom: 16px;">
-      <a-row :gutter="16">
-        <a-col :span="6">
-          <a-select
-            v-model:value="filterStatus"
-            placeholder="筛选状态"
-            style="width: 100%"
-            allowClear
-            @change="handleFilter"
-          >
-            <a-select-option value="ACTIVE">活跃</a-select-option>
-            <a-select-option value="INACTIVE">未激活</a-select-option>
-            <a-select-option value="SUSPENDED">暂停</a-select-option>
-            <a-select-option value="LOCKED">锁定</a-select-option>
-          </a-select>
-        </a-col>
-        <a-col :span="6">
-          <a-button @click="handleRefresh">
-            <template #icon><ReloadOutlined /></template>
-            刷新
-          </a-button>
-        </a-col>
-      </a-row>
-    </a-card>
-
-    <!-- User Table -->
-    <a-table
-      :columns="columns"
-      :data-source="userStore.users"
-      :loading="userStore.loading"
-      :row-key="(record: User) => record.id"
-      :pagination="{
-        current: userStore.pagination.current,
-        pageSize: userStore.pagination.pageSize,
-        total: userStore.pagination.total,
-        showSizeChanger: true,
-        showQuickJumper: true,
-        onChange: handlePageChange,
-        onShowSizeChange: handlePageSizeChange,
-        pageSizeOptions: ['10', '20', '50', '100']
-      }"
-    >
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'status'">
-          <a-tag :color="getStatusColor(record.status)">
-            {{ getStatusText(record.status) }}
-          </a-tag>
-        </template>
-        <template v-else-if="column.key === 'isSuperAdmin'">
-          <a-tag v-if="record.isSuperAdmin" color="gold">超级管理员</a-tag>
-          <a-tag v-else>普通用户</a-tag>
-        </template>
-        <template v-else-if="column.key === 'createdAt'">
-          {{ formatDate(record.createdAt) }}
-        </template>
-        <template v-else-if="column.key === 'actions'">
-          <a-space>
-            <a-button 
-              type="link" 
-              size="small" 
-              @click="handleEdit(record)"
-              :disabled="record.isSuperAdmin"
-            >
-              编辑
-            </a-button>
-            <a-button 
-              v-if="record.status === 'LOCKED'" 
-              type="link" 
-              size="small" 
-              @click="handleUnlock(record)"
-            >
-              解锁
-            </a-button>
-            <a-popconfirm
-              title="确定要删除此用户吗？"
-              @confirm="handleDelete(record)"
-              :disabled="record.isSuperAdmin"
-            >
-              <a-button 
-                type="link" 
-                danger 
-                size="small"
-                :disabled="record.isSuperAdmin"
+    <div class="page-content">
+      <div class="filter-section">
+        <a-card class="filter-card" :bordered="false">
+          <a-form layout="inline" :model="filters" class="filter-form">
+            <a-form-item label="用户名">
+              <a-input 
+                v-model:value="filters.username" 
+                placeholder="请输入用户名"
+                allow-clear
+                style="width: 200px"
+              />
+            </a-form-item>
+            <a-form-item label="邮箱">
+              <a-input 
+                v-model:value="filters.email" 
+                placeholder="请输入邮箱"
+                allow-clear
+                style="width: 200px"
+              />
+            </a-form-item>
+            <a-form-item label="状态">
+              <a-select 
+                v-model:value="filters.status" 
+                placeholder="请选择状态"
+                allow-clear
+                style="width: 150px"
               >
-                删除
-              </a-button>
-            </a-popconfirm>
-          </a-space>
-        </template>
-      </template>
-    </a-table>
+                <a-select-option value="ACTIVE">活跃</a-select-option>
+                <a-select-option value="INACTIVE">未激活</a-select-option>
+                <a-select-option value="SUSPENDED">暂停</a-select-option>
+                <a-select-option value="LOCKED">锁定</a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-button type="primary" @click="handleSearch">
+                  <template #icon><SearchOutlined /></template>
+                  搜索
+                </a-button>
+                <a-button @click="handleReset">
+                  <template #icon><ReloadOutlined /></template>
+                  重置
+                </a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </a-card>
+      </div>
 
-    <!-- Create User Modal -->
-    <a-modal
-      v-model:open="showCreateModal"
-      title="创建用户"
-      @ok="handleCreate"
-      :confirm-loading="userStore.loading"
-    >
-      <a-form :model="createForm" layout="vertical">
-        <a-form-item label="用户名" required>
-          <a-input v-model:value="createForm.username" placeholder="请输入用户名" />
-        </a-form-item>
-        <a-form-item label="邮箱" required>
-          <a-input v-model:value="createForm.email" placeholder="请输入邮箱" />
-        </a-form-item>
-        <a-form-item label="手机号">
-          <a-input v-model:value="createForm.phone" placeholder="请输入手机号" />
-        </a-form-item>
-        <a-form-item label="密码" required>
-          <a-input-password v-model:value="createForm.password" placeholder="请输入密码" />
-        </a-form-item>
-        <a-form-item label="状态">
-          <a-select v-model:value="createForm.status">
-            <a-select-option value="ACTIVE">活跃</a-select-option>
-            <a-select-option value="INACTIVE">未激活</a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-form>
-    </a-modal>
+      <div class="table-section">
+        <ModernDataTable
+          :columns="columns"
+          :data-source="userStore.users"
+          :loading="userStore.loading"
+          :pagination="userStore.pagination"
+          row-key="id"
+          @change="handleTableChange"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'avatar'">
+              <a-avatar :size="40" class="user-avatar">
+                <template #icon><UserOutlined /></template>
+              </a-avatar>
+            </template>
+            <template v-else-if="column.key === 'status'">
+              <a-tag :color="getStatusColor(record.status)" class="status-tag">
+                {{ getStatusText(record.status) }}
+              </a-tag>
+            </template>
+            <template v-else-if="column.key === 'role'">
+              <a-tag v-if="record.role === 'ADMIN'" color="gold" class="role-tag">
+                <CrownOutlined />
+                管理员
+              </a-tag>
+              <a-tag v-else color="blue" class="role-tag">
+                普通用户
+              </a-tag>
+            </template>
+            <template v-else-if="column.key === 'createdAt'">
+              <span class="date-text">{{ formatDate(record.createdAt) }}</span>
+            </template>
+            <template v-else-if="column.key === 'action'">
+              <a-space>
+                <a-tooltip title="查看详情">
+                  <a-button type="link" size="small" @click="handleView(record)">
+                    <EyeOutlined />
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip title="编辑">
+                  <a-button type="link" size="small" @click="handleEdit(record)">
+                    <EditOutlined />
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip title="重置密码">
+                  <a-button type="link" size="small" @click="handleResetPassword(record)">
+                    <KeyOutlined />
+                  </a-button>
+                </a-tooltip>
+                <a-popconfirm 
+                  title="确定要删除该用户吗？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleDelete(record)"
+                >
+                  <a-tooltip title="删除">
+                    <a-button type="link" size="small" danger>
+                      <DeleteOutlined />
+                    </a-button>
+                  </a-tooltip>
+                </a-popconfirm>
+              </a-space>
+            </template>
+          </template>
+        </ModernDataTable>
+      </div>
+    </div>
 
-    <!-- Edit User Modal -->
-    <a-modal
-      v-model:open="showEditModal"
-      title="编辑用户"
-      @ok="handleUpdate"
-      :confirm-loading="userStore.loading"
-    >
-      <a-form :model="editForm" layout="vertical">
-        <a-form-item label="用户名">
-          <a-input v-model:value="editForm.username" placeholder="请输入用户名" />
-        </a-form-item>
-        <a-form-item label="邮箱">
-          <a-input v-model:value="editForm.email" placeholder="请输入邮箱" />
-        </a-form-item>
-        <a-form-item label="手机号">
-          <a-input v-model:value="editForm.phone" placeholder="请输入手机号" />
-        </a-form-item>
-        <a-form-item label="状态">
-          <a-select v-model:value="editForm.status">
-            <a-select-option value="ACTIVE">活跃</a-select-option>
-            <a-select-option value="INACTIVE">未激活</a-select-option>
-            <a-select-option value="SUSPENDED">暂停</a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-form>
-    </a-modal>
+    <UserFormModal
+      v-model:visible="formVisible"
+      :user="currentUser"
+      :mode="formMode"
+      @success="handleFormSuccess"
+    />
+
+    <UserDetailDrawer
+      v-model:visible="detailVisible"
+      :user="currentUser"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/store'
+import { 
+  PlusOutlined,
+  ExportOutlined,
+  SearchOutlined,
+  ReloadOutlined,
+  UserOutlined,
+  EyeOutlined,
+  EditOutlined,
+  KeyOutlined,
+  DeleteOutlined,
+  CrownOutlined
+} from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
+import type { TableProps } from 'ant-design-vue'
+import ModernDataTable from '@/components/ModernDataTable.vue'
+import UserFormModal from '@/components/UserFormModal.vue'
+import UserDetailDrawer from '@/components/UserDetailDrawer.vue'
 import type { User } from '@/types'
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 
 const userStore = useUserStore()
 
-const filterStatus = ref<string>('')
-const showCreateModal = ref(false)
-const showEditModal = ref(false)
-const editingUserId = ref<string>('')
+const formVisible = ref(false)
+const detailVisible = ref(false)
+const formMode = ref<'create' | 'edit'>('create')
+const currentUser = ref<User | null>(null)
+const exporting = ref(false)
 
-const createForm = reactive({
+const filters = reactive({
   username: '',
   email: '',
-  phone: '',
-  password: '',
-  status: 'ACTIVE'
-})
-
-const editForm = reactive({
-  username: '',
-  email: '',
-  phone: '',
-  status: ''
+  status: undefined as string | undefined
 })
 
 const columns = [
-  { title: '用户名', dataIndex: 'username', key: 'username' },
-  { title: '邮箱', dataIndex: 'email', key: 'email' },
-  { title: '手机', dataIndex: 'phone', key: 'phone' },
-  { title: '状态', key: 'status' },
-  { title: '角色', key: 'isSuperAdmin' },
-  { title: '创建时间', key: 'createdAt' },
-  { title: '操作', key: 'actions', width: 200 }
+  {
+    title: '头像',
+    dataIndex: 'avatar',
+    key: 'avatar',
+    width: 80,
+    align: 'center' as const
+  },
+  {
+    title: '用户名',
+    dataIndex: 'username',
+    key: 'username',
+    width: 150,
+    sorter: true
+  },
+  {
+    title: '邮箱',
+    dataIndex: 'email',
+    key: 'email',
+    width: 200,
+    sorter: true
+  },
+  {
+    title: '手机号',
+    dataIndex: 'phone',
+    key: 'phone',
+    width: 150
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    key: 'status',
+    width: 100,
+    filters: [
+      { text: '活跃', value: 'ACTIVE' },
+      { text: '未激活', value: 'INACTIVE' },
+      { text: '暂停', value: 'SUSPENDED' },
+      { text: '锁定', value: 'LOCKED' }
+    ]
+  },
+  {
+    title: '角色',
+    dataIndex: 'role',
+    key: 'role',
+    width: 100,
+    filters: [
+      { text: '管理员', value: 'ADMIN' },
+      { text: '普通用户', value: 'USER' }
+    ]
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'createdAt',
+    key: 'createdAt',
+    width: 180,
+    sorter: true
+  },
+  {
+    title: '操作',
+    key: 'action',
+    width: 200,
+    fixed: 'right' as const
+  }
 ]
 
 onMounted(() => {
-  userStore.fetchUsers()
+  loadData()
 })
+
+async function loadData() {
+  await userStore.fetchUsers(filters)
+}
+
+function handleTableChange: TableProps['onChange'] = (pagination, filters, sorter) => {
+  userStore.pagination.current = pagination.current
+  userStore.pagination.pageSize = pagination.pageSize
+  loadData()
+}
+
+function handleSearch() {
+  userStore.pagination.current = 1
+  loadData()
+}
+
+function handleReset() {
+  filters.username = ''
+  filters.email = ''
+  filters.status = undefined
+  userStore.pagination.current = 1
+  loadData()
+}
+
+function handleAdd() {
+  formMode.value = 'create'
+  currentUser.value = null
+  formVisible.value = true
+}
+
+function handleEdit(record: User) {
+  formMode.value = 'edit'
+  currentUser.value = record
+  formVisible.value = true
+}
+
+function handleView(record: User) {
+  currentUser.value = record
+  detailVisible.value = true
+}
+
+async function handleResetPassword(record: User) {
+  try {
+    await userStore.resetPassword(record.id)
+    message.success('密码重置成功，新密码已发送到用户邮箱')
+  } catch (error) {
+    message.error('密码重置失败')
+  }
+}
+
+async function handleDelete(record: User) {
+  try {
+    await userStore.deleteUser(record.id)
+    message.success('删除成功')
+    loadData()
+  } catch (error) {
+    message.error('删除失败')
+  }
+}
+
+async function handleExport() {
+  exporting.value = true
+  try {
+    await userStore.exportUsers(filters)
+    message.success('导出成功')
+  } catch (error) {
+    message.error('导出失败')
+  } finally {
+    exporting.value = false
+  }
+}
+
+function handleFormSuccess() {
+  formVisible.value = false
+  loadData()
+}
 
 function getStatusColor(status: string) {
   const colors: Record<string, string> = {
-    'ACTIVE': 'green',
+    'ACTIVE': 'success',
     'INACTIVE': 'default',
-    'SUSPENDED': 'orange',
-    'LOCKED': 'red'
+    'SUSPENDED': 'warning',
+    'LOCKED': 'error'
   }
   return colors[status] || 'default'
 }
@@ -225,70 +352,139 @@ function getStatusText(status: string) {
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString('zh-CN')
 }
-
-async function handleFilter() {
-  await userStore.fetchUsers({ page: 1, limit: userStore.pagination.pageSize, status: filterStatus.value || undefined })
-}
-
-async function handleRefresh() {
-  filterStatus.value = ''
-  await userStore.fetchUsers({ page: userStore.pagination.current, limit: userStore.pagination.pageSize })
-}
-
-async function handlePageChange(page: number, pageSize: number) {
-  await userStore.fetchUsers({ page, limit: pageSize, status: filterStatus.value || undefined })
-}
-
-async function handlePageSizeChange(current: number, size: number) {
-  await userStore.fetchUsers({ page: 1, limit: size, status: filterStatus.value || undefined })
-}
-
-function handleEdit(user: User) {
-  editingUserId.value = user.id
-  editForm.username = user.username
-  editForm.email = user.email
-  editForm.phone = user.phone || ''
-  editForm.status = user.status
-  showEditModal.value = true
-}
-
-async function handleCreate() {
-  const result = await userStore.createUser({
-    username: createForm.username,
-    email: createForm.email,
-    phone: createForm.phone,
-    password: createForm.password,
-    status: createForm.status
-  })
-  if (result.success) {
-    showCreateModal.value = false
-    Object.assign(createForm, { username: '', email: '', phone: '', password: '', status: 'ACTIVE' })
-  }
-}
-
-async function handleUpdate() {
-  const result = await userStore.updateUser(editingUserId.value, {
-    username: editForm.username,
-    email: editForm.email,
-    phone: editForm.phone,
-    status: editForm.status
-  })
-  if (result.success) {
-    showEditModal.value = false
-  }
-}
-
-async function handleDelete(user: User) {
-  await userStore.deleteUser(user.id)
-}
-
-async function handleUnlock(user: User) {
-  await userStore.unlockUser(user.id)
-}
 </script>
 
 <style scoped>
 .user-management {
-  padding: 0;
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.page-description {
+  margin: 0;
+  color: #666;
+  font-size: 15px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter-section {
+  margin-bottom: 16px;
+}
+
+.filter-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.table-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.status-tag {
+  font-weight: 500;
+}
+
+.role-tag {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-text {
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .user-management {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .filter-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-form :deep(.ant-form-item) {
+    width: 100%;
+  }
+
+  .filter-form :deep(.ant-input),
+  .filter-form :deep(.ant-select) {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-management {
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions :deep(.ant-btn) {
+    flex: 1;
+  }
 }
 </style>

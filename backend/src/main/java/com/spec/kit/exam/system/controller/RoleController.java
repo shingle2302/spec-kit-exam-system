@@ -7,7 +7,7 @@ import com.spec.kit.exam.system.util.Result;
 import com.spec.kit.exam.system.enums.RoleErrorCodeEnum;
 import com.spec.kit.exam.system.util.PageRequestDTO;
 import com.spec.kit.exam.system.util.PageResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,17 +15,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/roles")
+@RequiredArgsConstructor
 public class RoleController {
 
-    @Autowired
-    private RoleService roleService;
+    private final RoleService roleService;
 
-    /**
-     * POST /roles/list endpoint for retrieving all roles.
-     */
     @PermissionRequired(menu = "role-management", operation = "READ")
     @PostMapping("/list")
-    public Result<PageResponse<Role>> getAllRoles(@RequestBody(required = false) PageRequestDTO request) {
+    public Result<PageResponse<Role>> list(@RequestBody(required = false) PageRequestDTO request) {
         PageRequestDTO pageRequest = request == null ? new PageRequestDTO() : request;
         List<Role> roles = roleService.getAllRoles();
         int totalCount = roles.size();
@@ -39,76 +36,62 @@ public class RoleController {
         }
 
         PageResponse<Role> pageResponse = PageResponse.of(roles, totalCount, pageRequest.getPage(), pageRequest.getSize());
-        return Result.success(pageResponse, "Roles retrieved successfully");
+        return Result.success(pageResponse, "角色列表查询成功");
     }
 
-    /**
-     * @deprecated use POST /api/roles/list with PageRequestDTO body instead.
-     */
-    @Deprecated
-    @PermissionRequired(menu = "role-management", operation = "READ")
-    @GetMapping("/list")
-    public Result<PageResponse<Role>> getAllRolesLegacy(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-        return getAllRoles(new PageRequestDTO(page, size));
-    }
-
-    /**
-     * POST /role/create endpoint for creating new roles
-     */
-    @PermissionRequired(menu = "role-management", button = "create", operation = "CREATE")
-    @PostMapping("/create")
-    public Result<Role> createRole(@RequestBody Role role) {
-        Role createdRole = roleService.createRole(role);
-        return Result.success(createdRole, "Role created successfully");
-    }
-
-    /**
-     * GET /role/{id} endpoint for retrieving specific role
-     */
     @PermissionRequired(menu = "role-management", operation = "READ")
     @GetMapping("/{id}")
-    public Result<Role> getRoleById(@PathVariable String id) {
+    public Result<Role> getById(@PathVariable String id) {
         Optional<Role> role = roleService.getRoleById(id);
         if (role.isPresent()) {
-            return Result.success(role.get(), "Role retrieved successfully");
+            return Result.success(role.get(), "角色详情查询成功");
         } else {
-            return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "Role not found");
+            return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "角色不存在");
         }
     }
 
-    /**
-     * GET /role/code/{code} endpoint for retrieving role by code
-     */
     @PermissionRequired(menu = "role-management", operation = "READ")
     @GetMapping("/code/{code}")
-    public Result<Role> getRoleByCode(@PathVariable String code) {
+    public Result<Role> getByCode(@PathVariable String code) {
         Optional<Role> role = roleService.getRoleByCode(code);
         if (role.isPresent()) {
-            return Result.success(role.get(), "Role retrieved successfully");
+            return Result.success(role.get(), "角色详情查询成功");
         } else {
-            return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "Role not found");
+            return Result.error(RoleErrorCodeEnum.ROLE_NOT_FOUND, "角色不存在");
         }
     }
 
-    /**
-     * PUT /role/update endpoint for updating roles
-     */
-    @PermissionRequired(menu = "role-management", button = "edit", operation = "UPDATE")
-    @PutMapping("/update")
-    public Result<Role> updateRole(@RequestBody Role role) {
-        Role updatedRole = roleService.updateRole(role);
-        return Result.success(updatedRole, "Role updated successfully");
+    @PermissionRequired(menu = "role-management", operation = "CREATE")
+    @PostMapping
+    public Result<Role> create(@RequestBody Role role) {
+        Role createdRole = roleService.createRole(role);
+        return Result.success(createdRole, "角色创建成功");
     }
 
-    /**
-     * DELETE /role/delete/{id} endpoint for deleting roles
-     */
-    @PermissionRequired(menu = "role-management", button = "delete", operation = "DELETE")
-    @DeleteMapping("/delete/{id}")
-    public Result<Void> deleteRole(@PathVariable String id) {
+    @PermissionRequired(menu = "role-management", operation = "UPDATE")
+    @PutMapping("/{id}")
+    public Result<Role> update(@PathVariable String id, @RequestBody Role role) {
+        role.setId(id);
+        Role updatedRole = roleService.updateRole(role);
+        return Result.success(updatedRole, "角色更新成功");
+    }
+
+    @PermissionRequired(menu = "role-management", operation = "DELETE")
+    @DeleteMapping("/{id}")
+    public Result<Void> delete(@PathVariable String id) {
         roleService.deleteRole(id);
-        return Result.success(null, "Role deleted successfully");
+        return Result.success(null, "角色删除成功");
+    }
+
+    @PermissionRequired(menu = "role-management", operation = "READ")
+    @GetMapping("/statistics")
+    public Result<java.util.Map<String, Object>> getStatistics() {
+        java.util.Map<String, Object> statistics = new java.util.HashMap<>();
+        List<Role> allRoles = roleService.getAllRoles();
+        statistics.put("total", allRoles.size());
+        statistics.put("adminRoles", allRoles.stream().filter(r -> r.getCode().equals("ADMIN")).count());
+        statistics.put("userRoles", allRoles.stream().filter(r -> r.getCode().equals("USER")).count());
+        statistics.put("otherRoles", allRoles.stream().filter(r -> !r.getCode().equals("ADMIN") && !r.getCode().equals("USER")).count());
+        return Result.success(statistics, "角色统计查询成功");
     }
 }

@@ -7,93 +7,21 @@ import com.spec.kit.exam.system.util.Result;
 import com.spec.kit.exam.system.enums.MenuErrorCodeEnum;
 import com.spec.kit.exam.system.util.PageRequestDTO;
 import com.spec.kit.exam.system.util.PageResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controller for menu-related operations
- */
 @RestController
 @RequestMapping("/api/menus")
+@RequiredArgsConstructor
 public class MenuController {
 
-    @Autowired
-    private MenuService menuService;
+    private final MenuService menuService;
 
-    /**
-     * Get menu tree structure
-     */
-    @PermissionRequired(menu = "menu-management", operation = "READ")
-    @GetMapping("/tree")
-    public Result<List<Menu>> getMenuTree(@RequestParam(required = false) String roleId) {
-        List<Menu> menuTree = menuService.getMenuTreeByRole(roleId);
-        return Result.success(menuTree, "Menu tree retrieved successfully");
-    }
-
-    /**
-     * Create a new menu
-     */
-    @PermissionRequired(menu = "menu-management", button = "create", operation = "CREATE")
-    @PostMapping("/create")
-    public Result<Menu> createMenu(@RequestBody Menu menu) {
-        Menu createdMenu = menuService.createMenu(menu);
-        if (createdMenu != null) {
-            return Result.success(createdMenu, "Menu created successfully");
-        } else {
-            return Result.error(MenuErrorCodeEnum.MENU_ALREADY_EXISTS);
-        }
-    }
-
-    /**
-     * Update an existing menu
-     */
-    @PermissionRequired(menu = "menu-management", button = "edit", operation = "UPDATE")
-    @PutMapping("/update")
-    public Result<Menu> updateMenu(@RequestBody Menu menu) {
-        boolean success = menuService.updateMenu(menu);
-        if (success) {
-            return Result.success(menu, "Menu updated successfully");
-        } else {
-            return Result.error(MenuErrorCodeEnum.FAILED_TO_UPDATE_MENU, "Failed to update menu");
-        }
-    }
-
-    /**
-     * Delete a menu by ID
-     */
-    @PermissionRequired(menu = "menu-management", button = "delete", operation = "DELETE")
-    @DeleteMapping("/delete/{id}")
-    public Result<Void> deleteMenu(@PathVariable String id) {
-        boolean success = menuService.deleteMenu(id);
-        if (success) {
-            return Result.success(null, "Menu deleted successfully");
-        } else {
-            return Result.error(MenuErrorCodeEnum.FAILED_TO_DELETE_MENU, "Failed to delete menu");
-        }
-    }
-
-    /**
-     * Get menu by ID
-     */
-    @PermissionRequired(menu = "menu-management", operation = "READ")
-    @GetMapping("/{id}")
-    public Result<Menu> getMenuById(@PathVariable String id) {
-        Menu menu = menuService.getMenuById(id);
-        if (menu != null) {
-            return Result.success(menu, "Menu retrieved successfully");
-        } else {
-            return Result.error(MenuErrorCodeEnum.MENU_NOT_FOUND);
-        }
-    }
-
-    /**
-     * Get all menus.
-     */
     @PermissionRequired(menu = "menu-management", operation = "READ")
     @PostMapping("/list")
-    public Result<PageResponse<Menu>> getAllMenus(@RequestBody(required = false) PageRequestDTO request) {
+    public Result<PageResponse<Menu>> list(@RequestBody(required = false) PageRequestDTO request) {
         PageRequestDTO pageRequest = request == null ? new PageRequestDTO() : request;
         List<Menu> menus = menuService.getAllMenus();
         int totalCount = menus.size();
@@ -107,18 +35,69 @@ public class MenuController {
         }
 
         PageResponse<Menu> pageResponse = PageResponse.of(menus, totalCount, pageRequest.getPage(), pageRequest.getSize());
-        return Result.success(pageResponse, "Menus retrieved successfully");
+        return Result.success(pageResponse, "菜单列表查询成功");
     }
 
-    /**
-     * @deprecated use POST /api/menus/list with PageRequestDTO body instead.
-     */
-    @Deprecated
     @PermissionRequired(menu = "menu-management", operation = "READ")
-    @GetMapping("/list")
-    public Result<PageResponse<Menu>> getAllMenusLegacy(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-        return getAllMenus(new PageRequestDTO(page, size));
+    @GetMapping("/tree")
+    public Result<List<Menu>> getMenuTree(@RequestParam(required = false) String roleId) {
+        List<Menu> menuTree = menuService.getMenuTreeByRole(roleId);
+        return Result.success(menuTree, "菜单树结构查询成功");
+    }
+
+    @PermissionRequired(menu = "menu-management", operation = "READ")
+    @GetMapping("/{id}")
+    public Result<Menu> getById(@PathVariable String id) {
+        Menu menu = menuService.getMenuById(id);
+        if (menu != null) {
+            return Result.success(menu, "菜单详情查询成功");
+        } else {
+            return Result.error(MenuErrorCodeEnum.MENU_NOT_FOUND);
+        }
+    }
+
+    @PermissionRequired(menu = "menu-management", operation = "CREATE")
+    @PostMapping
+    public Result<Menu> create(@RequestBody Menu menu) {
+        Menu createdMenu = menuService.createMenu(menu);
+        if (createdMenu != null) {
+            return Result.success(createdMenu, "菜单创建成功");
+        } else {
+            return Result.error(MenuErrorCodeEnum.MENU_ALREADY_EXISTS);
+        }
+    }
+
+    @PermissionRequired(menu = "menu-management", operation = "UPDATE")
+    @PutMapping("/{id}")
+    public Result<Menu> update(@PathVariable String id, @RequestBody Menu menu) {
+        menu.setId(id);
+        boolean success = menuService.updateMenu(menu);
+        if (success) {
+            return Result.success(menu, "菜单更新成功");
+        } else {
+            return Result.error(MenuErrorCodeEnum.FAILED_TO_UPDATE_MENU, "菜单更新失败");
+        }
+    }
+
+    @PermissionRequired(menu = "menu-management", operation = "DELETE")
+    @DeleteMapping("/{id}")
+    public Result<Void> delete(@PathVariable String id) {
+        boolean success = menuService.deleteMenu(id);
+        if (success) {
+            return Result.success(null, "菜单删除成功");
+        } else {
+            return Result.error(MenuErrorCodeEnum.FAILED_TO_DELETE_MENU, "菜单删除失败");
+        }
+    }
+
+    @PermissionRequired(menu = "menu-management", operation = "READ")
+    @GetMapping("/statistics")
+    public Result<java.util.Map<String, Object>> getStatistics() {
+        java.util.Map<String, Object> statistics = new java.util.HashMap<>();
+        List<Menu> allMenus = menuService.getAllMenus();
+        statistics.put("total", allMenus.size());
+        statistics.put("parentMenus", allMenus.stream().filter(m -> m.getParentId() == null).count());
+        statistics.put("childMenus", allMenus.stream().filter(m -> m.getParentId() != null).count());
+        return Result.success(statistics, "菜单统计查询成功");
     }
 }

@@ -1,11 +1,18 @@
 import { processApiResponse, getAuthHeaders } from './api'
 import type { User, CreateUserRequest, UpdateUserRequest } from '@/types'
 
+export interface PageResponse<T> {
+  records: T[]
+  total: number
+  page: number
+  size: number
+}
+
 export const userService = {
   /**
    * Get all users with pagination and filtering
    */
-  async getUsers(params?: { page?: number; size?: number; filters?: { status?: string } }): Promise<import('@/types').PageResponse<User>> {
+  async list(params?: { page?: number; size?: number; filters?: { status?: string } }): Promise<PageResponse<User>> {
     const response = await fetch('/api/users/list', {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -15,13 +22,13 @@ export const userService = {
         filters: params?.filters ?? {}
       })
     })
-    return processApiResponse<import('@/types').PageResponse<User>>(response)
+    return processApiResponse<PageResponse<User>>(response)
   },
 
   /**
    * Get a specific user by ID
    */
-  async getUserById(id: string): Promise<User> {
+  async getById(id: string): Promise<User> {
     const response = await fetch(`/api/users/${id}`, {
       method: 'GET',
       headers: getAuthHeaders()
@@ -32,8 +39,8 @@ export const userService = {
   /**
    * Create a new user
    */
-  async createUser(userData: CreateUserRequest): Promise<User> {
-    const response = await fetch('/api/users/create', {
+  async create(userData: CreateUserRequest): Promise<User> {
+    const response = await fetch('/api/users', {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(userData)
@@ -44,8 +51,8 @@ export const userService = {
   /**
    * Update an existing user
    */
-  async updateUser(id: string, userData: UpdateUserRequest): Promise<User> {
-    const response = await fetch('/api/users/update', {
+  async update(id: string, userData: UpdateUserRequest): Promise<User> {
+    const response = await fetch(`/api/users/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify({...userData, id})
@@ -56,8 +63,8 @@ export const userService = {
   /**
    * Delete a user
    */
-  async deleteUser(id: string): Promise<void> {
-    const response = await fetch(`/api/users/delete/${id}`, {
+  async remove(id: string): Promise<void> {
+    const response = await fetch(`/api/users/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     })
@@ -67,11 +74,33 @@ export const userService = {
   /**
    * Unlock a user account
    */
-  async unlockUser(id: string): Promise<void> {
+  async unlock(id: string): Promise<void> {
     const response = await fetch(`/api/users/unlock/${id}`, {
       method: 'POST',
       headers: getAuthHeaders()
     })
     return processApiResponse<void>(response)
+  },
+
+  /**
+   * Get user statistics
+   */
+  async getStatistics(): Promise<Record<string, unknown>> {
+    const response = await fetch('/api/users/statistics', {
+      method: 'GET',
+      headers: getAuthHeaders()
+    })
+    return processApiResponse<Record<string, unknown>>(response)
+  },
+
+  /**
+   * Search users by keyword
+   */
+  async search(keyword: string): Promise<User[]> {
+    const response = await fetch(`/api/users/search?keyword=${encodeURIComponent(keyword)}`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    })
+    return processApiResponse<User[]>(response)
   }
 }

@@ -3,40 +3,46 @@ package com.spec.kit.exam.system.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.spec.kit.exam.system.annotation.Encrypted;
 import java.time.LocalDateTime;
 
 @TableName("users")
 public class User {
     @TableId(type = IdType.ASSIGN_UUID)
-    private String id; // UUID (Primary Key, auto-generated)
+    private String id;
     
-    private String username; // String (Unique, required, 3-50 chars, alphanumeric + underscore/hyphen)
+    private String username;
     
-    private String passwordHash; // String (Required, BCrypt hashed, min 60 chars)
+    private String passwordHash;
     
-    private String phone; // String (Optional, validated format, unique if provided)
+    @Encrypted
+    private String phone;
     
-    private String email; // String (Required, unique, valid email format)
+    private String email;
     
-    private String status; // String (ACTIVE, INACTIVE, SUSPENDED, LOCKED) - default: ACTIVE
+    private String status;
     
-    private String roleId; // String (Foreign Key to Role, nullable)
+    private String roleId;
     
-    private LocalDateTime createdAt; // LocalDateTime (Auto-generated)
+    private String role;
     
-    private LocalDateTime updatedAt; // LocalDateTime (Auto-generated)
+    @Encrypted
+    private String idCard;
     
-    private LocalDateTime lastLoginAt; // LocalDateTime (Nullable)
+    private LocalDateTime createdAt;
     
-    private LocalDateTime passwordChangedAt; // LocalDateTime (Auto-generated, updates with password change)
+    private LocalDateTime updatedAt;
     
-    private Integer failedLoginAttempts; // Integer (Default: 0, tracks consecutive failed login attempts)
+    private LocalDateTime lastLoginAt;
     
-    private LocalDateTime lockedUntil; // LocalDateTime (Nullable, timestamp until which account is locked)
+    private LocalDateTime passwordChangedAt;
     
-    private Boolean isSuperAdmin; // Boolean (Default: false, indicates if user has super admin privileges)
+    private Integer failedLoginAttempts;
+    
+    private LocalDateTime lockedUntil;
+    
+    private Boolean isSuperAdmin;
 
-    // Getters
     public String getId() {
         return id;
     }
@@ -63,6 +69,14 @@ public class User {
 
     public String getRoleId() {
         return roleId;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public String getIdCard() {
+        return idCard;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -93,7 +107,6 @@ public class User {
         return isSuperAdmin;
     }
 
-    // Setters
     public void setId(String id) {
         this.id = id;
     }
@@ -122,6 +135,14 @@ public class User {
         this.roleId = roleId;
     }
 
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
+    }
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -148,5 +169,17 @@ public class User {
 
     public void setIsSuperAdmin(Boolean isSuperAdmin) {
         this.isSuperAdmin = isSuperAdmin;
+    }
+    
+    public boolean isAdmin() {
+        return "ADMIN".equals(this.role);
+    }
+    
+    public boolean isTeacher() {
+        return "TEACHER".equals(this.role);
+    }
+    
+    public boolean isStudent() {
+        return "STUDENT".equals(this.role);
     }
 }
