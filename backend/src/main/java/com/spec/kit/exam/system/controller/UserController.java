@@ -105,7 +105,7 @@ public class UserController {
      */
     @PermissionRequired(menu = "user-management", button = "delete", operation = "DELETE")
     @DeleteMapping("/delete/{id}")
-    public Result<Void> deleteUser(@PathVariable String id) {
+    public Result<?> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return Result.success(null, "User deleted successfully");
     }
@@ -115,7 +115,7 @@ public class UserController {
      */
     @PermissionRequired(menu = "user-management", button = "unlock", operation = "UNLOCK")
     @PostMapping("/unlock/{id}")
-    public Result<Void> unlockUser(@PathVariable String id) {
+    public Result<?> unlockUser(@PathVariable String id) {
         try {
             userService.unlockUserAccount(id);
             return Result.success(null, "User account unlocked successfully");

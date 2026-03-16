@@ -79,7 +79,7 @@ public class AuthController {
      * POST /auth/logout endpoint to invalidate sessions
      */
     @PostMapping("/logout")
-    public Result<Void> logout(@RequestHeader("Authorization") String token) {
+    public Result<?> logout(@RequestHeader("Authorization") String token) {
         try {
             // Extract user ID from token and invalidate the session
             // In a real implementation, you'd validate the token and extract user info

@@ -88,4 +88,12 @@ public class Result<T> {
     public void setMsg(String msg) {
         this.msg = msg;
     }
+
+    /**
+     * Check if the result is successful
+     * @return true if the code is "0000", false otherwise
+     */
+    public boolean isSuccess() {
+        return "0000".equals(code);
+    }
 }
