@@ -24,12 +24,10 @@ public class KnowledgePointController extends BaseController {
     @PostMapping("/list")
     public Result<PageResponse<KnowledgePointEntity>> list(@RequestBody(required = false) PageRequestDTO request) {
         PageRequestDTO pageRequest = request == null ? new PageRequestDTO() : request;
-        Map<String, Object> result = knowledgePointService.list(pageRequest);
-        List<KnowledgePointEntity> records = (List<KnowledgePointEntity>) result.get("records");
-        int total = (int) result.get("total");
-        
-        PageResponse<KnowledgePointEntity> pageResponse = PageResponse.of(records, total, pageRequest.getPage(), pageRequest.getSize());
-        return successList(pageResponse);
+        com.spec.kit.exam.system.util.PageRequest pageRequest2 = 
+            new com.spec.kit.exam.system.util.PageRequest(pageRequest.getPage(), pageRequest.getSize());
+        PageResponse<KnowledgePointEntity> result = knowledgePointService.list(pageRequest2);
+        return successList(result);
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "READ")
@@ -70,12 +68,6 @@ public class KnowledgePointController extends BaseController {
     public Result<Void> delete(@PathVariable Long id) {
         knowledgePointService.delete(id);
         return successDelete();
-    }
-
-    @PermissionRequired(menu = "knowledge-point-management", operation = "READ")
-    @GetMapping("/subjects")
-    public Result<List<Map<String, Object>>> getSubjects() {
-        return successList(knowledgePointService.getSubjects());
     }
 
     @PermissionRequired(menu = "knowledge-point-management", operation = "READ")

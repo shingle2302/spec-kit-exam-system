@@ -16,7 +16,7 @@ class DataEncryptUtilTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        ReflectionTestUtils.setField(dataEncryptUtil, "encryptionKey", "ThisIsASecretKeyForDataEncryption123456");
+        ReflectionTestUtils.setField(dataEncryptUtil, "encryptionKey", "12345678901234567890123456789012");
     }
 
     @Test

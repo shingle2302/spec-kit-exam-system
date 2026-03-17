@@ -65,4 +65,18 @@ public class SubjectService {
     public List<Map<String, Object>> getLevels() {
         return subjectMapper.selectActiveLevels();
     }
+
+    public int getTotalCount() {
+        return subjectMapper.selectCount(null).intValue();
+    }
+
+    public int getActiveCount() {
+        return subjectMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<SubjectEntity>()
+            .eq("status", "ACTIVE")).intValue();
+    }
+
+    public int getInactiveCount() {
+        return subjectMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<SubjectEntity>()
+            .eq("status", "INACTIVE")).intValue();
+    }
 }

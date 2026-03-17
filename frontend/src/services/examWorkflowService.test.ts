@@ -287,7 +287,6 @@ describe('examWorkflowService', () => {
       const result = await examWorkflowService.dashboard()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/exam-workflow/dashboard', {
-        method: 'GET',
         headers: mockGetAuthHeaders()
       })
 

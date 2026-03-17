@@ -1,28 +1,16 @@
 import { usePermissionStore } from './permission'
 import { permissionService } from '@/services/permissionService'
-import { message } from 'ant-design-vue'
 import { createPinia, setActivePinia } from 'pinia'
 
 // Mock dependencies
 jest.mock('@/services/permissionService', () => ({
   permissionService: {
-    getAllPermissions: jest.fn(),
-    getPermissionById: jest.fn(),
-    createPermission: jest.fn(),
-    updatePermission: jest.fn(),
-    deletePermission: jest.fn()
-  }
-}))
-
-jest.mock('ant-design-vue', () => ({
-  message: {
-    success: jest.fn(),
-    error: jest.fn()
+    list: jest.fn(),
+    getRoles: jest.fn()
   }
 }))
 
 const mockPermissionService = permissionService as jest.Mocked<typeof permissionService>
-const mockMessage = message as jest.Mocked<typeof message>
 
 describe('usePermissionStore', () => {
   beforeEach(() => {
@@ -37,259 +25,232 @@ describe('usePermissionStore', () => {
         data: [
           {
             id: '1',
-            menuId: '1',
-            buttonName: 'Read',
-            operationType: 'READ',
-            permissionCode: 'MENU1:READ'
+            name: 'Read',
+            code: 'MENU1:READ',
+            type: 'BUTTON'
           }
-        ],
-        total: 1,
-        page: 1,
-        size: 10,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: false
+        ]
       }
 
-      mockPermissionService.getAllPermissions.mockResolvedValue(mockResponse)
+      mockPermissionService.list.mockResolvedValue(mockResponse)
 
       const store = usePermissionStore()
-      const result = await store.fetchPermissions()
+      await store.fetchPermissions()
 
-      expect(mockPermissionService.getAllPermissions).toHaveBeenCalledWith({
-        page: undefined,
-        size: undefined,
-        filters: { status: undefined }
-      })
-
-      expect(result).toEqual({ success: true, data: mockResponse })
+      expect(mockPermissionService.list).toHaveBeenCalled()
       expect(store.permissions).toEqual(mockResponse.data)
-      expect(store.permissionsPageData).toEqual(mockResponse)
-      expect(store.pagination).toEqual({
-        current: mockResponse.page,
-        pageSize: mockResponse.size,
-        total: mockResponse.total
-      })
     })
 
     it('should handle fetch permissions error', async () => {
       const error = new Error('Fetch error')
-      mockPermissionService.getAllPermissions.mockRejectedValue(error)
+      mockPermissionService.list.mockRejectedValue(error)
 
       const store = usePermissionStore()
-      const result = await store.fetchPermissions()
+      await store.fetchPermissions()
 
-      expect(mockPermissionService.getAllPermissions).toHaveBeenCalled()
-      expect(mockMessage.error).toHaveBeenCalledWith('获取权限列表失败')
-      expect(result).toEqual({ success: false, message: '获取权限列表失败' })
+      expect(mockPermissionService.list).toHaveBeenCalled()
+      expect(store.permissions).toEqual([])
     })
   })
 
-  describe('fetchPermissionById', () => {
-    it('should successfully fetch permission by ID', async () => {
-      const permissionId = '1'
-      const mockPermission = {
-        id: permissionId,
-        menuId: '1',
-        buttonName: 'Read',
-        operationType: 'READ',
-        permissionCode: 'MENU1:READ'
+  describe('fetchRoles', () => {
+    it('should successfully fetch roles', async () => {
+      const mockResponse = {
+        data: [
+          {
+            id: '1',
+            name: 'Admin',
+            code: 'ADMIN',
+            permissions: []
+          }
+        ]
       }
 
-      mockPermissionService.getPermissionById.mockResolvedValue(mockPermission)
+      mockPermissionService.getRoles.mockResolvedValue(mockResponse)
 
       const store = usePermissionStore()
-      const result = await store.fetchPermissionById(permissionId)
+      await store.fetchRoles()
 
-      expect(mockPermissionService.getPermissionById).toHaveBeenCalledWith(permissionId)
-      expect(result).toEqual({ success: true, data: mockPermission })
-      expect(store.currentEditPermission).toEqual(mockPermission)
+      expect(mockPermissionService.getRoles).toHaveBeenCalled()
+      expect(store.roles).toEqual(mockResponse.data)
     })
 
-    it('should handle fetch permission by ID error', async () => {
-      const permissionId = '1'
+    it('should handle fetch roles error', async () => {
       const error = new Error('Fetch error')
-      mockPermissionService.getPermissionById.mockRejectedValue(error)
+      mockPermissionService.getRoles.mockRejectedValue(error)
 
       const store = usePermissionStore()
-      const result = await store.fetchPermissionById(permissionId)
+      await store.fetchRoles()
 
-      expect(mockPermissionService.getPermissionById).toHaveBeenCalledWith(permissionId)
-      expect(mockMessage.error).toHaveBeenCalledWith('获取权限信息失败')
-      expect(result).toEqual({ success: false, message: '获取权限信息失败' })
+      expect(mockPermissionService.getRoles).toHaveBeenCalled()
+      expect(store.roles).toEqual([])
     })
   })
 
-  describe('createPermission', () => {
-    it('should successfully create permission', async () => {
-      const permissionData = {
-        menuId: '1',
-        buttonName: 'Create',
-        operationType: 'CREATE',
-        permissionCode: 'MENU1:CREATE'
-      }
-
-      const mockCreatedPermission = {
-        id: '3',
-        ...permissionData
-      }
-
-      mockPermissionService.createPermission.mockResolvedValue(mockCreatedPermission)
-      mockPermissionService.getAllPermissions.mockResolvedValue({
-        data: [mockCreatedPermission],
-        total: 1,
-        page: 1,
-        size: 10,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: false
-      })
-
+  describe('hasPermission', () => {
+    it('should return true when user has permission', () => {
       const store = usePermissionStore()
-      const result = await store.createPermission(permissionData)
-
-      expect(mockPermissionService.createPermission).toHaveBeenCalledWith(permissionData)
-      expect(mockMessage.success).toHaveBeenCalledWith('权限创建成功')
-      expect(mockPermissionService.getAllPermissions).toHaveBeenCalled()
-      expect(result).toEqual({ success: true, data: mockCreatedPermission })
-    })
-
-    it('should handle create permission error', async () => {
-      const permissionData = {
-        menuId: '1',
-        buttonName: 'Create',
-        operationType: 'CREATE',
-        permissionCode: 'MENU1:CREATE'
-      }
-
-      const error = new Error('Create error')
-      mockPermissionService.createPermission.mockRejectedValue(error)
-
-      const store = usePermissionStore()
-      const result = await store.createPermission(permissionData)
-
-      expect(mockPermissionService.createPermission).toHaveBeenCalledWith(permissionData)
-      expect(mockMessage.error).toHaveBeenCalledWith('创建权限失败')
-      expect(result).toEqual({ success: false, message: '创建权限失败' })
-    })
-  })
-
-  describe('updatePermission', () => {
-    it('should successfully update permission', async () => {
-      const permissionId = '1'
-      const permissionData = {
-        menuId: '1',
-        buttonName: 'Updated Read',
-        operationType: 'READ',
-        permissionCode: 'MENU1:READ'
-      }
-
-      const mockUpdatedPermission = {
-        id: permissionId,
-        ...permissionData
-      }
-
-      mockPermissionService.updatePermission.mockResolvedValue(mockUpdatedPermission)
-      mockPermissionService.getAllPermissions.mockResolvedValue({
-        data: [mockUpdatedPermission],
-        total: 1,
-        page: 1,
-        size: 10,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: false
-      })
-
-      const store = usePermissionStore()
-      const result = await store.updatePermission(permissionId, permissionData)
-
-      expect(mockPermissionService.updatePermission).toHaveBeenCalledWith({ ...permissionData, id: permissionId })
-      expect(mockMessage.success).toHaveBeenCalledWith('权限更新成功')
-      expect(mockPermissionService.getAllPermissions).toHaveBeenCalled()
-      expect(result).toEqual({ success: true, data: mockUpdatedPermission })
-    })
-
-    it('should handle update permission error', async () => {
-      const permissionId = '1'
-      const permissionData = {
-        menuId: '1',
-        buttonName: 'Updated Read',
-        operationType: 'READ',
-        permissionCode: 'MENU1:READ'
-      }
-
-      const error = new Error('Update error')
-      mockPermissionService.updatePermission.mockRejectedValue(error)
-
-      const store = usePermissionStore()
-      const result = await store.updatePermission(permissionId, permissionData)
-
-      expect(mockPermissionService.updatePermission).toHaveBeenCalledWith({ ...permissionData, id: permissionId })
-      expect(mockMessage.error).toHaveBeenCalledWith('更新权限失败')
-      expect(result).toEqual({ success: false, message: '更新权限失败' })
-    })
-  })
-
-  describe('deletePermission', () => {
-    it('should successfully delete permission', async () => {
-      const permissionId = '1'
-
-      mockPermissionService.deletePermission.mockResolvedValue(undefined)
-      mockPermissionService.getAllPermissions.mockResolvedValue({
-        data: [],
-        total: 0,
-        page: 1,
-        size: 10,
-        totalPage: 0,
-        hasNext: false,
-        hasPrevious: false
-      })
-
-      const store = usePermissionStore()
-      const result = await store.deletePermission(permissionId)
-
-      expect(mockPermissionService.deletePermission).toHaveBeenCalledWith(permissionId)
-      expect(mockMessage.success).toHaveBeenCalledWith('权限删除成功')
-      expect(mockPermissionService.getAllPermissions).toHaveBeenCalled()
-      expect(result).toEqual({ success: true })
-    })
-
-    it('should handle delete permission error', async () => {
-      const permissionId = '1'
-
-      const error = new Error('Delete error')
-      mockPermissionService.deletePermission.mockRejectedValue(error)
-
-      const store = usePermissionStore()
-      const result = await store.deletePermission(permissionId)
-
-      expect(mockPermissionService.deletePermission).toHaveBeenCalledWith(permissionId)
-      expect(mockMessage.error).toHaveBeenCalledWith('删除权限失败')
-      expect(result).toEqual({ success: false, message: '删除权限失败' })
-    })
-  })
-
-  describe('setCurrentEditPermission', () => {
-    it('should set current edit permission', () => {
-      const permission = {
+      const mockRole = {
         id: '1',
-        menuId: '1',
-        buttonName: 'Read',
-        operationType: 'READ',
-        permissionCode: 'MENU1:READ'
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: [
+          { id: '1', name: 'Read', code: 'MENU1:READ', type: 'BUTTON' }
+        ]
       }
 
-      const store = usePermissionStore()
-      store.setCurrentEditPermission(permission)
+      store.setCurrentRole(mockRole)
 
-      expect(store.currentEditPermission).toEqual(permission)
+      expect(store.hasPermission('MENU1:READ')).toBe(true)
     })
 
-    it('should set current edit permission to null', () => {
+    it('should return false when user does not have permission', () => {
       const store = usePermissionStore()
-      store.setCurrentEditPermission(null)
+      const mockRole = {
+        id: '1',
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: []
+      }
 
-      expect(store.currentEditPermission).toBeNull()
+      store.setCurrentRole(mockRole)
+
+      expect(store.hasPermission('MENU1:READ')).toBe(false)
+    })
+
+    it('should return false when no role is set', () => {
+      const store = usePermissionStore()
+
+      expect(store.hasPermission('MENU1:READ')).toBe(false)
+    })
+  })
+
+  describe('hasAnyPermission', () => {
+    it('should return true when user has any of the permissions', () => {
+      const store = usePermissionStore()
+      const mockRole = {
+        id: '1',
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: [
+          { id: '1', name: 'Read', code: 'MENU1:READ', type: 'BUTTON' }
+        ]
+      }
+
+      store.setCurrentRole(mockRole)
+
+      expect(store.hasAnyPermission(['MENU1:READ', 'MENU1:WRITE'])).toBe(true)
+    })
+
+    it('should return false when user has none of the permissions', () => {
+      const store = usePermissionStore()
+      const mockRole = {
+        id: '1',
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: []
+      }
+
+      store.setCurrentRole(mockRole)
+
+      expect(store.hasAnyPermission(['MENU1:READ', 'MENU1:WRITE'])).toBe(false)
+    })
+  })
+
+  describe('hasAllPermissions', () => {
+    it('should return true when user has all permissions', () => {
+      const store = usePermissionStore()
+      const mockRole = {
+        id: '1',
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: [
+          { id: '1', name: 'Read', code: 'MENU1:READ', type: 'BUTTON' },
+          { id: '2', name: 'Write', code: 'MENU1:WRITE', type: 'BUTTON' }
+        ]
+      }
+
+      store.setCurrentRole(mockRole)
+
+      expect(store.hasAllPermissions(['MENU1:READ', 'MENU1:WRITE'])).toBe(true)
+    })
+
+    it('should return false when user does not have all permissions', () => {
+      const store = usePermissionStore()
+      const mockRole = {
+        id: '1',
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: [
+          { id: '1', name: 'Read', code: 'MENU1:READ', type: 'BUTTON' }
+        ]
+      }
+
+      store.setCurrentRole(mockRole)
+
+      expect(store.hasAllPermissions(['MENU1:READ', 'MENU1:WRITE'])).toBe(false)
+    })
+  })
+
+  describe('setCurrentRole', () => {
+    it('should set current role', () => {
+      const store = usePermissionStore()
+      const mockRole = {
+        id: '1',
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: []
+      }
+
+      store.setCurrentRole(mockRole)
+
+      expect(store.currentRole).toEqual(mockRole)
+      expect(localStorage.getItem('currentRole')).toBe(JSON.stringify(mockRole))
+    })
+  })
+
+  describe('clearCurrentRole', () => {
+    it('should clear current role', () => {
+      const store = usePermissionStore()
+      const mockRole = {
+        id: '1',
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: []
+      }
+
+      store.setCurrentRole(mockRole)
+      store.clearCurrentRole()
+
+      expect(store.currentRole).toBeNull()
+      expect(localStorage.getItem('currentRole')).toBeNull()
+    })
+  })
+
+  describe('loadRoleFromStorage', () => {
+    it('should load role from storage', () => {
+      const mockRole = {
+        id: '1',
+        name: 'Admin',
+        code: 'ADMIN',
+        permissions: []
+      }
+
+      localStorage.setItem('currentRole', JSON.stringify(mockRole))
+
+      const store = usePermissionStore()
+      store.loadRoleFromStorage()
+
+      expect(store.currentRole).toEqual(mockRole)
+    })
+
+    it('should not load role when storage is empty', () => {
+      localStorage.removeItem('currentRole')
+
+      const store = usePermissionStore()
+      store.loadRoleFromStorage()
+
+      expect(store.currentRole).toBeNull()
     })
   })
 })

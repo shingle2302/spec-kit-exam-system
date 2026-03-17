@@ -19,8 +19,8 @@ export const useUserStore = defineStore('user', () => {
   async function fetchUsers(page: number = 1, size: number = 10) {
     loading.value = true;
     try {
-      const response = await userService.list(page, size);
-      users.value = response.data || [];
+      const response = await userService.list({ page, size });
+      users.value = response.records || [];
     } catch (error) {
       console.error('Failed to fetch users:', error);
     } finally {
@@ -44,7 +44,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function deleteUser(userId: string) {
     try {
-      await userService.delete(userId);
+      await userService.remove(userId);
       users.value = users.value.filter(u => u.id !== userId);
       return true;
     } catch (error) {

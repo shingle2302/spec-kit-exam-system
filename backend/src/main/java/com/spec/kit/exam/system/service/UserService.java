@@ -6,6 +6,8 @@ import com.spec.kit.exam.system.dto.UserDTO;
 import com.spec.kit.exam.system.mapper.UserMapper;
 import com.spec.kit.exam.system.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -404,5 +406,59 @@ public class UserService {
             userMapper.updateById(user);
         }
         return user;
+    }
+    
+    /**
+     * Gets the currently authenticated user
+     * @return current user if authenticated, null otherwise
+     */
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
+            String username = authentication.getName();
+            return getByUsername(username);
+        }
+        return null;
+    }
+    
+    /**
+     * Searches users by keyword
+     * @param keyword search keyword
+     * @return list of matching users
+     */
+    public List<User> searchUsers(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.and(wrapper -> wrapper
+            .like("username", keyword)
+            .or()
+            .like("email", keyword)
+            .or()
+            .like("phone", keyword)
+        );
+        
+        return userMapper.selectList(queryWrapper);
+    }
+    
+    public int getTotalCount() {
+        return userMapper.selectCount(null).intValue();
+    }
+    
+    public int getActiveCount() {
+        return userMapper.selectCount(new QueryWrapper<User>()
+            .eq("status", "ACTIVE")).intValue();
+    }
+    
+    public int getInactiveCount() {
+        return userMapper.selectCount(new QueryWrapper<User>()
+            .eq("status", "INACTIVE")).intValue();
+    }
+    
+    public int getLockedCount() {
+        return userMapper.selectCount(new QueryWrapper<User>()
+            .isNotNull("locked_until")).intValue();
     }
 }

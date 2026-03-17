@@ -17,14 +17,16 @@ describe('gradeService', () => {
 
   describe('list', () => {
     it('should fetch grade list with pagination', async () => {
-      const mockResponse = { data: { list: [], total: 0 } };
+      const mockResponse = { records: [], total: 0, current: 1, size: 10, pages: 0 };
       (processApiResponse as jest.Mock).mockResolvedValue(mockResponse);
       (global.fetch as jest.Mock).mockResolvedValue({});
 
-      const result = await gradeService.list(1, 10);
+      const result = await gradeService.list({ page: 1, size: 10 });
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/grades?page=1&size=10', {
-        headers: { 'Authorization': 'Bearer test-token' }
+      expect(global.fetch).toHaveBeenCalledWith('/api/grades/list', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer test-token' },
+        body: JSON.stringify({ page: 1, size: 10, filters: {} })
       });
       expect(processApiResponse).toHaveBeenCalledWith({});
       expect(result).toEqual(mockResponse);
@@ -75,8 +77,7 @@ describe('gradeService', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/grades', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer test-token',
-          'Content-Type': 'application/json'
+          'Authorization': 'Bearer test-token'
         },
         body: JSON.stringify(mockGrade)
       });
@@ -97,8 +98,7 @@ describe('gradeService', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/grades/1', {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer test-token',
-          'Content-Type': 'application/json'
+          'Authorization': 'Bearer test-token'
         },
         body: JSON.stringify(mockGrade)
       });
@@ -113,7 +113,7 @@ describe('gradeService', () => {
       (processApiResponse as jest.Mock).mockResolvedValue(mockResponse);
       (global.fetch as jest.Mock).mockResolvedValue({});
 
-      const result = await gradeService.delete(1);
+      const result = await gradeService.remove(1);
 
       expect(global.fetch).toHaveBeenCalledWith('/api/grades/1', {
         method: 'DELETE',

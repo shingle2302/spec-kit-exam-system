@@ -23,8 +23,10 @@ describe('examPaperService', () => {
 
       const result = await examPaperService.list(1, 10);
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/exam-papers?page=1&size=10', {
-        headers: { 'Authorization': 'Bearer test-token' }
+      expect(global.fetch).toHaveBeenCalledWith('/api/exam-papers/list', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer test-token' },
+        body: JSON.stringify({ page: 1, size: 10, filters: {} })
       });
       expect(processApiResponse).toHaveBeenCalledWith({});
       expect(result).toEqual(mockResponse);
@@ -98,8 +100,7 @@ describe('examPaperService', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/exam-papers', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer test-token',
-          'Content-Type': 'application/json'
+          'Authorization': 'Bearer test-token'
         },
         body: JSON.stringify(mockExamPaper)
       });
@@ -127,8 +128,7 @@ describe('examPaperService', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/exam-papers/1', {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer test-token',
-          'Content-Type': 'application/json'
+          'Authorization': 'Bearer test-token'
         },
         body: JSON.stringify(mockExamPaper)
       });
@@ -143,7 +143,7 @@ describe('examPaperService', () => {
       (processApiResponse as jest.Mock).mockResolvedValue(mockResponse);
       (global.fetch as jest.Mock).mockResolvedValue({});
 
-      const result = await examPaperService.delete(1);
+      const result = await examPaperService.remove(1);
 
       expect(global.fetch).toHaveBeenCalledWith('/api/exam-papers/1', {
         method: 'DELETE',

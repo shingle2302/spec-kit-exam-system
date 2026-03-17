@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     status VARCHAR(20) DEFAULT 'ACTIVE',
     role_id VARCHAR(36),
+    role VARCHAR(20),
+    id_card VARCHAR(20) UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login_at TIMESTAMP,
@@ -21,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Roles table
 CREATE TABLE IF NOT EXISTS roles (
     id VARCHAR(36) PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
     permissions TEXT, -- JSON format (deprecated, use role_permissions table)
@@ -285,4 +288,4 @@ CREATE INDEX IF NOT EXISTS idx_exam_plans_academic_year ON exam_plans(academic_y
 
 MERGE INTO exam_plans (id, name, academic_year, term, exam_type, start_time, end_time, status, description)
 KEY(id) VALUES
-(1, '2026春季期中考试', '2025-2026', 'SPRING', 'MIDTERM', CURRENT_TIMESTAMP, DATEADD('DAY', 1, CURRENT_TIMESTAMP), 'PUBLISHED', '示例考试计划');
+(1, '2026Ã¦ËœÂ¥Ã¥Â­Â£Ã¦Å“Å¸Ã¤Â¸Â­Ã¨â‚¬Æ’Ã¨Â¯â€¢', '2025-2026', 'SPRING', 'MIDTERM', CURRENT_TIMESTAMP, DATEADD('DAY', 1, CURRENT_TIMESTAMP), 'PUBLISHED', 'Ã§Â¤ÂºÃ¤Â¾â€¹Ã¨â‚¬Æ’Ã¨Â¯â€¢Ã¨Â®Â¡Ã¥Ë†â€™');

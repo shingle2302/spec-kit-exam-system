@@ -97,6 +97,23 @@ public class KnowledgePointServiceImpl implements KnowledgePointService {
         return validateLevelDepth(parent.getParentId(), currentLevel + 1);
     }
 
+    @Override
+    public int getTotalCount() {
+        return knowledgePointMapper.selectCount(null).intValue();
+    }
+
+    @Override
+    public int getActiveCount() {
+        return knowledgePointMapper.selectCount(new QueryWrapper<KnowledgePointEntity>()
+            .eq("status", "ACTIVE")).intValue();
+    }
+
+    @Override
+    public int getInactiveCount() {
+        return knowledgePointMapper.selectCount(new QueryWrapper<KnowledgePointEntity>()
+            .eq("status", "INACTIVE")).intValue();
+    }
+
     /**
      * 构建树形结构
      */

@@ -2,6 +2,7 @@ package com.spec.kit.exam.system.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.spec.kit.exam.system.annotation.Encrypted;
 import java.time.LocalDateTime;
@@ -13,34 +14,46 @@ public class User {
     
     private String username;
     
+    @TableField("password_hash")
     private String passwordHash;
     
     @Encrypted
+    @TableField("phone")
     private String phone;
     
     private String email;
     
     private String status;
     
+    @TableField("role_id")
     private String roleId;
     
+    @TableField("role")
     private String role;
     
     @Encrypted
+    @TableField("id_card")
     private String idCard;
     
+    @TableField("created_at")
     private LocalDateTime createdAt;
     
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
     
+    @TableField("last_login_at")
     private LocalDateTime lastLoginAt;
     
+    @TableField("password_changed_at")
     private LocalDateTime passwordChangedAt;
     
+    @TableField("failed_login_attempts")
     private Integer failedLoginAttempts;
     
+    @TableField("locked_until")
     private LocalDateTime lockedUntil;
     
+    @TableField("is_super_admin")
     private Boolean isSuperAdmin;
 
     public String getId() {

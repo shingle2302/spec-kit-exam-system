@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 @Aspect
@@ -59,8 +59,12 @@ public class OperationLogAspect {
             OperationLogEntity log = new OperationLogEntity();
             
             if (currentUser != null) {
-                log.setUserId(currentUser.getId());
-                log.setUsername(currentUser.getUsername());
+                try {
+                    log.setUserId(Long.parseLong(currentUser.getId()));
+                    log.setUsername(currentUser.getUsername());
+                } catch (NumberFormatException e) {
+                    log.setUsername(currentUser.getUsername());
+                }
             }
             
             log.setModule(operationLog.module());

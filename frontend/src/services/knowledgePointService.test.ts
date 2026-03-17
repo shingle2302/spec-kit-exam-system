@@ -23,8 +23,10 @@ describe('knowledgePointService', () => {
 
       const result = await knowledgePointService.list(1, 10);
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/knowledge-points?page=1&size=10', {
-        headers: { 'Authorization': 'Bearer test-token' }
+      expect(global.fetch).toHaveBeenCalledWith('/api/knowledge-points/list', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer test-token' },
+        body: JSON.stringify({ page: 1, size: 10, filters: {} })
       });
       expect(processApiResponse).toHaveBeenCalledWith({});
       expect(result).toEqual(mockResponse);
@@ -91,8 +93,7 @@ describe('knowledgePointService', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/knowledge-points', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer test-token',
-          'Content-Type': 'application/json'
+          'Authorization': 'Bearer test-token'
         },
         body: JSON.stringify(mockKnowledgePoint)
       });
@@ -113,8 +114,7 @@ describe('knowledgePointService', () => {
       expect(global.fetch).toHaveBeenCalledWith('/api/knowledge-points/1', {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer test-token',
-          'Content-Type': 'application/json'
+          'Authorization': 'Bearer test-token'
         },
         body: JSON.stringify(mockKnowledgePoint)
       });
@@ -129,7 +129,7 @@ describe('knowledgePointService', () => {
       (processApiResponse as jest.Mock).mockResolvedValue(mockResponse);
       (global.fetch as jest.Mock).mockResolvedValue({});
 
-      const result = await knowledgePointService.delete(1);
+      const result = await knowledgePointService.remove(1);
 
       expect(global.fetch).toHaveBeenCalledWith('/api/knowledge-points/1', {
         method: 'DELETE',

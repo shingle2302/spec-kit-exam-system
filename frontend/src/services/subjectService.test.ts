@@ -50,8 +50,14 @@ describe('subjectService', () => {
 
       const result = await subjectService.list(params)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/subjects?page=1&size=10&name=Math&classId=1&educationalLevelId=2', {
-        headers: mockGetAuthHeaders()
+      expect(mockFetch).toHaveBeenCalledWith('/api/subjects/list', {
+        method: 'POST',
+        headers: mockGetAuthHeaders(),
+        body: JSON.stringify({
+          page: 1,
+          size: 10,
+          filters: {}
+        })
       })
 
       expect(result).toEqual(mockResponse)
@@ -151,7 +157,7 @@ describe('subjectService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockClasses)
 
-      const result = await subjectService.classes()
+      const result = await subjectService.getClasses()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/subjects/classes', {
         headers: mockGetAuthHeaders()
@@ -161,7 +167,7 @@ describe('subjectService', () => {
     })
   })
 
-  describe('levels', () => {
+  describe('getLevels', () => {
     it('should successfully get levels', async () => {
       const mockLevels = [
         { id: 1, name: 'Primary' },
@@ -175,7 +181,7 @@ describe('subjectService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockLevels)
 
-      const result = await subjectService.levels()
+      const result = await subjectService.getLevels()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/subjects/levels', {
         headers: mockGetAuthHeaders()

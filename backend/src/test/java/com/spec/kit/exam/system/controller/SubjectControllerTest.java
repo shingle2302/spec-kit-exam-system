@@ -2,6 +2,8 @@ package com.spec.kit.exam.system.controller;
 
 import com.spec.kit.exam.system.entity.SubjectEntity;
 import com.spec.kit.exam.system.service.SubjectService;
+import com.spec.kit.exam.system.util.PageRequestDTO;
+import com.spec.kit.exam.system.util.PageResponse;
 import com.spec.kit.exam.system.util.Result;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,12 +63,27 @@ class SubjectControllerTest {
         when(subjectService.queryPage(anyMap())).thenReturn(expectedResult);
 
         // Act
-        Result<Map<String, Object>> result = subjectController.query(1, 10, "Math", 1L, 2L, "Advanced");
+        PageRequestDTO pageRequest = new PageRequestDTO();
+        pageRequest.setPage(1);
+        pageRequest.setSize(10);
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("name", "Math");
+        filters.put("gradeId", 1L);
+        filters.put("educationalLevelId", 2L);
+        filters.put("level", "Advanced");
+        pageRequest.setFilters(filters);
+        
+        Result<PageResponse<Map<String, Object>>> result = subjectController.list(pageRequest);
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isSuccess());
-        assertEquals(expectedResult, result.getData());
+        PageResponse<Map<String, Object>> pageResponse = result.getData();
+        assertEquals(1, pageResponse.getTotal());
+        assertEquals(1, pageResponse.getPage());
+        assertEquals(10, pageResponse.getSize());
+        assertEquals(1, pageResponse.getData().size());
+        assertEquals("Mathematics", pageResponse.getData().get(0).get("name"));
     }
 
     @Test
@@ -76,7 +93,7 @@ class SubjectControllerTest {
         when(subjectService.getDetail(1L)).thenReturn(detail);
 
         // Act
-        Result<Map<String, Object>> result = subjectController.detail(1L);
+        Result<Map<String, Object>> result = subjectController.getById(1L);
 
         // Assert
         assertNotNull(result);
@@ -108,8 +125,13 @@ class SubjectControllerTest {
 
         when(subjectService.update(1L, subjectEntity)).thenReturn(false);
 
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> subjectController.update(1L, subjectEntity));
+        // Act
+        Result<?> result = subjectController.update(1L, subjectEntity);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertTrue(result.getMsg().contains("学科不存在"));
     }
 
     @Test
@@ -130,8 +152,13 @@ class SubjectControllerTest {
         // Arrange
         when(subjectService.delete(1L)).thenReturn(false);
 
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> subjectController.delete(1L));
+        // Act
+        Result<?> result = subjectController.delete(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertTrue(result.getMsg().contains("学科不存在"));
     }
 
     @Test
@@ -144,7 +171,7 @@ class SubjectControllerTest {
         when(subjectService.getClasses()).thenReturn(classes);
 
         // Act
-        Result<Object> result = subjectController.classes();
+        Result<List<Map<String, Object>>> result = subjectController.getClasses();
 
         // Assert
         assertNotNull(result);
@@ -162,7 +189,7 @@ class SubjectControllerTest {
         when(subjectService.getLevels()).thenReturn(levels);
 
         // Act
-        Result<Object> result = subjectController.levels();
+        Result<List<Map<String, Object>>> result = subjectController.getLevels();
 
         // Assert
         assertNotNull(result);

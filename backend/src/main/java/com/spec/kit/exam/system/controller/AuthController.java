@@ -112,7 +112,7 @@ public class AuthController {
             
             // Get user info
             Long userId = Long.parseLong(claims.get("userId").toString());
-            User user = userService.getById(userId);
+            User user = userService.getById(userId.toString());
             
             // Generate new access token
             String newAccessToken = jwtUtil.generateAccessToken(user);

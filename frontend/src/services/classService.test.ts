@@ -25,8 +25,10 @@ describe('classService', () => {
       const params = {
         page: 1,
         size: 10,
-        name: 'Class',
-        gradeId: 1
+        filters: {
+          name: 'Class',
+          gradeId: 1
+        }
       }
 
       const mockResponse = {
@@ -49,8 +51,17 @@ describe('classService', () => {
 
       const result = await classService.list(params)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/classes?page=1&size=10&name=Class&gradeId=1', {
-        headers: mockGetAuthHeaders()
+      expect(mockFetch).toHaveBeenCalledWith('/api/classes/list', {
+        method: 'POST',
+        headers: mockGetAuthHeaders(),
+        body: JSON.stringify({
+          page: 1,
+          size: 10,
+          filters: {
+            name: 'Class',
+            gradeId: 1
+          }
+        })
       })
 
       expect(result).toEqual(mockResponse)
@@ -139,7 +150,7 @@ describe('classService', () => {
     })
   })
 
-  describe('grades', () => {
+  describe('getGrades', () => {
     it('should successfully get grades', async () => {
       const mockGrades = [
         { id: 1, name: 'Grade 1' },
@@ -153,7 +164,7 @@ describe('classService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockGrades)
 
-      const result = await classService.grades()
+      const result = await classService.getGrades()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/classes/grades', {
         headers: mockGetAuthHeaders()

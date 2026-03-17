@@ -56,12 +56,12 @@ class UserControllerTest {
         when(userService.getUsers(1, 10, "ACTIVE")).thenReturn(users);
 
         // Act
-        Result<PageResponse<User>> result = userController.getUsers(request);
+        Result<PageResponse<User>> result = userController.list(request);
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isSuccess());
-        assertEquals("Users retrieved successfully", result.getMsg());
+        assertEquals("列表查询成功", result.getMsg());
         assertNotNull(result.getData());
         assertEquals(2, result.getData().getTotal());
         assertEquals(1, result.getData().getPage());
@@ -82,7 +82,7 @@ class UserControllerTest {
         when(userService.getUsers(1, 10, null)).thenReturn(users);
 
         // Act
-        Result<PageResponse<User>> result = userController.getUsers(null);
+        Result<PageResponse<User>> result = userController.list(null);
 
         // Assert
         assertNotNull(result);
@@ -105,12 +105,12 @@ class UserControllerTest {
         when(userService.createUser(user)).thenReturn(createdUser);
 
         // Act
-        Result<User> result = userController.createUser(user);
+        Result<User> result = userController.create(user);
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isSuccess());
-        assertEquals("User created successfully", result.getMsg());
+        assertEquals("创建成功", result.getMsg());
         assertEquals(createdUser, result.getData());
     }
 
@@ -124,12 +124,12 @@ class UserControllerTest {
         when(userService.getUserById("1")).thenReturn(Optional.of(user));
 
         // Act
-        Result<User> result = userController.getUserById("1");
+        Result<User> result = userController.getById("1");
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isSuccess());
-        assertEquals("User retrieved successfully", result.getMsg());
+        assertEquals("详情查询成功", result.getMsg());
         assertEquals(user, result.getData());
     }
 
@@ -139,12 +139,12 @@ class UserControllerTest {
         when(userService.getUserById("999")).thenReturn(Optional.empty());
 
         // Act
-        Result<User> result = userController.getUserById("999");
+        Result<User> result = userController.getById("999");
 
         // Assert
         assertNotNull(result);
         assertFalse(result.isSuccess());
-        assertTrue(result.getMsg().contains("User not found"));
+        assertTrue(result.getMsg().contains("用户不存在"));
     }
 
     @Test
@@ -161,36 +161,36 @@ class UserControllerTest {
         when(userService.updateUser(user)).thenReturn(updatedUser);
 
         // Act
-        Result<User> result = userController.updateUser(user);
+        Result<User> result = userController.update("1", user);
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isSuccess());
-        assertEquals("User updated successfully", result.getMsg());
+        assertEquals("更新成功", result.getMsg());
         assertEquals(updatedUser, result.getData());
     }
 
     @Test
     void deleteUserShouldReturnSuccess() {
         // Act
-        Result<?> result = userController.deleteUser("1");
+        Result<?> result = userController.delete("1");
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isSuccess());
-        assertEquals("User deleted successfully", result.getMsg());
+        assertEquals("删除成功", result.getMsg());
         verify(userService).deleteUser("1");
     }
 
     @Test
     void unlockUserShouldReturnSuccess() {
         // Act
-        Result<?> result = userController.unlockUser("1");
+        Result<?> result = userController.unlock("1");
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isSuccess());
-        assertEquals("User account unlocked successfully", result.getMsg());
+        assertEquals("用户账户解锁成功", result.getMsg());
         verify(userService).unlockUserAccount("1");
     }
 
@@ -200,11 +200,11 @@ class UserControllerTest {
         doThrow(new RuntimeException("Unlock failed")).when(userService).unlockUserAccount("1");
 
         // Act
-        Result<?> result = userController.unlockUser("1");
+        Result<?> result = userController.unlock("1");
 
         // Assert
         assertNotNull(result);
         assertFalse(result.isSuccess());
-        assertTrue(result.getMsg().contains("Failed to unlock user"));
+        assertTrue(result.getMsg().contains("用户解锁失败"));
     }
 }

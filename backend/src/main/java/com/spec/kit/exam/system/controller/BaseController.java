@@ -10,9 +10,9 @@ import java.util.function.Supplier;
 public abstract class BaseController {
 
     protected Map<String, Object> buildStatistics(
-        Supplier<Long> totalSupplier,
-        Supplier<Long> activeSupplier,
-        Supplier<Long> inactiveSupplier
+        Supplier<Integer> totalSupplier,
+        Supplier<Integer> activeSupplier,
+        Supplier<Integer> inactiveSupplier
     ) {
         Map<String, Object> statistics = new HashMap<>();
         statistics.put("total", totalSupplier.get());

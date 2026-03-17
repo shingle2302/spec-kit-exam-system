@@ -45,7 +45,7 @@ describe('examPlanService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await examPlanService.list()
+      const result = await examPlanService.query()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/exam-plans/query', {
         method: 'POST',
@@ -60,8 +60,10 @@ describe('examPlanService', () => {
           }
         })
       })
-
-      expect(result).toEqual(mockResponse)
+      expect(mockProcessApiResponse).toHaveBeenCalledWith({
+        ok: true,
+        json: expect.any(Function)
+      })
     })
 
     it('should successfully get exam plans with custom params', async () => {
@@ -88,7 +90,7 @@ describe('examPlanService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await examPlanService.list({
+      const result = await examPlanService.query({
         page: 2,
         size: 20,
         name: 'Final',

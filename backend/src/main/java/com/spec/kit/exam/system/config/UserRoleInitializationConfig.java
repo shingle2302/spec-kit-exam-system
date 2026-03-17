@@ -47,6 +47,7 @@ public class UserRoleInitializationConfig implements CommandLineRunner {
         
         if (existingAdminRole == null) {
             Role adminRole = new Role();
+            adminRole.setCode("SUPER_ADMIN");
             adminRole.setName("SUPER_ADMIN");
             adminRole.setDescription("Administrator with broad system access");
             adminRole.setIsSuperAdminRole(true);
@@ -65,6 +66,7 @@ public class UserRoleInitializationConfig implements CommandLineRunner {
         
         if (existingUserRole == null) {
             Role userRole = new Role();
+            userRole.setCode("USER");
             userRole.setName("USER");
             userRole.setDescription("Regular user with basic access");
             userRole.setIsSuperAdminRole(false);

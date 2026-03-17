@@ -11,7 +11,7 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     implements OperationLogService {
     
     @Override
-    public void save(OperationLogEntity operationLog) {
-        this.save(operationLog);
+    public boolean save(OperationLogEntity operationLog) {
+        return this.baseMapper.insert(operationLog) > 0;
     }
 }

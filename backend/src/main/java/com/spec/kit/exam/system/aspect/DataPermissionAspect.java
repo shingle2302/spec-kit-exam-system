@@ -1,6 +1,7 @@
 package com.spec.kit.exam.system.aspect;
 
 import com.spec.kit.exam.system.annotation.DataPermission;
+import com.spec.kit.exam.system.entity.BaseEntity;
 import com.spec.kit.exam.system.entity.User;
 import com.spec.kit.exam.system.service.UserService;
 import org.aspectj.lang.ProceedingJoinPoint;

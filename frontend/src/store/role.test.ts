@@ -6,11 +6,11 @@ import { createPinia, setActivePinia } from 'pinia'
 // Mock dependencies
 jest.mock('@/services/roleService', () => ({
   roleService: {
-    getRoles: jest.fn(),
-    getRoleById: jest.fn(),
-    createRole: jest.fn(),
-    updateRole: jest.fn(),
-    deleteRole: jest.fn()
+    list: jest.fn(),
+    getById: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn()
   }
 }))
 
@@ -34,7 +34,7 @@ describe('useRoleStore', () => {
   describe('fetchRoles', () => {
     it('should successfully fetch roles', async () => {
       const mockResponse = {
-        data: [
+        records: [
           {
             id: '1',
             name: 'Admin',
@@ -51,29 +51,27 @@ describe('useRoleStore', () => {
           }
         ],
         total: 2,
-        page: 1,
+        current: 1,
         size: 10,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: false
+        pages: 1
       }
 
-      mockRoleService.getRoles.mockResolvedValue(mockResponse)
+      mockRoleService.list.mockResolvedValue(mockResponse)
 
       const store = useRoleStore()
       const result = await store.fetchRoles()
 
-      expect(mockRoleService.getRoles).toHaveBeenCalledWith({
+      expect(mockRoleService.list).toHaveBeenCalledWith({
         page: undefined,
         size: undefined,
         filters: {}
       })
 
       expect(result).toEqual({ success: true, data: mockResponse })
-      expect(store.roles).toEqual(mockResponse.data)
+      expect(store.roles).toEqual(mockResponse.records)
       expect(store.rolesPageData).toEqual(mockResponse)
       expect(store.pagination).toEqual({
-        current: mockResponse.page,
+        current: mockResponse.current,
         pageSize: mockResponse.size,
         total: mockResponse.total
       })
@@ -81,12 +79,12 @@ describe('useRoleStore', () => {
 
     it('should handle fetch roles error', async () => {
       const error = new Error('Fetch error')
-      mockRoleService.getRoles.mockRejectedValue(error)
+      mockRoleService.list.mockRejectedValue(error)
 
       const store = useRoleStore()
       const result = await store.fetchRoles()
 
-      expect(mockRoleService.getRoles).toHaveBeenCalled()
+      expect(mockRoleService.list).toHaveBeenCalled()
       expect(mockMessage.error).toHaveBeenCalledWith('获取角色列表失败')
       expect(result).toEqual({ success: false, message: '获取角色列表失败' })
     })
@@ -103,12 +101,12 @@ describe('useRoleStore', () => {
         permissions: []
       }
 
-      mockRoleService.getRoleById.mockResolvedValue(mockRole)
+      mockRoleService.getById.mockResolvedValue(mockRole)
 
       const store = useRoleStore()
       const result = await store.fetchRoleById(roleId)
 
-      expect(mockRoleService.getRoleById).toHaveBeenCalledWith(roleId)
+      expect(mockRoleService.getById).toHaveBeenCalledWith(roleId)
       expect(result).toEqual({ success: true, data: mockRole })
       expect(store.currentEditRole).toEqual(mockRole)
     })
@@ -116,12 +114,12 @@ describe('useRoleStore', () => {
     it('should handle fetch role by ID error', async () => {
       const roleId = '1'
       const error = new Error('Fetch error')
-      mockRoleService.getRoleById.mockRejectedValue(error)
+      mockRoleService.getById.mockRejectedValue(error)
 
       const store = useRoleStore()
       const result = await store.fetchRoleById(roleId)
 
-      expect(mockRoleService.getRoleById).toHaveBeenCalledWith(roleId)
+      expect(mockRoleService.getById).toHaveBeenCalledWith(roleId)
       expect(mockMessage.error).toHaveBeenCalledWith('获取角色信息失败')
       expect(result).toEqual({ success: false, message: '获取角色信息失败' })
     })
@@ -141,23 +139,21 @@ describe('useRoleStore', () => {
         ...roleData
       }
 
-      mockRoleService.createRole.mockResolvedValue(mockCreatedRole)
-      mockRoleService.getRoles.mockResolvedValue({
-        data: [mockCreatedRole],
+      mockRoleService.create.mockResolvedValue(mockCreatedRole)
+      mockRoleService.list.mockResolvedValue({
+        records: [mockCreatedRole],
         total: 1,
-        page: 1,
+        current: 1,
         size: 10,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: false
+        pages: 1
       })
 
       const store = useRoleStore()
       const result = await store.createRole(roleData)
 
-      expect(mockRoleService.createRole).toHaveBeenCalledWith(roleData)
+      expect(mockRoleService.create).toHaveBeenCalledWith(roleData)
       expect(mockMessage.success).toHaveBeenCalledWith('角色创建成功')
-      expect(mockRoleService.getRoles).toHaveBeenCalled()
+      expect(mockRoleService.list).toHaveBeenCalled()
       expect(result).toEqual({ success: true, data: mockCreatedRole })
     })
 
@@ -170,12 +166,12 @@ describe('useRoleStore', () => {
       }
 
       const error = new Error('Create error')
-      mockRoleService.createRole.mockRejectedValue(error)
+      mockRoleService.create.mockRejectedValue(error)
 
       const store = useRoleStore()
       const result = await store.createRole(roleData)
 
-      expect(mockRoleService.createRole).toHaveBeenCalledWith(roleData)
+      expect(mockRoleService.create).toHaveBeenCalledWith(roleData)
       expect(mockMessage.error).toHaveBeenCalledWith('创建角色失败')
       expect(result).toEqual({ success: false, message: '创建角色失败' })
     })
@@ -196,23 +192,21 @@ describe('useRoleStore', () => {
         ...roleData
       }
 
-      mockRoleService.updateRole.mockResolvedValue(mockUpdatedRole)
-      mockRoleService.getRoles.mockResolvedValue({
-        data: [mockUpdatedRole],
+      mockRoleService.update.mockResolvedValue(mockUpdatedRole)
+      mockRoleService.list.mockResolvedValue({
+        records: [mockUpdatedRole],
         total: 1,
-        page: 1,
+        current: 1,
         size: 10,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: false
+        pages: 1
       })
 
       const store = useRoleStore()
       const result = await store.updateRole(roleId, roleData)
 
-      expect(mockRoleService.updateRole).toHaveBeenCalledWith(roleId, roleData)
+      expect(mockRoleService.update).toHaveBeenCalledWith(roleId, roleData)
       expect(mockMessage.success).toHaveBeenCalledWith('角色更新成功')
-      expect(mockRoleService.getRoles).toHaveBeenCalled()
+      expect(mockRoleService.list).toHaveBeenCalled()
       expect(result).toEqual({ success: true, data: mockUpdatedRole })
     })
 
@@ -226,12 +220,12 @@ describe('useRoleStore', () => {
       }
 
       const error = new Error('Update error')
-      mockRoleService.updateRole.mockRejectedValue(error)
+      mockRoleService.update.mockRejectedValue(error)
 
       const store = useRoleStore()
       const result = await store.updateRole(roleId, roleData)
 
-      expect(mockRoleService.updateRole).toHaveBeenCalledWith(roleId, roleData)
+      expect(mockRoleService.update).toHaveBeenCalledWith(roleId, roleData)
       expect(mockMessage.error).toHaveBeenCalledWith('更新角色失败')
       expect(result).toEqual({ success: false, message: '更新角色失败' })
     })
@@ -241,23 +235,21 @@ describe('useRoleStore', () => {
     it('should successfully delete role', async () => {
       const roleId = '1'
 
-      mockRoleService.deleteRole.mockResolvedValue(undefined)
-      mockRoleService.getRoles.mockResolvedValue({
-        data: [],
+      mockRoleService.remove.mockResolvedValue(undefined)
+      mockRoleService.list.mockResolvedValue({
+        records: [],
         total: 0,
-        page: 1,
+        current: 1,
         size: 10,
-        totalPage: 0,
-        hasNext: false,
-        hasPrevious: false
+        pages: 0
       })
 
       const store = useRoleStore()
       const result = await store.deleteRole(roleId)
 
-      expect(mockRoleService.deleteRole).toHaveBeenCalledWith(roleId)
+      expect(mockRoleService.remove).toHaveBeenCalledWith(roleId)
       expect(mockMessage.success).toHaveBeenCalledWith('角色删除成功')
-      expect(mockRoleService.getRoles).toHaveBeenCalled()
+      expect(mockRoleService.list).toHaveBeenCalled()
       expect(result).toEqual({ success: true })
     })
 
@@ -265,12 +257,12 @@ describe('useRoleStore', () => {
       const roleId = '1'
 
       const error = new Error('Delete error')
-      mockRoleService.deleteRole.mockRejectedValue(error)
+      mockRoleService.remove.mockRejectedValue(error)
 
       const store = useRoleStore()
       const result = await store.deleteRole(roleId)
 
-      expect(mockRoleService.deleteRole).toHaveBeenCalledWith(roleId)
+      expect(mockRoleService.remove).toHaveBeenCalledWith(roleId)
       expect(mockMessage.error).toHaveBeenCalledWith('删除角色失败')
       expect(result).toEqual({ success: false, message: '删除角色失败' })
     })

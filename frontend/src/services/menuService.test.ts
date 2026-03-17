@@ -56,7 +56,6 @@ describe('menuService', () => {
       const result = await menuService.getMenuTree()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/menus/tree', {
-        method: 'GET',
         headers: mockGetAuthHeaders()
       })
 
@@ -85,7 +84,6 @@ describe('menuService', () => {
       const result = await menuService.getMenuTree(roleId)
 
       expect(mockFetch).toHaveBeenCalledWith(`/api/menus/tree?roleId=${encodeURIComponent(roleId)}`, {
-        method: 'GET',
         headers: mockGetAuthHeaders()
       })
 
@@ -115,9 +113,9 @@ describe('menuService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await menuService.createMenu(menuData)
+      const result = await menuService.create(menuData)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/menus/create', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/menus', {
         method: 'POST',
         headers: mockGetAuthHeaders(),
         body: JSON.stringify(menuData)
@@ -148,9 +146,9 @@ describe('menuService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await menuService.updateMenu(menuData)
+      const result = await menuService.update('1', menuData)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/menus/update', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/menus/1', {
         method: 'PUT',
         headers: mockGetAuthHeaders(),
         body: JSON.stringify(menuData)
@@ -171,9 +169,9 @@ describe('menuService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(undefined)
 
-      await menuService.deleteMenu(menuId)
+      await menuService.remove(menuId)
 
-      expect(mockFetch).toHaveBeenCalledWith(`/api/menus/delete/${encodeURIComponent(menuId)}`, {
+      expect(mockFetch).toHaveBeenCalledWith(`/api/menus/${encodeURIComponent(menuId)}`, {
         method: 'DELETE',
         headers: mockGetAuthHeaders()
       })
@@ -206,7 +204,7 @@ describe('menuService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await menuService.getAllMenus()
+      const result = await menuService.list()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/menus/list', {
         method: 'POST',
@@ -246,7 +244,7 @@ describe('menuService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await menuService.getAllMenus({
+      const result = await menuService.list({
         page: 2,
         size: 20,
         filters: { name: 'Dashboard' }
@@ -284,10 +282,9 @@ describe('menuService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await menuService.getMenuById(menuId)
+      const result = await menuService.getById(menuId)
 
       expect(mockFetch).toHaveBeenCalledWith(`/api/menus/${encodeURIComponent(menuId)}`, {
-        method: 'GET',
         headers: mockGetAuthHeaders()
       })
 

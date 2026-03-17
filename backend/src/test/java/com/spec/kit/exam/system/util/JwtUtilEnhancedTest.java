@@ -32,7 +32,7 @@ class JwtUtilEnhancedTest {
         testUser.setEmail("test@example.com");
         testUser.setCreatedAt(LocalDateTime.now());
         
-        ReflectionTestUtils.setField(jwtUtilEnhanced, "secret", "testSecretKeyForJWT");
+        ReflectionTestUtils.setField(jwtUtilEnhanced, "secret", "testSecretKeyForJWTThatIsLongEnoughToMeetHS512RequirementsOfAtLeast64Bytes1234567890123456789012345678901234");
         ReflectionTestUtils.setField(jwtUtilEnhanced, "expiration", 3600000L);
         ReflectionTestUtils.setField(jwtUtilEnhanced, "refreshExpiration", 604800000L);
     }

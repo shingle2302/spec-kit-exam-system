@@ -33,7 +33,8 @@ public class SubjectController extends BaseController {
         
         Map<String, Object> result = subjectService.queryPage(req);
         List<Map<String, Object>> records = (List<Map<String, Object>>) result.get("records");
-        int total = (int) result.get("total");
+        Object totalObj = result.get("total");
+        int total = totalObj instanceof Number ? ((Number) totalObj).intValue() : 0;
         
         PageResponse<Map<String, Object>> pageResponse = PageResponse.of(records, total, pageRequest.getPage(), pageRequest.getSize());
         return successList(pageResponse);

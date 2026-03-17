@@ -37,6 +37,14 @@ public final class Result<T> {
         return new Result<>(null, errorCode.getCode(), customMsg);
     }
 
+    public static <T> Result<T> unauthorized(String msg) {
+        return new Result<>(null, "401", msg);
+    }
+
+    public static <T> Result<T> validationError(String msg) {
+        return new Result<>(null, "400", msg);
+    }
+
     public T getData() {
         return data;
     }

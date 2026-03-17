@@ -23,7 +23,7 @@ describe('roleService', () => {
   describe('getRoles', () => {
     it('should successfully get roles with default params', async () => {
       const mockResponse = {
-        data: [
+        records: [
           {
             id: '1',
             name: 'Admin',
@@ -41,10 +41,7 @@ describe('roleService', () => {
         ],
         total: 2,
         page: 1,
-        size: 10,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: false
+        size: 10
       }
 
       mockFetch.mockResolvedValueOnce({
@@ -54,7 +51,7 @@ describe('roleService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await roleService.getRoles()
+      const result = await roleService.list()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/roles/list', {
         method: 'POST',
@@ -68,7 +65,7 @@ describe('roleService', () => {
 
       expect(result).toEqual({
         ...mockResponse,
-        data: mockResponse.data.map((role: any) => ({
+        records: mockResponse.records.map((role: any) => ({
           ...role,
           permissions: []
         }))
@@ -77,7 +74,7 @@ describe('roleService', () => {
 
     it('should successfully get roles with custom params', async () => {
       const mockResponse = {
-        data: [
+        records: [
           {
             id: '1',
             name: 'Admin',
@@ -88,10 +85,7 @@ describe('roleService', () => {
         ],
         total: 1,
         page: 2,
-        size: 20,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: true
+        size: 20
       }
 
       mockFetch.mockResolvedValueOnce({
@@ -101,7 +95,7 @@ describe('roleService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await roleService.getRoles({
+      const result = await roleService.list({
         page: 2,
         size: 20,
         filters: { name: 'Admin' }
@@ -119,7 +113,7 @@ describe('roleService', () => {
 
       expect(result).toEqual({
         ...mockResponse,
-        data: mockResponse.data.map((role: any) => ({
+        records: mockResponse.records.map((role: any) => ({
           ...role,
           permissions: []
         }))
@@ -145,10 +139,9 @@ describe('roleService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await roleService.getRoleById(roleId)
+      const result = await roleService.getById(roleId)
 
       expect(mockFetch).toHaveBeenCalledWith(`/api/roles/${roleId}`, {
-        method: 'GET',
         headers: mockGetAuthHeaders()
       })
 
@@ -181,9 +174,9 @@ describe('roleService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await roleService.createRole(roleData)
+      const result = await roleService.create(roleData)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/roles/create', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/roles', {
         method: 'POST',
         headers: mockGetAuthHeaders(),
         body: JSON.stringify({
@@ -222,9 +215,9 @@ describe('roleService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await roleService.updateRole(roleId, roleData)
+      const result = await roleService.update(roleId, roleData)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/roles/update', {
+      expect(mockFetch).toHaveBeenCalledWith(`/api/roles/${roleId}`, {
         method: 'PUT',
         headers: mockGetAuthHeaders(),
         body: JSON.stringify({
@@ -252,9 +245,9 @@ describe('roleService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(undefined)
 
-      await roleService.deleteRole(roleId)
+      await roleService.remove(roleId)
 
-      expect(mockFetch).toHaveBeenCalledWith(`/api/roles/delete/${roleId}`, {
+      expect(mockFetch).toHaveBeenCalledWith(`/api/roles/${roleId}`, {
         method: 'DELETE',
         headers: mockGetAuthHeaders()
       })
@@ -279,16 +272,15 @@ describe('roleService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await roleService.getRoleByCode(roleCode)
+      const result = await roleService.getByCode(roleCode)
 
       expect(mockFetch).toHaveBeenCalledWith(`/api/roles/code/${roleCode}`, {
-        method: 'GET',
         headers: mockGetAuthHeaders()
       })
 
       expect(result).toEqual({
         ...mockResponse,
-        permissions: []
+        permissions: JSON.parse(mockResponse.permissions)
       })
     })
   })

@@ -20,10 +20,10 @@ export const useRoleStore = defineStore('role', () => {
   async function fetchRoles(params?: { page?: number; size?: number; limit?: number }) {
     loading.value = true
     try {
-      const response = await roleService.getRoles({ page: params?.page, size: params?.size ?? params?.limit, filters: {} })
+      const response = await roleService.list({ page: params?.page, size: params?.size ?? params?.limit, filters: {} })
       rolesPageData.value = response
-      roles.value = response.data
-      pagination.value.current = response.page
+      roles.value = response.records
+      pagination.value.current = response.current
       pagination.value.pageSize = response.size
       pagination.value.total = response.total
       return { success: true, data: response }
@@ -39,7 +39,7 @@ export const useRoleStore = defineStore('role', () => {
   async function fetchRoleById(id: string) {
     loading.value = true
     try {
-      const data = await roleService.getRoleById(id)
+      const data = await roleService.getById(id)
       currentEditRole.value = data
       return { success: true, data }
     } catch (error: any) {
@@ -54,7 +54,7 @@ export const useRoleStore = defineStore('role', () => {
   async function createRole(roleData: CreateRoleRequest) {
     loading.value = true
     try {
-      const data = await roleService.createRole(roleData)
+      const data = await roleService.create(roleData)
       message.success('角色创建成功')
       await fetchRoles()
       return { success: true, data }
@@ -70,7 +70,7 @@ export const useRoleStore = defineStore('role', () => {
   async function updateRole(id: string, roleData: UpdateRoleRequest) {
     loading.value = true
     try {
-      const data = await roleService.updateRole(id, roleData)
+      const data = await roleService.update(id, roleData)
       message.success('角色更新成功')
       await fetchRoles()
       return { success: true, data }
@@ -86,7 +86,7 @@ export const useRoleStore = defineStore('role', () => {
   async function deleteRole(id: string) {
     loading.value = true
     try {
-      await roleService.deleteRole(id)
+      await roleService.remove(id)
       message.success('角色删除成功')
       await fetchRoles()
       return { success: true }

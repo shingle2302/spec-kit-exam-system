@@ -52,4 +52,18 @@ public interface KnowledgePointService {
      */
     boolean validateLevelDepth(Long parentId, int currentLevel);
 
+    /**
+     * 获取知识点总数
+     */
+    int getTotalCount();
+
+    /**
+     * 获取活跃知识点数量
+     */
+    int getActiveCount();
+
+    /**
+     * 获取非活跃知识点数量
+     */
+    int getInactiveCount();
 }

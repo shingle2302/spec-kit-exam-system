@@ -9,6 +9,20 @@ public class PageRequest {
     private String sortBy;       // 排序字段
     private String sortOrder;    // 排序方向：ASC/DESC，默认ASC
 
+    /**
+     * 默认构造函数
+     */
+    public PageRequest() {
+    }
+
+    /**
+     * 带参数的构造函数
+     */
+    public PageRequest(int page, int size) {
+        this.page = page < 1 ? 1 : page;
+        this.size = size < 1 ? 10 : Math.min(size, 100);
+    }
+
     // Getters and Setters
     public int getPage() {
         return page;

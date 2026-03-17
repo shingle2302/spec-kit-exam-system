@@ -46,7 +46,7 @@ describe('userService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await userService.getUsers(params)
+      const result = await userService.list(params)
 
       expect(mockFetch).toHaveBeenCalledWith('/api/users/list', {
         method: 'POST',
@@ -77,7 +77,7 @@ describe('userService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      await userService.getUsers()
+      await userService.list()
 
       expect(mockFetch).toHaveBeenCalledWith('/api/users/list', {
         method: 'POST',
@@ -102,10 +102,9 @@ describe('userService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockUser)
 
-      const result = await userService.getUserById('1')
+      const result = await userService.getById('1')
 
       expect(mockFetch).toHaveBeenCalledWith('/api/users/1', {
-        method: 'GET',
         headers: mockGetAuthHeaders()
       })
 
@@ -135,9 +134,9 @@ describe('userService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await userService.createUser(userData)
+      const result = await userService.create(userData)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/users/create', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/users', {
         method: 'POST',
         headers: mockGetAuthHeaders(),
         body: JSON.stringify(userData)
@@ -167,12 +166,12 @@ describe('userService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
 
-      const result = await userService.updateUser('1', userData)
+      const result = await userService.update('1', userData)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/users/update', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/users/1', {
         method: 'PUT',
         headers: mockGetAuthHeaders(),
-        body: JSON.stringify({ ...userData, id: '1' })
+        body: JSON.stringify(userData)
       })
 
       expect(result).toEqual(mockResponse)
@@ -188,9 +187,9 @@ describe('userService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(undefined)
 
-      await userService.deleteUser('1')
+      await userService.remove('1')
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/users/delete/1', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/users/1', {
         method: 'DELETE',
         headers: mockGetAuthHeaders()
       })
@@ -206,7 +205,7 @@ describe('userService', () => {
 
       mockProcessApiResponse.mockResolvedValueOnce(undefined)
 
-      await userService.unlockUser('1')
+      await userService.unlock('1')
 
       expect(mockFetch).toHaveBeenCalledWith('/api/users/unlock/1', {
         method: 'POST',

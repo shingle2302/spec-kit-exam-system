@@ -20,298 +20,155 @@ describe('permissionService', () => {
     jest.clearAllMocks()
   })
 
-  describe('getPermissionsByRole', () => {
-    it('should successfully get permissions by role', async () => {
-      const roleId = 'role1'
-      const mockPermissions = [
-        {
-          id: '1',
-          menuId: '1',
-          buttonName: 'Read',
-          operationType: 'READ',
-          permissionCode: 'MENU1:READ',
-          description: 'Read permission for menu 1'
-        },
-        {
-          id: '2',
-          menuId: '1',
-          buttonName: 'Write',
-          operationType: 'WRITE',
-          permissionCode: 'MENU1:WRITE',
-          description: 'Write permission for menu 1'
-        }
+  describe('list', () => {
+    it('should successfully get permissions with pagination', async () => {
+      const mockResponse = {
+        records: [
+          {
+            id: '1',
+            name: 'Read',
+            code: 'MENU1:READ',
+            type: 'BUTTON'
+          }
+        ],
+        total: 1,
+        current: 1,
+        size: 10,
+        pages: 1
+      }
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce({ data: mockResponse, code: '0000', msg: 'success' })
+      } as Response)
+
+      mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
+
+      const result = await permissionService.list()
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/list', {
+        method: 'POST',
+        headers: mockGetAuthHeaders(),
+        body: JSON.stringify({ page: 1, size: 10, filters: {} })
+      })
+
+      expect(result).toEqual(mockResponse)
+    })
+  })
+
+  describe('getRoles', () => {
+    it('should successfully get roles', async () => {
+      const mockRoles = [
+        { id: '1', name: 'Admin', code: 'ADMIN' },
+        { id: '2', name: 'User', code: 'USER' }
       ]
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: mockPermissions, code: '0000', msg: 'success' })
+        json: jest.fn().mockResolvedValueOnce({ data: mockRoles, code: '0000', msg: 'success' })
       } as Response)
 
-      mockProcessApiResponse.mockResolvedValueOnce(mockPermissions)
+      mockProcessApiResponse.mockResolvedValueOnce(mockRoles)
 
-      const result = await permissionService.getPermissionsByRole(roleId)
+      const result = await permissionService.getRoles()
 
-      expect(mockFetch).toHaveBeenCalledWith(`/api/permissions/role/${encodeURIComponent(roleId)}`, {
-        method: 'GET',
+      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/roles', {
         headers: mockGetAuthHeaders()
       })
 
-      expect(result).toEqual(mockPermissions)
+      expect(result).toEqual(mockRoles)
     })
   })
 
-  describe('assignPermissionsToRole', () => {
-    it('should successfully assign permissions to role', async () => {
-      const roleId = 'role1'
-      const permissionIds = ['perm1', 'perm2']
+  describe('getPermissionConfig', () => {
+    it('should successfully get permission config', async () => {
+      const roleId = 1
+      const mockConfig = {
+        roleId: 1,
+        permissions: ['PERM1', 'PERM2']
+      }
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: null, code: '0000', msg: 'success' })
+        json: jest.fn().mockResolvedValueOnce({ data: mockConfig, code: '0000', msg: 'success' })
+      } as Response)
+
+      mockProcessApiResponse.mockResolvedValueOnce(mockConfig)
+
+      const result = await permissionService.getPermissionConfig(roleId)
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/config/1', {
+        headers: mockGetAuthHeaders()
+      })
+
+      expect(result).toEqual(mockConfig)
+    })
+  })
+
+  describe('savePermissionConfig', () => {
+    it('should successfully save permission config', async () => {
+      const config = {
+        roleId: 1,
+        permissions: ['PERM1', 'PERM2']
+      }
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce({ code: '0000', msg: 'success' })
       } as Response)
 
       mockProcessApiResponse.mockResolvedValueOnce(undefined)
 
-      await permissionService.assignPermissionsToRole(roleId, permissionIds)
+      await permissionService.savePermissionConfig(config)
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/config', {
+        method: 'POST',
+        headers: mockGetAuthHeaders(),
+        body: JSON.stringify(config)
+      })
+    })
+  })
+
+  describe('assignPermissions', () => {
+    it('should successfully assign permissions to role', async () => {
+      const roleId = 1
+      const permissionIds = [1, 2, 3]
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce({ code: '0000', msg: 'success' })
+      } as Response)
+
+      mockProcessApiResponse.mockResolvedValueOnce(undefined)
+
+      await permissionService.assignPermissions(roleId, permissionIds)
 
       expect(mockFetch).toHaveBeenCalledWith('/api/permissions/assign', {
         method: 'POST',
         headers: mockGetAuthHeaders(),
-        body: JSON.stringify({
-          roleId,
-          permissionIds
-        })
+        body: JSON.stringify({ roleId, permissionIds })
       })
     })
   })
 
-  describe('removePermissionsFromRole', () => {
-    it('should successfully remove permissions from role', async () => {
-      const roleId = 'role1'
-      const permissionIds = ['perm1', 'perm2']
+  describe('revokePermissions', () => {
+    it('should successfully revoke permissions from role', async () => {
+      const roleId = 1
+      const permissionIds = [1, 2]
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: null, code: '0000', msg: 'success' })
+        json: jest.fn().mockResolvedValueOnce({ code: '0000', msg: 'success' })
       } as Response)
 
       mockProcessApiResponse.mockResolvedValueOnce(undefined)
 
-      await permissionService.removePermissionsFromRole(roleId, permissionIds)
+      await permissionService.revokePermissions(roleId, permissionIds)
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/remove', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/revoke', {
         method: 'POST',
         headers: mockGetAuthHeaders(),
-        body: JSON.stringify({
-          roleId,
-          permissionIds
-        })
-      })
-    })
-  })
-
-  describe('getAllPermissions', () => {
-    it('should successfully get all permissions with default params', async () => {
-      const mockResponse = {
-        data: [
-          {
-            id: '1',
-            menuId: '1',
-            buttonName: 'Read',
-            operationType: 'READ',
-            permissionCode: 'MENU1:READ'
-          }
-        ],
-        total: 1,
-        page: 1,
-        size: 10,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: false
-      }
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: mockResponse, code: '0000', msg: 'success' })
-      } as Response)
-
-      mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
-
-      const result = await permissionService.getAllPermissions()
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/list', {
-        method: 'POST',
-        headers: mockGetAuthHeaders(),
-        body: JSON.stringify({
-          page: 1,
-          size: 10,
-          filters: {}
-        })
-      })
-
-      expect(result).toEqual(mockResponse)
-    })
-
-    it('should successfully get all permissions with custom params', async () => {
-      const mockResponse = {
-        data: [
-          {
-            id: '1',
-            menuId: '1',
-            buttonName: 'Read',
-            operationType: 'READ',
-            permissionCode: 'MENU1:READ'
-          }
-        ],
-        total: 1,
-        page: 2,
-        size: 20,
-        totalPage: 1,
-        hasNext: false,
-        hasPrevious: true
-      }
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: mockResponse, code: '0000', msg: 'success' })
-      } as Response)
-
-      mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
-
-      const result = await permissionService.getAllPermissions({
-        page: 2,
-        size: 20,
-        filters: { menuId: '1' }
-      })
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/list', {
-        method: 'POST',
-        headers: mockGetAuthHeaders(),
-        body: JSON.stringify({
-          page: 2,
-          size: 20,
-          filters: { menuId: '1' }
-        })
-      })
-
-      expect(result).toEqual(mockResponse)
-    })
-  })
-
-  describe('createPermission', () => {
-    it('should successfully create permission', async () => {
-      const permissionData = {
-        menuId: '1',
-        buttonName: 'Create',
-        operationType: 'CREATE',
-        permissionCode: 'MENU1:CREATE',
-        description: 'Create permission for menu 1'
-      }
-
-      const mockResponse = {
-        id: '3',
-        ...permissionData
-      }
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: mockResponse, code: '0000', msg: 'success' })
-      } as Response)
-
-      mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
-
-      const result = await permissionService.createPermission(permissionData)
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/create', {
-        method: 'POST',
-        headers: mockGetAuthHeaders(),
-        body: JSON.stringify(permissionData)
-      })
-
-      expect(result).toEqual(mockResponse)
-    })
-  })
-
-  describe('updatePermission', () => {
-    it('should successfully update permission', async () => {
-      const permissionData = {
-        id: '1',
-        menuId: '1',
-        buttonName: 'Updated Read',
-        operationType: 'READ',
-        permissionCode: 'MENU1:READ',
-        description: 'Updated read permission for menu 1'
-      }
-
-      const mockResponse = {
-        ...permissionData
-      }
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: mockResponse, code: '0000', msg: 'success' })
-      } as Response)
-
-      mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
-
-      const result = await permissionService.updatePermission(permissionData)
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/permissions/update', {
-        method: 'PUT',
-        headers: mockGetAuthHeaders(),
-        body: JSON.stringify(permissionData)
-      })
-
-      expect(result).toEqual(mockResponse)
-    })
-  })
-
-  describe('getPermissionById', () => {
-    it('should successfully get permission by ID', async () => {
-      const permissionId = '1'
-      const mockResponse = {
-        id: permissionId,
-        menuId: '1',
-        buttonName: 'Read',
-        operationType: 'READ',
-        permissionCode: 'MENU1:READ',
-        description: 'Read permission for menu 1'
-      }
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: mockResponse, code: '0000', msg: 'success' })
-      } as Response)
-
-      mockProcessApiResponse.mockResolvedValueOnce(mockResponse)
-
-      const result = await permissionService.getPermissionById(permissionId)
-
-      expect(mockFetch).toHaveBeenCalledWith(`/api/permissions/${encodeURIComponent(permissionId)}`, {
-        method: 'GET',
-        headers: mockGetAuthHeaders()
-      })
-
-      expect(result).toEqual(mockResponse)
-    })
-  })
-
-  describe('deletePermission', () => {
-    it('should successfully delete permission', async () => {
-      const permissionId = '1'
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValueOnce({ data: null, code: '0000', msg: 'success' })
-      } as Response)
-
-      mockProcessApiResponse.mockResolvedValueOnce(undefined)
-
-      await permissionService.deletePermission(permissionId)
-
-      expect(mockFetch).toHaveBeenCalledWith(`/api/permissions/delete/${encodeURIComponent(permissionId)}`, {
-        method: 'DELETE',
-        headers: mockGetAuthHeaders()
+        body: JSON.stringify({ roleId, permissionIds })
       })
     })
   })

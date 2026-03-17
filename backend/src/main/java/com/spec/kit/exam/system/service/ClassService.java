@@ -60,4 +60,18 @@ public class ClassService {
     public List<Map<String, Object>> getGrades() {
         return classMapper.selectActiveGrades();
     }
+
+    public int getTotalCount() {
+        return classMapper.selectCount(null).intValue();
+    }
+
+    public int getActiveCount() {
+        return classMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<ClassEntity>()
+            .eq("status", "ACTIVE")).intValue();
+    }
+
+    public int getInactiveCount() {
+        return classMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<ClassEntity>()
+            .eq("status", "INACTIVE")).intValue();
+    }
 }

@@ -10,6 +10,8 @@ public class Role {
     @TableId(type = IdType.ASSIGN_UUID)
     private String id; // UUID (Primary Key, auto-generated)
     
+    private String code; // Role code (e.g., ADMIN, USER, TEACHER, STUDENT)
+    
     private String name; // String (Required, unique, 3-100 chars)
     
     private String description; // String (Optional, up to 500 chars)
@@ -27,6 +29,10 @@ public class Role {
     // Getters
     public String getId() {
         return id;
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public String getName() {
@@ -60,6 +66,10 @@ public class Role {
     // Setters
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public void setName(String name) {
